@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infographic Báo cáo Dinh dưỡng 3 Tháng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.3.2/papaparse.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 350px;
+            max-height: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 400px; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#0075FF] mb-2">Báo cáo Dinh dưỡng 3 Tháng</h1>
+            <p class="text-lg text-slate-600">Phân tích trực quan hành trình dinh dưỡng của bạn.</p>
+        </header>
+
+        <section id="status-section" class="text-center mb-12">
+            <div class="max-w-xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-slate-200">
+                <p id="status-message" class="text-lg text-slate-600">Đang tải và phân tích dữ liệu...</p>
+            </div>
+        </section>
+
+        <div id="report-content" class="hidden">
+            <section id="kpis" class="mb-12">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold">Tổng quan Nhanh</h2>
+                    <p class="text-slate-500">So sánh chỉ số trung bình của bạn với mục tiêu hàng ngày.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 text-center">
+                        <h3 class="font-semibold text-slate-500">Calo Trung bình/Ngày</h3>
+                        <p id="avg-calories" class="text-4xl font-bold text-[#00A2FF] my-2">1696</p>
+                        <p class="text-sm font-semibold text-red-500" id="calories-diff">+96 kcal vs. Mục tiêu 1600</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 text-center">
+                        <h3 class="font-semibold text-slate-500">Tỷ lệ Carbohydrate</h3>
+                        <p id="avg-carbs" class="text-4xl font-bold text-[#00C2F2] my-2">46.1%</p>
+                        <p class="text-sm text-slate-500">Mục tiêu: 45%</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 text-center">
+                        <h3 class="font-semibold text-slate-500">Tỷ lệ Chất béo</h3>
+                        <p id="avg-fat" class="text-4xl font-bold text-[#00E0D2] my-2">33.7%</p>
+                        <p class="text-sm text-slate-500">Mục tiêu: 35%</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 text-center">
+                        <h3 class="font-semibold text-slate-500">Tỷ lệ Protein</h3>
+                        <p id="avg-protein" class="text-4xl font-bold text-[#00F0B5] my-2">20.2%</p>
+                        <p class="text-sm text-slate-500">Mục tiêu: 20%</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="trends" class="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-slate-200 mb-12">
+                <h2 class="text-3xl font-bold text-center mb-2">Xu hướng Năng lượng Hàng ngày</h2>
+                <p class="text-center text-slate-500 mb-6 max-w-3xl mx-auto">Biểu đồ này theo dõi lượng calo bạn nạp vào mỗi ngày. Sự dao động là bình thường, nhưng việc nhận biết các đỉnh và đáy có thể giúp bạn hiểu rõ hơn về thói quen ăn uống của mình.</p>
+                <div class="chart-container">
+                    <canvas id="calories-chart"></canvas>
+                </div>
+            </section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-12">
+                <section id="macros" class="lg:col-span-3 bg-white p-6 md:p-8 rounded-xl shadow-lg border border-slate-200">
+                    <h2 class="text-3xl font-bold text-center mb-2">Phân bổ Dinh dưỡng Đa lượng</h2>
+                    <p class="text-center text-slate-500 mb-6">Bạn đã cân bằng các chất dinh dưỡng đa lượng (Carb, Fat, Protein) tốt như thế nào? Biểu đồ này cho thấy sự phân bổ trung bình của bạn rất gần với tỷ lệ mục tiêu, đây là một thành tích tuyệt vời.</p>
+                    <div class="chart-container" style="height: 420px;">
+                        <canvas id="macros-chart"></canvas>
+                    </div>
+                </section>
+
+                <section id="recommendations" class="lg:col-span-2 bg-white p-6 md:p-8 rounded-xl shadow-lg border border-slate-200">
+                    <h2 class="text-3xl font-bold text-center mb-6">Kế hoạch Hành động</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-10 h-10 bg-[#00A2FF] text-white text-xl font-bold rounded-full flex items-center justify-center mr-4">1</div>
+                            <div>
+                                <h3 class="font-bold text-lg">Kiểm soát khẩu phần</h3>
+                                <p class="text-slate-600">Giảm nhẹ khẩu phần ăn hoặc một bữa ăn nhẹ để điều chỉnh ~96 kcal chênh lệch mỗi ngày.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-10 h-10 bg-[#00C2F2] text-white text-xl font-bold rounded-full flex items-center justify-center mr-4">2</div>
+                            <div>
+                                <h3 class="font-bold text-lg">Lựa chọn Thông minh</h3>
+                                <p class="text-slate-600">Ưu tiên thực phẩm giàu dinh dưỡng nhưng ít calo như rau xanh, thịt nạc.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-10 h-10 bg-[#00E0D2] text-white text-xl font-bold rounded-full flex items-center justify-center mr-4">3</div>
+                            <div>
+                                <h3 class="font-bold text-lg">Duy trì Ổn định</h3>
+                                <p class="text-slate-600">Cố gắng giữ lượng calo gần mức mục tiêu 1600 kcal để có nguồn năng lượng ổn định.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-10 h-10 bg-[#00F0B5] text-white text-xl font-bold rounded-full flex items-center justify-center mr-4">4</div>
+                            <div>
+                                <h3 class="font-bold text-lg">Bổ sung Chất béo Tốt</h3>
+                                <p class="text-slate-600">Bổ sung các nguồn chất béo lành mạnh như bơ, các loại hạt, dầu ô liu để đạt mục tiêu 35%.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <footer class="text-center text-slate-500 text-sm pt-8">
+            <p>Báo cáo được tạo tự động dựa trên dữ liệu bạn cung cấp.</p>
+        </footer>
+
+    </div>
+
+    <script>
+    window.addEventListener('load', function() {
+        const CSV_URL = './3monthdata.csv';
+
+        const TARGET_CALORIES = 1600;
+        const TARGET_DISTRIBUTION = { Carbs: 45, Fat: 35, Protein: 20 };
+        const PALETTE = {
+            blue1: '#0075FF',
+            blue2: '#00A2FF',
+            cyan1: '#00C2F2',
+            cyan2: '#00E0D2',
+            green: '#00F0B5',
+            red: '#FF4136',
+            slate: '#64748b'
+        };
+
+        const statusSection = document.getElementById('status-section');
+        const statusMessage = document.getElementById('status-message');
+        const reportContent = document.getElementById('report-content');
+
+        let caloriesChart = null;
+        let macrosChart = null;
+
+        async function fetchDataAndRender() {
+            try {
+                const response = await fetch(CSV_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const csvText = await response.text();
+
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    dynamicTyping: false,
+                    complete: function(results) {
+                        try {
+                            processAndVisualize(results.data);
+                            statusSection.classList.add('hidden');
+                            reportContent.classList.remove('hidden');
+                        } catch(e) {
+                             console.error("Lỗi xử lý dữ liệu:", e);
+                             statusMessage.textContent = 'Lỗi xử lý dữ liệu. Vui lòng kiểm tra định dạng cột trong tệp CSV.';
+                             statusMessage.classList.add('text-red-500');
+                        }
+                    },
+                    error: function(error) {
+                        console.error("Lỗi khi phân tích tệp CSV:", error);
+                        statusMessage.textContent = 'Không thể phân tích cú pháp tệp CSV. Vui lòng kiểm tra lại tệp.';
+                        statusMessage.classList.add('text-red-500');
+                    }
+                });
+
+            } catch (error) {
+                console.error('Không thể tải hoặc phân tích tệp dữ liệu:', error);
+                statusMessage.textContent = `Không thể tải tệp dữ liệu từ '${CSV_URL}'. Vui lòng kiểm tra lại đường dẫn và đảm bảo tệp có thể truy cập được.`;
+                statusMessage.classList.add('text-red-500');
+            }
+        }
+
+        function processAndVisualize(data) {
+            const processedData = data.map(row => {
+                const dateStr = row.DateTime;
+                if (!dateStr) return null;
+                const parts = dateStr.split('/');
+                if (parts.length !== 3) return null;
+
+                const date = new Date(parts[2], parts[1] - 1, parts[0]);
+
+                const fat_kcal = parseFloat(row['Fat (kcal)']) || 0;
+                const carbs_kcal = parseFloat(row['Carbs (kcal)']) || 0;
+                const protein_kcal = parseFloat(row['Protein (kcal)']) || 0;
+                const total_kcal = fat_kcal + carbs_kcal + protein_kcal;
+
+                return { date, fat_kcal, carbs_kcal, protein_kcal, total_kcal };
+            }).filter(d => d && !isNaN(d.date.getTime()) && d.total_kcal > 0)
+              .sort((a, b) => a.date - b.date);
+
+            if (processedData.length === 0) {
+                 throw new Error('Không có dữ liệu hợp lệ nào được tìm thấy trong tệp.');
+            }
+
+            const totalDays = processedData.length;
+            const totalSum = processedData.reduce((acc, curr) => {
+                acc.total_kcal += curr.total_kcal;
+                acc.fat_kcal += curr.fat_kcal;
+                acc.carbs_kcal += curr.carbs_kcal;
+                acc.protein_kcal += curr.protein_kcal;
+                return acc;
+            }, { total_kcal: 0, fat_kcal: 0, carbs_kcal: 0, protein_kcal: 0 });
+
+            const avg_total_kcal = totalSum.total_kcal / totalDays;
+            const avg_fat_kcal = totalSum.fat_kcal / totalDays;
+            const avg_carbs_kcal = totalSum.carbs_kcal / totalDays;
+            const avg_protein_kcal = totalSum.protein_kcal / totalDays;
+
+            const avg_macros_distribution = {
+                Fat: (avg_fat_kcal / avg_total_kcal) * 100,
+                Carbs: (avg_carbs_kcal / avg_total_kcal) * 100,
+                Protein: (avg_protein_kcal / avg_total_kcal) * 100
+            };
+
+            updateDOM(avg_total_kcal, avg_macros_distribution);
+            createCaloriesChart(processedData);
+            createMacrosChart(avg_macros_distribution);
+        }
+
+        function updateDOM(avgCalories, avgMacros) {
+            document.getElementById('avg-calories').textContent = avgCalories.toFixed(0);
+            const diff = avgCalories - TARGET_CALORIES;
+            const diffText = diff > 0 ? `+${diff.toFixed(0)}` : diff.toFixed(0);
+            document.getElementById('calories-diff').textContent = `${diffText} kcal vs. Mục tiêu ${TARGET_CALORIES}`;
+            document.getElementById('calories-diff').className = `text-sm font-semibold ${diff > 0 ? 'text-red-500' : 'text-green-500'}`;
+
+            document.getElementById('avg-carbs').textContent = `${avgMacros.Carbs.toFixed(1)}%`;
+            document.getElementById('avg-fat').textContent = `${avgMacros.Fat.toFixed(1)}%`;
+            document.getElementById('avg-protein').textContent = `${avgMacros.Protein.toFixed(1)}%`;
+        }
+
+        function createCaloriesChart(data) {
+            const ctx = document.getElementById('calories-chart').getContext('2d');
+            if (caloriesChart) {
+                caloriesChart.destroy();
+            }
+            caloriesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.date.toLocaleDateString('vi-VN', { month: 'short', day: 'numeric' })),
+                    datasets: [{
+                        label: 'Calo Thực tế',
+                        data: data.map(d => d.total_kcal),
+                        borderColor: PALETTE.blue2,
+                        backgroundColor: 'rgba(0, 162, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 1,
+                        pointHoverRadius: 5
+                    }, {
+                        label: 'Mục tiêu Calo',
+                        data: Array(data.length).fill(TARGET_CALORIES),
+                        borderColor: PALETTE.red,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: false, title: { display: true, text: 'Kcal' } } },
+                    plugins: { tooltip: { callbacks: { title: (items) => items[0].label } } }
+                }
+            });
+        }
+
+        function createMacrosChart(avgMacros) {
+            const ctx = document.getElementById('macros-chart').getContext('2d');
+            if (macrosChart) {
+                macrosChart.destroy();
+            }
+            macrosChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Carbohydrate', 'Chất béo', 'Protein'],
+                    datasets: [{
+                        label: 'Thực tế',
+                        data: [avgMacros.Carbs, avgMacros.Fat, avgMacros.Protein],
+                        backgroundColor: [PALETTE.cyan1, PALETTE.cyan2, PALETTE.green],
+                        borderRadius: 6
+                    }, {
+                        label: 'Mục tiêu',
+                        data: [TARGET_DISTRIBUTION.Carbs, TARGET_DISTRIBUTION.Fat, TARGET_DISTRIBUTION.Protein],
+                        backgroundColor: 'rgba(100, 116, 139, 0.2)',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { title: { display: true, text: 'Tỷ lệ (%)' } } },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => items[0].label,
+                                label: (context) => `${context.dataset.label}: ${context.parsed.y.toFixed(1)}%`
+                            }
+                        },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        fetchDataAndRender();
+    });
+    </script>
+</body>
+</html>
