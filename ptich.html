@@ -6,7 +6,6 @@
     <title>Infographic Báo cáo Dinh dưỡng 3 Tháng</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.3.2/papaparse.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -33,13 +32,7 @@
             <p class="text-lg text-slate-600">Phân tích trực quan hành trình dinh dưỡng của bạn.</p>
         </header>
 
-        <section id="status-section" class="text-center mb-12">
-            <div class="max-w-xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-slate-200">
-                <p id="status-message" class="text-lg text-slate-600">Đang tải và phân tích dữ liệu...</p>
-            </div>
-        </section>
-
-        <div id="report-content" class="hidden">
+        <div id="report-content">
             <section id="kpis" class="mb-12">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-bold">Tổng quan Nhanh</h2>
@@ -48,22 +41,22 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 text-center">
                         <h3 class="font-semibold text-slate-500">Calo Trung bình/Ngày</h3>
-                        <p id="avg-calories" class="text-4xl font-bold text-[#00A2FF] my-2">1696</p>
-                        <p class="text-sm font-semibold text-red-500" id="calories-diff">+96 kcal vs. Mục tiêu 1600</p>
+                        <p id="avg-calories" class="text-4xl font-bold text-[#00A2FF] my-2">0</p>
+                        <p class="text-sm font-semibold text-red-500" id="calories-diff"></p>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 text-center">
                         <h3 class="font-semibold text-slate-500">Tỷ lệ Carbohydrate</h3>
-                        <p id="avg-carbs" class="text-4xl font-bold text-[#00C2F2] my-2">46.1%</p>
+                        <p id="avg-carbs" class="text-4xl font-bold text-[#00C2F2] my-2">0%</p>
                         <p class="text-sm text-slate-500">Mục tiêu: 45%</p>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 text-center">
                         <h3 class="font-semibold text-slate-500">Tỷ lệ Chất béo</h3>
-                        <p id="avg-fat" class="text-4xl font-bold text-[#00E0D2] my-2">33.7%</p>
+                        <p id="avg-fat" class="text-4xl font-bold text-[#00E0D2] my-2">0%</p>
                         <p class="text-sm text-slate-500">Mục tiêu: 35%</p>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 text-center">
                         <h3 class="font-semibold text-slate-500">Tỷ lệ Protein</h3>
-                        <p id="avg-protein" class="text-4xl font-bold text-[#00F0B5] my-2">20.2%</p>
+                        <p id="avg-protein" class="text-4xl font-bold text-[#00F0B5] my-2">0%</p>
                         <p class="text-sm text-slate-500">Mục tiêu: 20%</p>
                     </div>
                 </div>
@@ -93,7 +86,7 @@
                             <div class="flex-shrink-0 w-10 h-10 bg-[#00A2FF] text-white text-xl font-bold rounded-full flex items-center justify-center mr-4">1</div>
                             <div>
                                 <h3 class="font-bold text-lg">Kiểm soát khẩu phần</h3>
-                                <p class="text-slate-600">Giảm nhẹ khẩu phần ăn hoặc một bữa ăn nhẹ để điều chỉnh ~96 kcal chênh lệch mỗi ngày.</p>
+                                <p class="text-slate-600">Giảm nhẹ khẩu phần ăn hoặc một bữa ăn nhẹ để điều chỉnh lượng calo chênh lệch mỗi ngày.</p>
                             </div>
                         </div>
                         <div class="flex items-start">
@@ -130,64 +123,79 @@
 
     <script>
     window.addEventListener('load', function() {
-        const CSV_URL = '3monthdata.csv';
+        // Data is now embedded directly in the script to avoid fetch errors.
+        const embeddedData = [
+            {"DateTime":"23/06/2025","Fat (kcal)":"548.82","Carbs (kcal)":"575.62","Protein (kcal)":"177.87"},
+            {"DateTime":"25/06/2025","Fat (kcal)":"343.07","Carbs (kcal)":"708.05","Protein (kcal)":"214.90"},
+            {"DateTime":"26/06/2025","Fat (kcal)":"267.60","Carbs (kcal)":"557.69","Protein (kcal)":"182.36"},
+            {"DateTime":"27/06/2025","Fat (kcal)":"517.73","Carbs (kcal)":"727.52","Protein (kcal)":"310.06"},
+            {"DateTime":"28/06/2025","Fat (kcal)":"493.90","Carbs (kcal)":"702.66","Protein (kcal)":"284.49"},
+            {"DateTime":"29/06/2025","Fat (kcal)":"507.69","Carbs (kcal)":"727.44","Protein (kcal)":"291.80"},
+            {"DateTime":"30/06/2025","Fat (kcal)":"500.17","Carbs (kcal)":"778.16","Protein (kcal)":"273.85"},
+            {"DateTime":"01/07/2025","Fat (kcal)":"450.60","Carbs (kcal)":"828.91","Protein (kcal)":"264.18"},
+            {"DateTime":"02/07/2025","Fat (kcal)":"546.78","Carbs (kcal)":"808.16","Protein (kcal)":"292.83"},
+            {"DateTime":"03/07/2025","Fat (kcal)":"535.75","Carbs (kcal)":"759.23","Protein (kcal)":"287.47"},
+            {"DateTime":"04/07/2025","Fat (kcal)":"680.75","Carbs (kcal)":"773.57","Protein (kcal)":"296.79"},
+            {"DateTime":"05/07/2025","Fat (kcal)":"579.59","Carbs (kcal)":"886.85","Protein (kcal)":"302.50"},
+            {"DateTime":"06/07/2025","Fat (kcal)":"545.45","Carbs (kcal)":"749.78","Protein (kcal)":"281.39"},
+            {"DateTime":"07/07/2025","Fat (kcal)":"570.62","Carbs (kcal)":"803.18","Protein (kcal)":"279.79"},
+            {"DateTime":"08/07/2025","Fat (kcal)":"594.39","Carbs (kcal)":"778.96","Protein (kcal)":"290.43"},
+            {"DateTime":"09/07/2025","Fat (kcal)":"603.54","Carbs (kcal)":"840.48","Protein (kcal)":"327.94"},
+            {"DateTime":"10/07/2025","Fat (kcal)":"561.02","Carbs (kcal)":"803.11","Protein (kcal)":"279.41"},
+            {"DateTime":"11/07/2025","Fat (kcal)":"576.27","Carbs (kcal)":"826.54","Protein (kcal)":"286.96"},
+            {"DateTime":"12/07/2025","Fat (kcal)":"629.62","Carbs (kcal)":"871.18","Protein (kcal)":"306.40"},
+            {"DateTime":"13/07/2025","Fat (kcal)":"567.89","Carbs (kcal)":"788.08","Protein (kcal)":"295.53"},
+            {"DateTime":"14/07/2025","Fat (kcal)":"634.33","Carbs (kcal)":"826.98","Protein (kcal)":"311.97"},
+            {"DateTime":"15/07/2025","Fat (kcal)":"578.41","Carbs (kcal)":"843.08","Protein (kcal)":"286.29"},
+            {"DateTime":"16/07/2025","Fat (kcal)":"582.49","Carbs (kcal)":"793.84","Protein (kcal)":"286.38"},
+            {"DateTime":"17/07/2025","Fat (kcal)":"539.86","Carbs (kcal)":"772.58","Protein (kcal)":"270.79"},
+            {"DateTime":"18/07/2025","Fat (kcal)":"579.52","Carbs (kcal)":"799.30","Protein (kcal)":"290.72"},
+            {"DateTime":"19/07/2025","Fat (kcal)":"576.71","Carbs (kcal)":"782.16","Protein (kcal)":"285.49"},
+            {"DateTime":"20/07/2025","Fat (kcal)":"616.68","Carbs (kcal)":"805.51","Protein (kcal)":"310.45"},
+            {"DateTime":"21/07/2025","Fat (kcal)":"601.78","Carbs (kcal)":"819.34","Protein (kcal)":"282.72"},
+            {"DateTime":"22/07/2025","Fat (kcal)":"558.05","Carbs (kcal)":"835.61","Protein (kcal)":"274.63"},
+            {"DateTime":"23/07/2025","Fat (kcal)":"615.15","Carbs (kcal)":"860.03","Protein (kcal)":"301.29"},
+            {"DateTime":"24/07/2025","Fat (kcal)":"559.81","Carbs (kcal)":"789.70","Protein (kcal)":"273.66"},
+            {"DateTime":"25/07/2025","Fat (kcal)":"581.67","Carbs (kcal)":"877.94","Protein (kcal)":"296.69"},
+            {"DateTime":"26/07/2025","Fat (kcal)":"588.19","Carbs (kcal)":"808.97","Protein (kcal)":"308.21"},
+            {"DateTime":"27/07/2025","Fat (kcal)":"602.81","Carbs (kcal)":"842.06","Protein (kcal)":"301.99"},
+            {"DateTime":"28/07/2025","Fat (kcal)":"566.08","Carbs (kcal)":"797.71","Protein (kcal)":"281.76"},
+            {"DateTime":"29/07/2025","Fat (kcal)":"583.56","Carbs (kcal)":"837.98","Protein (kcal)":"311.23"},
+            {"DateTime":"30/07/2025","Fat (kcal)":"582.47","Carbs (kcal)":"816.09","Protein (kcal)":"281.01"},
+            {"DateTime":"31/07/2025","Fat (kcal)":"553.48","Carbs (kcal)":"804.75","Protein (kcal)":"273.91"},
+            {"DateTime":"01/08/2025","Fat (kcal)":"601.12","Carbs (kcal)":"776.43","Protein (kcal)":"302.26"},
+            {"DateTime":"02/08/2025","Fat (kcal)":"550.94","Carbs (kcal)":"821.57","Protein (kcal)":"275.29"},
+            {"DateTime":"03/08/2025","Fat (kcal)":"559.35","Carbs (kcal)":"826.91","Protein (kcal)":"288.63"},
+            {"DateTime":"04/08/2025","Fat (kcal)":"579.80","Carbs (kcal)":"800.28","Protein (kcal)":"292.83"},
+            {"DateTime":"05/08/2025","Fat (kcal)":"594.13","Carbs (kcal)":"863.10","Protein (kcal)":"312.20"},
+            {"DateTime":"06/08/2025","Fat (kcal)":"577.81","Carbs (kcal)":"929.66","Protein (kcal)":"277.18"},
+            {"DateTime":"07/08/2025","Fat (kcal)":"712.59","Carbs (kcal)":"803.84","Protein (kcal)":"324.01"},
+            {"DateTime":"08/08/2025","Fat (kcal)":"537.05","Carbs (kcal)":"871.66","Protein (kcal)":"268.84"},
+            {"DateTime":"09/08/2025","Fat (kcal)":"627.42","Carbs (kcal)":"808.18","Protein (kcal)":"314.75"},
+            {"DateTime":"10/08/2025","Fat (kcal)":"532.85","Carbs (kcal)":"834.82","Protein (kcal)":"276.86"},
+            {"DateTime":"11/08/2025","Fat (kcal)":"569.34","Carbs (kcal)":"932.09","Protein (kcal)":"312.59"},
+            {"DateTime":"12/08/2025","Fat (kcal)":"549.15","Carbs (kcal)":"781.09","Protein (kcal)":"324.49"},
+            {"DateTime":"13/08/2025","Fat (kcal)":"676.27","Carbs (kcal)":"829.33","Protein (kcal)":"291.31"},
+            {"DateTime":"14/08/2025","Fat (kcal)":"579.29","Carbs (kcal)":"811.64","Protein (kcal)":"285.87"},
+            {"DateTime":"15/08/2025","Fat (kcal)":"654.42","Carbs (kcal)":"926.53","Protein (kcal)":"370.74"},
+            {"DateTime":"16/08/2025","Fat (kcal)":"561.82","Carbs (kcal)":"849.29","Protein (kcal)":"273.69"},
+            {"DateTime":"17/08/2025","Fat (kcal)":"590.22","Carbs (kcal)":"814.77","Protein (kcal)":"290.79"},
+            {"DateTime":"18/08/2025","Fat (kcal)":"567.88","Carbs (kcal)":"816.14","Protein (kcal)":"292.05"},
+            {"DateTime":"19/08/2025","Fat (kcal)":"597.55","Carbs (kcal)":"792.83","Protein (kcal)":"313.25"},
+            {"DateTime":"20/08/2025","Fat (kcal)":"591.90","Carbs (kcal)":"856.24","Protein (kcal)":"294.02"},
+            {"DateTime":"21/08/2025","Fat (kcal)":"642.10","Carbs (kcal)":"847.01","Protein (kcal)":"313.37"}
+        ];
 
         const TARGET_CALORIES = 1600;
         const TARGET_DISTRIBUTION = { Carbs: 45, Fat: 35, Protein: 20 };
         const PALETTE = {
-            blue1: '#0075FF',
-            blue2: '#00A2FF',
-            cyan1: '#00C2F2',
-            cyan2: '#00E0D2',
-            green: '#00F0B5',
-            red: '#FF4136',
-            slate: '#64748b'
+            blue1: '#0075FF', blue2: '#00A2FF', cyan1: '#00C2F2',
+            cyan2: '#00E0D2', green: '#00F0B5', red: '#FF4136', slate: '#64748b'
         };
-
-        const statusSection = document.getElementById('status-section');
-        const statusMessage = document.getElementById('status-message');
-        const reportContent = document.getElementById('report-content');
-
+        
         let caloriesChart = null;
         let macrosChart = null;
-
-        async function fetchDataAndRender() {
-            try {
-                const response = await fetch(CSV_URL);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const csvText = await response.text();
-
-                Papa.parse(csvText, {
-                    header: true,
-                    skipEmptyLines: true,
-                    dynamicTyping: false,
-                    complete: function(results) {
-                        try {
-                            processAndVisualize(results.data);
-                            statusSection.classList.add('hidden');
-                            reportContent.classList.remove('hidden');
-                        } catch(e) {
-                             console.error("Lỗi xử lý dữ liệu:", e);
-                             statusMessage.textContent = 'Lỗi xử lý dữ liệu. Vui lòng kiểm tra định dạng cột trong tệp CSV.';
-                             statusMessage.classList.add('text-red-500');
-                        }
-                    },
-                    error: function(error) {
-                        console.error("Lỗi khi phân tích tệp CSV:", error);
-                        statusMessage.textContent = 'Không thể phân tích cú pháp tệp CSV. Vui lòng kiểm tra lại tệp.';
-                        statusMessage.classList.add('text-red-500');
-                    }
-                });
-
-            } catch (error) {
-                console.error('Không thể tải hoặc phân tích tệp dữ liệu:', error);
-                statusMessage.textContent = `Không thể tải tệp dữ liệu từ '${CSV_URL}'. Vui lòng kiểm tra lại đường dẫn và đảm bảo tệp có thể truy cập được.`;
-                statusMessage.classList.add('text-red-500');
-            }
-        }
-
+        
         function processAndVisualize(data) {
             const processedData = data.map(row => {
                 const dateStr = row.DateTime;
@@ -196,18 +204,18 @@
                 if (parts.length !== 3) return null;
 
                 const date = new Date(parts[2], parts[1] - 1, parts[0]);
-
+                
                 const fat_kcal = parseFloat(row['Fat (kcal)']) || 0;
                 const carbs_kcal = parseFloat(row['Carbs (kcal)']) || 0;
                 const protein_kcal = parseFloat(row['Protein (kcal)']) || 0;
                 const total_kcal = fat_kcal + carbs_kcal + protein_kcal;
-
+                
                 return { date, fat_kcal, carbs_kcal, protein_kcal, total_kcal };
             }).filter(d => d && !isNaN(d.date.getTime()) && d.total_kcal > 0)
               .sort((a, b) => a.date - b.date);
-
+            
             if (processedData.length === 0) {
-                 throw new Error('Không có dữ liệu hợp lệ nào được tìm thấy trong tệp.');
+                 throw new Error('Không có dữ liệu hợp lệ nào được tìm thấy.');
             }
 
             const totalDays = processedData.length;
@@ -229,12 +237,12 @@
                 Carbs: (avg_carbs_kcal / avg_total_kcal) * 100,
                 Protein: (avg_protein_kcal / avg_total_kcal) * 100
             };
-
+            
             updateDOM(avg_total_kcal, avg_macros_distribution);
             createCaloriesChart(processedData);
             createMacrosChart(avg_macros_distribution);
         }
-
+        
         function updateDOM(avgCalories, avgMacros) {
             document.getElementById('avg-calories').textContent = avgCalories.toFixed(0);
             const diff = avgCalories - TARGET_CALORIES;
@@ -246,7 +254,7 @@
             document.getElementById('avg-fat').textContent = `${avgMacros.Fat.toFixed(1)}%`;
             document.getElementById('avg-protein').textContent = `${avgMacros.Protein.toFixed(1)}%`;
         }
-
+        
         function createCaloriesChart(data) {
             const ctx = document.getElementById('calories-chart').getContext('2d');
             if (caloriesChart) {
@@ -282,7 +290,7 @@
                 }
             });
         }
-
+        
         function createMacrosChart(avgMacros) {
             const ctx = document.getElementById('macros-chart').getContext('2d');
             if (macrosChart) {
@@ -308,9 +316,9 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: { y: { title: { display: true, text: 'Tỷ lệ (%)' } } },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
+                    plugins: { 
+                        tooltip: { 
+                            callbacks: { 
                                 title: (items) => items[0].label,
                                 label: (context) => `${context.dataset.label}: ${context.parsed.y.toFixed(1)}%`
                             }
@@ -321,7 +329,16 @@
             });
         }
 
-        fetchDataAndRender();
+        try {
+            processAndVisualize(embeddedData);
+        } catch(e) {
+            console.error("Lỗi khi xử lý dữ liệu được nhúng:", e);
+            const reportDiv = document.getElementById('report-content');
+            reportDiv.innerHTML = `<div class="text-center text-red-500 bg-white p-8 rounded-xl shadow-lg border border-red-200">
+                <h2 class="text-2xl font-bold mb-4">Đã xảy ra lỗi</h2>
+                <p>Không thể xử lý dữ liệu được nhúng. Vui lòng kiểm tra console để biết thêm chi tiết.</p>
+            </div>`;
+        }
     });
     </script>
 </body>
