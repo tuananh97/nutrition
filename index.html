@@ -77,6 +77,34 @@
             <p class="text-lg md:text-xl mt-2 text-[#005BC5]">Dành cho Bệnh nhân Loạn dưỡng cơ Duchenne</p>
         </header>
 
+
+        <!-- Thanh điều hướng chọn tháng báo cáo -->
+        <nav class="bg-white rounded-lg shadow-md mb-8 p-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <h2 class="text-xl font-semibold text-[#00449E] mb-4 md:mb-0">Báo cáo Dinh dưỡng Theo Tháng</h2>
+                <div class="flex items-center space-x-2">
+                    <label for="month-select" class="text-gray-700">Chọn tháng:</label>
+                    <select id="month-select" class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#0072F0]">
+                        <option value="01/2025">01/2025</option>
+                        <option value="02/2025">02/2025</option>
+                        <option value="03/2025">03/2025</option>
+                        <option value="04/2025">04/2025</option>
+                        <option value="05/2025">05/2025</option>
+                        <option value="06/2025">06/2025</option>
+                        <option value="07/2025">07/2025</option>
+                        <option value="08/2025">08/2025</option>
+                        <option value="09/2025" selected>09/2025</option>
+                        <option value="10/2025">10/2025</option>
+                        <option value="11/2025">11/2025</option>
+                        <option value="12/2025">12/2025</option>
+                    </select>
+                    <button id="view-report-btn" class="bg-[#0072F0] text-white px-4 py-2 rounded-md hover:bg-[#005BC5] transition-colors">
+                        Xem báo cáo
+                    </button>
+                </div>
+            </div>
+        </nav>
+
         <main>
             <section id="goals" class="mb-12">
                 <h2 class="text-3xl font-bold text-center mb-8 text-[#00449E]">Mục tiêu Dinh dưỡng Trọng tâm</h2>
@@ -250,6 +278,14 @@
     </div>
 
     <script>
+        // Xử lý sự kiện khi nhấn nút "Xem báo cáo"
+        document.getElementById('view-report-btn').addEventListener('click', function() {
+            const selectedMonth = document.getElementById('month-select').value;
+            const month = selectedMonth.split('/')[0];
+            const year = selectedMonth.split('/')[1];
+            window.location.href = `./reports/report_${month}${year}.html`;
+        });
+
         const tooltipTitleCallback = {
             plugins: {
                 tooltip: {
@@ -328,6 +364,7 @@
                 ...tooltipTitleCallback
             }
         });
+
     </script>
 </body>
 </html>
