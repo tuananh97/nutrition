@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Phân Tích Dinh Dưỡng</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* General Styling */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f9fafb;
+            color: #374151;
+            margin: 0;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1152px;
+            margin: 0 auto;
+        }
+
+        .report-wrapper {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 32px;
+        }
+
+        /* Header */
+        .report-header {
+            margin-bottom: 32px;
+        }
+
+        .main-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin: 0 0 8px 0;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #4b5563;
+            margin: 0;
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+
+        /* Grids */
+        .grid-4-cols {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 16px;
+        }
+
+        .grid-2-cols {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .grid-4-cols {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .grid-2-cols {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .grid-4-cols {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+
+        /* Comparison Cards */
+        .comparison-card {
+            padding: 16px;
+            border-radius: 8px;
+            border-width: 1px;
+        }
+        .comparison-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .comparison-card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .comparison-card-percentage {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .comparison-card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .comparison-card-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+        }
+        .font-medium {
+            font-weight: 500;
+        }
+        .status-good {
+            color: #059669; background-color: #f0fdf4; border-color: #a7f3d0;
+        }
+        .status-under {
+            color: #d97706; background-color: #fffbeb; border-color: #fde68a;
+        }
+        .status-over {
+            color: #dc2626; background-color: #fef2f2; border-color: #fecaca;
+        }
+        .diff-good { color: #059669; }
+        .diff-under { color: #d97706; }
+        .diff-over { color: #dc2626; }
+
+        /* Key Findings Cards */
+        .card {
+            padding: 24px;
+            border-radius: 8px;
+            border-width: 1px;
+        }
+        .positive-card { background-color: #eff6ff; border-color: #bfdbfe; }
+        .improvement-card { background-color: #fffbeb; border-color: #fde68a; }
+        .card-title-positive { color: #1e40af; font-size: 1.125rem; font-weight: 600; margin-bottom: 12px; }
+        .card-title-improvement { color: #b45309; font-size: 1.125rem; font-weight: 600; margin-bottom: 12px; }
+        .list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .positive-card .list { color: #1d4ed8; }
+        .improvement-card .list { color: #92400e; }
+
+
+        /* Charts */
+        .chart-container {
+            background-color: white;
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 24px;
+        }
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        /* Detailed Analysis */
+        .detail-group { display: flex; flex-direction: column; gap: 16px; }
+        .detail-title { font-size: 1.125rem; font-weight: 600; }
+        .detail-card-red { background-color: #fef2f2; border: 1px solid #fecaca; padding: 16px; border-radius: 8px; }
+        .detail-card-green { background-color: #f0fdf4; border: 1px solid #a7f3d0; padding: 16px; border-radius: 8px; }
+        .detail-card-red .card-subtitle { color: #991b1b; font-weight: 500; margin-bottom: 8px; }
+        .detail-card-green .card-subtitle { color: #166534; font-weight: 500; margin-bottom: 8px; }
+        .detail-card-red .text-main { color: #b91c1c; }
+        .detail-card-green .text-main { color: #15803d; }
+        .detail-card-red .text-sub { color: #991b1b; font-size: 0.875rem; margin-top: 4px; }
+        .detail-card-green .text-sub { color: #166534; font-size: 0.875rem; margin-top: 4px; }
+        .detail-card-red p, .detail-card-green p { margin: 0; }
+        .progress-bar-container { background-color: #f3f4f6; padding: 12px; border-radius: 8px; }
+        .progress-bar-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .progress-bar-label { font-size: 0.875rem; font-weight: 500; }
+        .progress-bar-value { font-size: 0.875rem; }
+        .progress-bar-bg { width: 100%; background-color: #e5e7eb; border-radius: 9999px; height: 8px; }
+        .progress-bar-fill { height: 8px; border-radius: 9999px; }
+
+        /* Recommendations */
+        .recommendation-card {
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid #bfdbfe;
+            background: linear-gradient(to right, #eff6ff, #eef2ff);
+        }
+        .recommendation-title { font-size: 1.125rem; font-weight: 600; color: #1e40af; margin-bottom: 16px; }
+        .recommendation-subtitle { font-weight: 500; color: #1d4ed8; margin-bottom: 8px; }
+        .recommendation-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 0.875rem;
+            color: #2563eb;
+        }
+
+        /* Footer */
+        .report-footer {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .report-footer p { margin: 0; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="report-wrapper">
+            <header class="report-header">
+                <h1 class="main-title">Báo Cáo Phân Tích Dinh Dưỡng</h1>
+                <p class="subtitle">Bệnh nhân nam 28 tuổi - Ăn qua sond dạ dày PEG - Tháng 8/2025</p>
+            </header>
+
+            <section class="section">
+                <h2 class="section-title">Tóm Tắt Tổng Quan</h2>
+                <div class="grid-4-cols" id="summary-cards">
+                    </div>
+            </section>
+
+            <section class="section">
+                <h2 class="section-title">Kết Quả Chính</h2>
+                <div class="grid-2-cols">
+                    <div class="card positive-card">
+                        <h3 class="card-title-positive">Điểm Tích Cực</h3>
+                        <ul class="list" id="positive-points">
+                            </ul>
+                    </div>
+                    <div class="card improvement-card">
+                        <h3 class="card-title-improvement">Cần Cải Thiện</h3>
+                        <ul class="list" id="improvement-points">
+                             </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2 class="section-title">Biểu Đồ Phân Tích</h2>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Xu Hướng Calo Hàng Ngày</h3>
+                    <canvas id="dailyCalorieChart"></canvas>
+                </div>
+
+                <div class="grid-2-cols">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Phân Bố Dinh Dưỡng Trung Bình (%)</h3>
+                        <canvas id="macroPieChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="chart-title">So Sánh Với Mục Tiêu (%)</h3>
+                        <canvas id="targetRadarChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Phân Tích Theo Nhóm Dinh Dưỡng (kcal)</h3>
+                    <canvas id="macroBarChart"></canvas>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2 class="section-title">Phân Tích Chi Tiết</h2>
+                <div class="grid-2-cols">
+                    <div class="detail-group">
+                        <h3 class="detail-title">Ngày Có Biến Động Lớn</h3>
+                        <div id="lowest-calorie-day" class="detail-card-red">
+                            </div>
+                        <div id="highest-calorie-day" class="detail-card-green">
+                            </div>
+                    </div>
+                    <div class="detail-group">
+                        <h3 class="detail-title">Tỷ Lệ Dinh Dưỡng</h3>
+                        <div id="macro-progress-bars">
+                            </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2 class="section-title">Khuyến Nghị Điều Chỉnh</h2>
+                <div class="recommendation-card">
+                    <h3 class="recommendation-title">Chiến Lược Cải Thiện</h3>
+                    <div class="grid-2-cols">
+                        <div>
+                            <h4 class="recommendation-subtitle">Tăng Calo Tổng:</h4>
+                            <ul class="recommendation-list">
+                                <li>• Tăng khẩu phần sữa từ 230 kcal/bữa lên 280 kcal/bữa</li>
+                                <li>• Thêm 1 bữa ăn nhẹ bổ sung (150-200 kcal)</li>
+                                <li>• Tăng cường độ đậm đặc của súp xay</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="recommendation-subtitle">Cân Bằng Dinh Dưỡng:</h4>
+                            <ul class="recommendation-list" id="balance-recommendations">
+                                </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="report-footer">
+                <p>Báo cáo được tạo tự động dựa trên dữ liệu dinh dưỡng tháng 8/2025</p>
+                <p>Khuyến nghị cần được xem xét bởi chuyên gia dinh dưỡng</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Dữ liệu thô
+            const rawData = [
+                { date: '01/08/2025', fat: 634.32, carbs: 852.61, protein: 285.99 },
+                { date: '02/08/2025', fat: 599.50, carbs: 779.30, protein: 291.47 },
+                { date: '03/08/2025', fat: 816.15, carbs: 871.30, protein: 313.37 },
+                { date: '04/08/2025', fat: 587.99, carbs: 836.22, protein: 297.95 },
+                { date: '05/08/2025', fat: 734.96, carbs: 863.10, protein: 312.20 },
+                { date: '06/08/2025', fat: 577.81, carbs: 929.66, protein: 277.18 },
+                { date: '07/08/2025', fat: 712.59, carbs: 803.84, protein: 324.01 },
+                { date: '08/08/2025', fat: 537.05, carbs: 871.66, protein: 268.84 },
+                { date: '09/08/2025', fat: 627.42, carbs: 808.18, protein: 314.75 },
+                { date: '10/08/2025', fat: 532.85, carbs: 834.82, protein: 276.86 },
+                { date: '11/08/2025', fat: 569.34, carbs: 932.09, protein: 312.59 },
+                { date: '12/08/2025', fat: 549.15, carbs: 781.09, protein: 324.49 },
+                { date: '13/08/2025', fat: 676.27, carbs: 829.33, protein: 291.31 },
+                { date: '14/08/2025', fat: 579.29, carbs: 811.64, protein: 285.87 },
+                { date: '15/08/2025', fat: 654.42, carbs: 926.53, protein: 370.74 },
+                { date: '16/08/2025', fat: 561.82, carbs: 849.29, protein: 273.69 },
+                { date: '17/08/2025', fat: 515.03, carbs: 751.64, protein: 250.84 },
+                { date: '18/08/2025', fat: 657.90, carbs: 876.74, protein: 367.38 },
+                { date: '19/08/2025', fat: 676.71, carbs: 826.75, protein: 317.48 },
+                { date: '20/08/2025', fat: 529.71, carbs: 889.76, protein: 344.10 },
+                { date: '21/08/2025', fat: 698.54, carbs: 765.74, protein: 260.49 },
+                { date: '22/08/2025', fat: 587.44, carbs: 915.38, protein: 315.26 },
+                { date: '23/08/2025', fat: 631.61, carbs: 661.09, protein: 358.57 },
+                { date: '24/08/2025', fat: 603.28, carbs: 793.10, protein: 358.59 },
+                { date: '25/08/2025', fat: 568.30, carbs: 764.63, protein: 290.94 },
+                { date: '26/08/2025', fat: 660.75, carbs: 896.72, protein: 319.98 },
+                { date: '27/08/2025', fat: 558.44, carbs: 708.06, protein: 281.60 },
+                { date: '28/08/2025', fat: 528.21, carbs: 871.28, protein: 363.08 },
+                { date: '29/08/2025', fat: 598.74, carbs: 717.57, protein: 298.40 },
+                { date: '30/08/2025', fat: 658.13, carbs: 788.13, protein: 310.18 },
+                { date: '31/08/2025', fat: 526.77, carbs: 817.52, protein: 354.49 }
+            ];
+
+            // Giá trị mục tiêu
+            const targets = {
+                totalCalories: 1700,
+                fatCalories: 585,
+                carbsCalories: 760,
+                proteinCalories: 300,
+                fatGrams: 65,
+                carbsGrams: 190,
+                proteinGrams: 75,
+                fatPercentage: 35,
+                carbsPercentage: 45,
+                proteinPercentage: 20
+            };
+
+            // 1. Xử lý dữ liệu
+            const processedData = rawData.map((day, index) => {
+                const totalCalories = day.fat + day.carbs + day.protein;
+                return {
+                    ...day,
+                    dayNumber: index + 1,
+                    totalCalories,
+                    fatPercentage: (day.fat / totalCalories) * 100,
+                    carbsPercentage: (day.carbs / totalCalories) * 100,
+                    proteinPercentage: (day.protein / totalCalories) * 100,
+                    fatGrams: day.fat / 9,
+                    carbsGrams: day.carbs / 4,
+                    proteinGrams: day.protein / 4
+                };
+            });
+
+            // 2. Tính toán thống kê trung bình
+            const totalDays = processedData.length;
+            const stats = {
+                avgTotalCalories: processedData.reduce((sum, day) => sum + day.totalCalories, 0) / totalDays,
+                avgFatCalories: processedData.reduce((sum, day) => sum + day.fat, 0) / totalDays,
+                avgCarbsCalories: processedData.reduce((sum, day) => sum + day.carbs, 0) / totalDays,
+                avgProteinCalories: processedData.reduce((sum, day) => sum + day.protein, 0) / totalDays,
+            };
+            stats.avgFatGrams = stats.avgFatCalories / 9;
+            stats.avgCarbsGrams = stats.avgCarbsCalories / 4;
+            stats.avgProteinGrams = stats.avgProteinCalories / 4;
+            stats.avgFatPercentage = (stats.avgFatCalories / stats.avgTotalCalories) * 100;
+            stats.avgCarbsPercentage = (stats.avgCarbsCalories / stats.avgTotalCalories) * 100;
+            stats.avgProteinPercentage = (stats.avgProteinCalories / stats.avgTotalCalories) * 100;
+
+            // 3. Tìm các ngày đặc biệt
+            const sortedByCalories = [...processedData].sort((a, b) => a.totalCalories - b.totalCalories);
+            const extremes = {
+                lowestCalorie: sortedByCalories[0],
+                highestCalorie: sortedByCalories[sortedByCalories.length - 1],
+            };
+
+            // 4. Cập nhật giao diện (DOM)
+
+            // Tạo Comparison Cards
+            function createComparisonCard(title, actual, target, unit) {
+                const percentage = (actual / target) * 100;
+                let status = 'good';
+                if (percentage > 110) status = 'over';
+                if (percentage < 90) status = 'under';
+
+                const diff = actual - target;
+
+                return `
+                    <div class="comparison-card status-${status}">
+                        <div class="comparison-card-header">
+                            <div class="comparison-card-title">
+                                <span>${title}</span>
+                            </div>
+                            <span class="comparison-card-percentage">${percentage.toFixed(1)}%</span>
+                        </div>
+                        <div class="comparison-card-body">
+                            <div class="comparison-card-row">
+                                <span>Thực tế:</span>
+                                <span class="font-medium">${actual.toFixed(1)} ${unit}</span>
+                            </div>
+                            <div class="comparison-card-row">
+                                <span>Mục tiêu:</span>
+                                <span>${target} ${unit}</span>
+                            </div>
+                            <div class="comparison-card-row font-medium">
+                                <span>Chênh lệch:</span>
+                                <span class="diff-${status}">${diff > 0 ? '+' : ''}${diff.toFixed(1)} ${unit}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const summaryContainer = document.getElementById('summary-cards');
+            summaryContainer.innerHTML =
+                createComparisonCard("Tổng Năng Lượng", stats.avgTotalCalories, targets.totalCalories, "kcal") +
+                createComparisonCard("Chất Béo", stats.avgFatGrams, targets.fatGrams, "g") +
+                createComparisonCard("Carbohydrate", stats.avgCarbsGrams, targets.carbsGrams, "g") +
+                createComparisonCard("Protein", stats.avgProteinGrams, targets.proteinGrams, "g");
+
+            // Cập nhật Key Findings
+            document.getElementById('positive-points').innerHTML = `
+                <li>• Lượng carbohydrate trung bình đạt ${stats.avgCarbsPercentage.toFixed(1)}%, gần với mục tiêu ${targets.carbsPercentage}%.</li>
+                <li>• Protein đạt trung bình ${stats.avgProteinGrams.toFixed(1)}g/ngày, cao hơn mục tiêu ${targets.proteinGrams}g.</li>
+                <li>• Chế độ ăn tương đối ổn định qua thời gian.</li>
+            `;
+            document.getElementById('improvement-points').innerHTML = `
+                <li>• Tổng calo trung bình ${stats.avgTotalCalories.toFixed(0)} kcal, thấp hơn mục tiêu ${targets.totalCalories} kcal.</li>
+                <li>• Tỷ lệ chất béo ${stats.avgFatPercentage.toFixed(1)}%, cao hơn mục tiêu ${targets.fatPercentage}%.</li>
+                <li>• Biến động lớn giữa các ngày (từ ${extremes.lowestCalorie.totalCalories.toFixed(0)} đến ${extremes.highestCalorie.totalCalories.toFixed(0)} kcal).</li>
+            `;
+
+            // Cập nhật Phân tích chi tiết
+            document.getElementById('lowest-calorie-day').innerHTML = `
+                <h4 class="card-subtitle">Ngày Calo Thấp Nhất</h4>
+                <p class="text-main">Ngày ${extremes.lowestCalorie.dayNumber} (${extremes.lowestCalorie.date}): ${extremes.lowestCalorie.totalCalories.toFixed(0)} kcal</p>
+                <p class="text-sub">Thấp hơn mục tiêu ${(targets.totalCalories - extremes.lowestCalorie.totalCalories).toFixed(0)} kcal (${((extremes.lowestCalorie.totalCalories / targets.totalCalories - 1) * 100).toFixed(1)}%)</p>
+            `;
+            document.getElementById('highest-calorie-day').innerHTML = `
+                <h4 class="card-subtitle">Ngày Calo Cao Nhất</h4>
+                <p class="text-main">Ngày ${extremes.highestCalorie.dayNumber} (${extremes.highestCalorie.date}): ${extremes.highestCalorie.totalCalories.toFixed(0)} kcal</p>
+                <p class="text-sub">Vượt mục tiêu ${(extremes.highestCalorie.totalCalories - targets.totalCalories).toFixed(0)} kcal (${((extremes.highestCalorie.totalCalories / targets.totalCalories - 1) * 100).toFixed(1)}%)</p>
+            `;
+
+            // Cập nhật Progress Bars
+            function createProgressBar(label, actual, target, color) {
+                const width = Math.min((actual / target) * 100, 100);
+                return `
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-info">
+                            <span class="progress-bar-label">${label}</span>
+                            <span class="progress-bar-value">${actual.toFixed(1)}% / ${target}%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: ${width}%; background-color: ${color};"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('macro-progress-bars').innerHTML =
+                createProgressBar('Chất béo', stats.avgFatPercentage, targets.fatPercentage, '#ff6b6b') +
+                createProgressBar('Carbohydrate', stats.avgCarbsPercentage, targets.carbsPercentage, '#4ecdc4') +
+                createProgressBar('Protein', stats.avgProteinPercentage, targets.proteinPercentage, '#45b7d1');
+
+            // Cập nhật Khuyến nghị
+            document.getElementById('balance-recommendations').innerHTML = `
+                <li>• Giảm tỷ lệ chất béo từ ${stats.avgFatPercentage.toFixed(1)}% xuống ${targets.fatPercentage}%.</li>
+                <li>• Tăng carbohydrate phức hợp để đạt mục tiêu ${targets.carbsPercentage}%.</li>
+                <li>• Đảm bảo protein chất lượng cao để duy trì mức ${targets.proteinPercentage}%.</li>
+            `;
+
+            // 5. Vẽ Biểu Đồ
+            const chartLabels = processedData.map(d => d.dayNumber);
+            const chartColors = {
+                fat: '#ff6b6b',
+                carbs: '#4ecdc4',
+                protein: '#45b7d1',
+                total: '#2563eb',
+                target: '#dc2626'
+            };
+
+            // Biểu đồ đường: Xu hướng Calo hàng ngày
+            new Chart(document.getElementById('dailyCalorieChart'), {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [
+                        {
+                            label: 'Tổng Calo',
+                            data: processedData.map(d => d.totalCalories),
+                            borderColor: chartColors.total,
+                            backgroundColor: chartColors.total + '33',
+                            tension: 0.1,
+                            fill: false
+                        },
+                        {
+                            label: 'Mục tiêu',
+                            data: Array(totalDays).fill(targets.totalCalories),
+                            borderColor: chartColors.target,
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: { responsive: true }
+            });
+
+            // Biểu đồ tròn: Phân bố dinh dưỡng trung bình
+            new Chart(document.getElementById('macroPieChart'), {
+                type: 'pie',
+                data: {
+                    labels: ['Chất béo', 'Carbohydrate', 'Protein'],
+                    datasets: [{
+                        data: [stats.avgFatPercentage, stats.avgCarbsPercentage, stats.avgProteinPercentage],
+                        backgroundColor: [chartColors.fat, chartColors.carbs, chartColors.protein]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw.toFixed(1)}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Biểu đồ radar: So sánh với mục tiêu
+            new Chart(document.getElementById('targetRadarChart'), {
+                type: 'radar',
+                data: {
+                    labels: ['Tổng Calo', 'Chất béo', 'Carbohydrate', 'Protein'],
+                    datasets: [
+                        {
+                            label: 'Thực tế',
+                            data: [
+                                (stats.avgTotalCalories / targets.totalCalories) * 100,
+                                (stats.avgFatCalories / targets.fatCalories) * 100,
+                                (stats.avgCarbsCalories / targets.carbsCalories) * 100,
+                                (stats.avgProteinCalories / targets.proteinCalories) * 100
+                            ],
+                            backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                            borderColor: 'rgba(37, 99, 235, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Mục tiêu',
+                            data: [100, 100, 100, 100],
+                            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                            borderColor: 'rgba(220, 38, 38, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            angleLines: { display: false },
+                            suggestedMin: 0,
+                            suggestedMax: 120
+                        }
+                    }
+                }
+            });
+
+            // Biểu đồ cột: Phân tích theo nhóm dinh dưỡng
+            new Chart(document.getElementById('macroBarChart'), {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [
+                        {
+                            label: 'Chất béo',
+                            data: processedData.map(d => d.fat),
+                            backgroundColor: chartColors.fat,
+                        },
+                        {
+                            label: 'Carbohydrate',
+                            data: processedData.map(d => d.carbs),
+                            backgroundColor: chartColors.carbs,
+                        },
+                        {
+                            label: 'Protein',
+                            data: processedData.map(d => d.protein),
+                            backgroundColor: chartColors.protein,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

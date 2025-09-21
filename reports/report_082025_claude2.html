@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Dinh Dưỡng (HTML/JS)</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            600: '#4b5563',
+                            800: '#1f2937',
+                        },
+                        red: {
+                            50: '#fef2f2',
+                            200: '#fecaca',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                            800: '#991b1b',
+                        },
+                        green: {
+                            50: '#f0fdf4',
+                            200: '#bbf7d0',
+                            600: '#16a34a',
+                        },
+                        blue: {
+                            50: '#eff6ff',
+                            200: '#bfdbfe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                        },
+                        amber: {
+                            50: '#fffbeb',
+                            200: '#fde68a',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                        },
+                        teal: {
+                            500: '#14b8a6',
+                        },
+                        indigo: {
+                            50: '#eef2ff',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="max-w-7xl mx-auto p-6">
+        </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Raw data from CSV
+            const rawData = [
+                { date: '01/08/2025', fat: 634.32, carbs: 852.61, protein: 285.99 },
+                { date: '02/08/2025', fat: 599.50, carbs: 779.30, protein: 291.47 },
+                { date: '03/08/2025', fat: 816.15, carbs: 871.30, protein: 313.37 },
+                { date: '04/08/2025', fat: 587.99, carbs: 836.22, protein: 297.95 },
+                { date: '05/08/2025', fat: 734.96, carbs: 863.10, protein: 312.20 },
+                { date: '06/08/2025', fat: 577.81, carbs: 929.66, protein: 277.18 },
+                { date: '07/08/2025', fat: 712.59, carbs: 803.84, protein: 324.01 },
+                { date: '08/08/2025', fat: 537.05, carbs: 871.66, protein: 268.84 },
+                { date: '09/08/2025', fat: 627.42, carbs: 808.18, protein: 314.75 },
+                { date: '10/08/2025', fat: 532.85, carbs: 834.82, protein: 276.86 },
+                { date: '11/08/2025', fat: 569.34, carbs: 932.09, protein: 312.59 },
+                { date: '12/08/2025', fat: 549.15, carbs: 781.09, protein: 324.49 },
+                { date: '13/08/2025', fat: 676.27, carbs: 829.33, protein: 291.31 },
+                { date: '14/08/2025', fat: 579.29, carbs: 811.64, protein: 285.87 },
+                { date: '15/08/2025', fat: 654.42, carbs: 926.53, protein: 370.74 },
+                { date: '16/08/2025', fat: 561.82, carbs: 849.29, protein: 273.69 },
+                { date: '17/08/2025', fat: 515.03, carbs: 751.64, protein: 250.84 },
+                { date: '18/08/2025', fat: 657.90, carbs: 876.74, protein: 367.38 },
+                { date: '19/08/2025', fat: 676.71, carbs: 826.75, protein: 317.48 },
+                { date: '20/08/2025', fat: 529.71, carbs: 889.76, protein: 344.10 },
+                { date: '21/08/2025', fat: 698.54, carbs: 765.74, protein: 260.49 },
+                { date: '22/08/2025', fat: 587.44, carbs: 915.38, protein: 315.26 },
+                { date: '23/08/2025', fat: 631.61, carbs: 661.09, protein: 358.57 },
+                { date: '24/08/2025', fat: 603.28, carbs: 793.10, protein: 358.59 },
+                { date: '25/08/2025', fat: 568.30, carbs: 764.63, protein: 290.94 },
+                { date: '26/08/2025', fat: 660.75, carbs: 896.72, protein: 319.98 },
+                { date: '27/08/2025', fat: 558.44, carbs: 708.06, protein: 281.60 },
+                { date: '28/08/2025', fat: 528.21, carbs: 871.28, protein: 363.08 },
+                { date: '29/08/2025', fat: 598.74, carbs: 717.57, protein: 298.40 },
+                { date: '30/08/2025', fat: 658.13, carbs: 788.13, protein: 310.18 },
+                { date: '31/08/2025', fat: 526.77, carbs: 817.52, protein: 354.49 }
+            ];
+
+            // Target values
+            const targets = {
+                totalCalories: 1700,
+                fatCalories: 585,
+                carbsCalories: 760,
+                proteinCalories: 300,
+                fatPercentage: 35,
+                carbsPercentage: 45,
+                proteinPercentage: 20
+            };
+
+            // Process data - This logic remains unchanged
+            const processedData = rawData.map((day, index) => {
+                const totalCalories = day.fat + day.carbs + day.protein;
+                return {
+                    ...day,
+                    dayNumber: index + 1,
+                    totalCalories,
+                    fatPercentage: (day.fat / totalCalories) * 100,
+                    carbsPercentage: (day.carbs / totalCalories) * 100,
+                    proteinPercentage: (day.protein / totalCalories) * 100,
+                    fatGrams: day.fat / 9,
+                    carbsGrams: day.carbs / 4,
+                    proteinGrams: day.protein / 4
+                };
+            });
+
+            const totalDays = processedData.length;
+            const avgTotalCalories = processedData.reduce((sum, day) => sum + day.totalCalories, 0) / totalDays;
+            const avgFatCalories = processedData.reduce((sum, day) => sum + day.fat, 0) / totalDays;
+            const avgCarbsCalories = processedData.reduce((sum, day) => sum + day.carbs, 0) / totalDays;
+            const avgProteinCalories = processedData.reduce((sum, day) => sum + day.protein, 0) / totalDays;
+            const stats = {
+                avgTotalCalories,
+                avgFatPercentage: (avgFatCalories / avgTotalCalories) * 100,
+                avgCarbsPercentage: (avgCarbsCalories / avgTotalCalories) * 100,
+                avgProteinPercentage: (avgProteinCalories / avgTotalCalories) * 100,
+                avgFatGrams: avgFatCalories / 9,
+                avgCarbsGrams: avgCarbsCalories / 4,
+                avgProteinGrams: avgProteinCalories / 4
+            };
+
+            const sorted = [...processedData].sort((a, b) => a.totalCalories - b.totalCalories);
+            const extremes = {
+                lowestCalorie: sorted[0],
+                highestCalorie: sorted[sorted.length - 1]
+            };
+
+            // Prepare data for charts in Chart.js format
+            const chartData = processedData.map(day => ({
+                day: day.dayNumber,
+                'Tổng Calo': Math.round(day.totalCalories),
+                'Chất béo': Math.round(day.fat),
+                'Carbohydrate': Math.round(day.carbs),
+                'Protein': Math.round(day.protein),
+                'Mục tiêu': targets.totalCalories
+            }));
+
+            const pieData = [
+                { name: 'Chất béo', value: Math.round(stats.avgFatPercentage), color: '#ef4444' },
+                { name: 'Carbohydrate', value: Math.round(stats.avgCarbsPercentage), color: '#3b82f6' },
+                { name: 'Protein', value: Math.round(stats.avgProteinPercentage), color: '#14b8a6' }
+            ];
+
+            const radarData = [
+                { subject: 'Tổng Calo', actual: (stats.avgTotalCalories / targets.totalCalories) * 100, target: 100 },
+                { subject: 'Chất béo', actual: (stats.avgFatGrams / (targets.fatCalories/9)) * 100, target: 100 },
+                { subject: 'Carbohydrate', actual: (stats.avgCarbsGrams / (targets.carbsCalories/4)) * 100, target: 100 },
+                { subject: 'Protein', actual: (stats.avgProteinGrams / (targets.proteinCalories/4)) * 100, target: 100 }
+            ];
+
+
+            // Icons SVG
+            const iconSVGs = {
+                Activity: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>`,
+                Target: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>`,
+                TrendingUp: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>`,
+                TrendingDown: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>`
+            };
+
+            // Component function to generate HTML strings
+            function ComparisonCard({ title, actual, target, unit, icon }) {
+                const percentage = (actual / target) * 100;
+                const isOver = percentage > 110;
+                const isUnder = percentage < 90;
+                const status = isOver ? "over" : isUnder ? "under" : "good";
+                const statusColors = {
+                    over: "text-red-600 bg-red-50 border-red-200",
+                    under: "text-amber-600 bg-amber-50 border-amber-200",
+                    good: "text-green-600 bg-green-50 border-green-200"
+                };
+                return `
+                    <div class="p-4 rounded-lg border ${statusColors[status]}">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                ${iconSVGs[icon] || ''}
+                                <h3 class="font-semibold text-sm">${title}</h3>
+                            </div>
+                            <span class="text-xs font-medium">${percentage.toFixed(1)}%</span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-sm"><span>Thực tế:</span><span class="font-medium">${actual.toFixed(1)} ${unit}</span></div>
+                            <div class="flex justify-between text-sm"><span>Mục tiêu:</span><span>${target} ${unit}</span></div>
+                            <div class="flex justify-between text-sm font-medium">
+                                <span>Chênh lệch:</span>
+                                <span class="${isOver ? 'text-red-600' : isUnder ? 'text-amber-600' : 'text-green-600'}">${isOver ? '+' : ''}${(actual - target).toFixed(1)} ${unit}</span>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
+            // Render static HTML content
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <header class="mb-8">
+                        <h1 class="text-3xl font-bold text-gray-800 mb-2">Báo Cáo Phân Tích Dinh Dưỡng</h1>
+                        <p class="text-gray-600">Bệnh nhân nam 28 tuổi - Ăn qua sond dạ dày PEG - Tháng 8/2025</p>
+                    </header>
+
+                    <section class="mb-8">
+                        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Tóm Tắt Tổng Quan</h2>
+                        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                            ${ComparisonCard({ title: "Tổng Năng Lượng", actual: stats.avgTotalCalories, target: targets.totalCalories, unit: "kcal", icon: "Activity" })}
+                            ${ComparisonCard({ title: "Chất Béo", actual: stats.avgFatGrams, target: 65, unit: "g", icon: "Target" })}
+                            ${ComparisonCard({ title: "Carbohydrate", actual: stats.avgCarbsGrams, target: 190, unit: "g", icon: "TrendingUp" })}
+                            ${ComparisonCard({ title: "Protein", actual: stats.avgProteinGrams, target: 75, unit: "g", icon: "TrendingDown" })}
+                        </div>
+                    </section>
+
+                    <section class="mb-8">
+                        <h2 class="text-2xl font-semibold mb-6 text-gray-800">Biểu Đồ Phân Tích</h2>
+
+                        <div class="bg-white p-6 rounded-lg border border-gray-200 mb-6">
+                            <h3 class="text-lg font-semibold mb-4">Xu Hướng Calo Hàng Ngày</h3>
+                            <div style="position: relative; height: 400px;"><canvas id="lineChart"></canvas></div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-white p-6 rounded-lg border border-gray-200">
+                                <h3 class="text-lg font-semibold mb-4">Phân Bố Dinh Dưỡng Trung Bình</h3>
+                                <div style="position: relative; height: 300px;"><canvas id="pieChart"></canvas></div>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg border border-gray-200">
+                                <h3 class="text-lg font-semibold mb-4">So Sánh Với Mục Tiêu</h3>
+                                <div style="position: relative; height: 300px;"><canvas id="radarChart"></canvas></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg border border-gray-200">
+                            <h3 class="text-lg font-semibold mb-4">Phân Tích Theo Nhóm Dinh Dưỡng (Calories)</h3>
+                            <div style="position: relative; height: 400px;"><canvas id="barChart"></canvas></div>
+                        </div>
+                    </section>
+
+                    <footer class="text-center text-gray-500 text-sm pt-6 border-t border-gray-200">
+                        <p>Báo cáo được tạo tự động dựa trên dữ liệu dinh dưỡng tháng 8/2025</p>
+                    </footer>
+                </div>`;
+
+            // Function to render charts using Chart.js
+            function renderCharts() {
+                // Line Chart
+                const lineCtx = document.getElementById('lineChart').getContext('2d');
+                new Chart(lineCtx, {
+                    type: 'line',
+                    data: {
+                        labels: chartData.map(d => d.day),
+                        datasets: [{
+                            label: 'Tổng Calo',
+                            data: chartData.map(d => d['Tổng Calo']),
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            fill: true,
+                            tension: 0.2
+                        }, {
+                            label: 'Mục tiêu',
+                            data: chartData.map(d => d['Mục tiêu']),
+                            borderColor: '#dc2626',
+                            borderDash: [5, 5],
+                            fill: false
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+
+                // Pie Chart
+                const pieCtx = document.getElementById('pieChart').getContext('2d');
+                new Chart(pieCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: pieData.map(d => d.name),
+                        datasets: [{
+                            data: pieData.map(d => d.value),
+                            backgroundColor: pieData.map(d => d.color),
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+
+                // Radar Chart
+                const radarCtx = document.getElementById('radarChart').getContext('2d');
+                new Chart(radarCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: radarData.map(d => d.subject),
+                        datasets: [{
+                            label: 'Thực tế (% mục tiêu)',
+                            data: radarData.map(d => d.actual),
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.2)'
+                        }, {
+                            label: 'Mục tiêu (%)',
+                            data: radarData.map(d => d.target),
+                            borderColor: '#dc2626',
+                            backgroundColor: 'rgba(220, 38, 38, 0.2)'
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 120, ticks: { stepSize: 20 } } } }
+                });
+
+                // Bar Chart (Stacked)
+                const barCtx = document.getElementById('barChart').getContext('2d');
+                new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: chartData.map(d => d.day),
+                        datasets: [{
+                            label: 'Chất béo',
+                            data: chartData.map(d => d['Chất béo']),
+                            backgroundColor: pieData.find(p => p.name === 'Chất béo').color
+                        }, {
+                            label: 'Carbohydrate',
+                            data: chartData.map(d => d['Carbohydrate']),
+                            backgroundColor: pieData.find(p => p.name === 'Carbohydrate').color
+                        }, {
+                            label: 'Protein',
+                            data: chartData.map(d => d['Protein']),
+                            backgroundColor: pieData.find(p => p.name === 'Protein').color
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { x: { stacked: true }, y: { stacked: true } }
+                    }
+                });
+            }
+
+            // Render charts after the DOM is updated
+            setTimeout(renderCharts, 100);
+        });
+    </script>
+</body>
+</html>

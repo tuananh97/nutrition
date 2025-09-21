@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân tích Dinh dưỡng Tháng 8</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        header h1 {
+            color: white;
+            margin: 0;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+        .summary-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .card {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .card h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .card .value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .card .target {
+            color: #7f8c8d;
+        }
+        .positive {
+            color: #27ae60;
+        }
+        .negative {
+            color: #e74c3c;
+        }
+        .neutral {
+            color: #f39c12;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .recommendations {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .summary-cards {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Phân tích Dinh dưỡng Tháng 8</h1>
+        <p>Bệnh nhân nam 28 tuổi - Theo dõi chế độ dinh dưỡng qua sonde dạ dày PEG</p>
+    </header>
+
+    <section id="overview">
+        <h2>Tổng quan</h2>
+        <div class="summary-cards">
+            <div class="card">
+                <h3>Tổng năng lượng</h3>
+                <div class="value">1,709.4 kcal</div>
+                <div class="target">Mục tiêu: 1,700 kcal</div>
+                <div class="positive">+0.6% so với mục tiêu</div>
+            </div>
+            <div class="card">
+                <h3>Chất béo</h3>
+                <div class="value">35.6%</div>
+                <div class="target">Mục tiêu: 35%</div>
+                <div class="positive">+1.7% so với mục tiêu</div>
+            </div>
+            <div class="card">
+                <h3>Carbohydrate</h3>
+                <div class="value">47.8%</div>
+                <div class="target">Mục tiêu: 45%</div>
+                <div class="negative">+6.2% so với mục tiêu</div>
+            </div>
+            <div class="card">
+                <h3>Protein</h3>
+                <div class="value">16.6%</div>
+                <div class="target">Mục tiêu: 20%</div>
+                <div class="negative">-17% so với mục tiêu</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="comparison">
+        <h2>So sánh với Mục Tiêu Dinh Dưỡng</h2>
+        <div class="chart-container">
+            <canvas id="targetComparisonChart"></canvas>
+        </div>
+        <p>Phân tích cho thấy tổng năng lượng đạt gần chính xác mục tiêu (99.5%), nhưng có sự mất cân đối trong tỷ lệ các nhóm dinh dưỡng: Carbohydrate vượt 6.2% và Protein thiếu 17% so với mục tiêu.</p>
+    </section>
+
+    <section id="daily-trend">
+        <h2>Xu hướng Tiêu thụ Hàng ngày</h2>
+        <div class="chart-container">
+            <canvas id="dailyTrendChart"></canvas>
+        </div>
+        <p>Biểu đồ thể hiện sự biến động trong tiêu thụ năng lượng và các nhóm dinh dưỡng qua từng ngày. Có thể thấy những ngày cuối tháng có xu hướng ổn định hơn.</p>
+    </section>
+
+    <section id="ratio-analysis">
+        <h2>Phân tích Tỷ lệ Dinh dưỡng</h2>
+        <div class="chart-container">
+            <canvas id="ratioChart"></canvas>
+        </div>
+        <p>Tỷ lệ dinh dưỡng trung bình so với mục tiêu: Chất béo đạt mức gần lý tưởng, Carbohydrate cao hơn và Protein thấp hơn mục tiêu.</p>
+    </section>
+
+    <section id="extreme-days">
+        <h2>Ngày có Chỉ số Dinh dưỡng Cao nhất và Thấp nhất</h2>
+        <table>
+            <tr>
+                <th>Chỉ số</th>
+                <th>Cao nhất</th>
+                <th>Thấp nhất</th>
+            </tr>
+            <tr>
+                <td>Protein</td>
+                <td>15/08 (370.7 kcal)</td>
+                <td>17/08 (250.8 kcal)</td>
+            </tr>
+            <tr>
+                <td>Carbohydrate</td>
+                <td>11/08 (932.1 kcal)</td>
+                <td>23/08 (661.1 kcal)</td>
+            </tr>
+            <tr>
+                <td>Chất béo</td>
+                <td>03/08 (816.2 kcal)</td>
+                <td>17/08 (515.0 kcal)</td>
+            </tr>
+            <tr>
+                <td>Tổng năng lượng</td>
+                <td>15/08 (1951.7 kcal)</td>
+                <td>17/08 (1517.5 kcal)</td>
+            </tr>
+        </table>
+    </section>
+
+    <section id="recommendations">
+        <h2>Khuyến nghị Cải thiện</h2>
+        <div class="recommendations">
+            <h3>Tăng cường Protein</h3>
+            <p>Bổ sung thêm 50-60 kcal protein mỗi ngày (khoảng 12-15g protein) thông qua:</p>
+            <ul>
+                <li>Sữa công thức giàu protein</li>
+                <li>Bổ sung bột protein vào sinh tố</li>
+            </ul>
+
+            <h3>Điều chỉnh Carbohydrate</h3>
+            <p>Giảm nhẹ lượng carbohydrate khoảng 5%:</p>
+            <ul>
+                <li>Thay thế một phần nước trái cây bằng rau củ xay</li>
+                <li>Chọn loại sữa có hàm lượng carbohydrate thấp hơn</li>
+            </ul>
+
+            <h3>Duy trì chất béo</h3>
+            <p>Giữ nguyên chế độ chất béo hiện tại vì đạt mục tiêu</p>
+
+            <h3>Theo dõi chất xơ</h3>
+            <p>Đảm bảo bổ sung đủ 25g chất xơ/ngày qua súp rau củ xay và sinh tố</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>Báo cáo được tạo dựa trên dữ liệu dinh dưỡng tháng 8/2025 | Phòng khám Dinh dưỡng</p>
+    </footer>
+
+    <script>
+        // Dữ liệu từ CSV
+        const dates = [
+            '01/08', '02/08', '03/08', '04/08', '05/08', '06/08', '07/08', '08/08', '09/08', '10/08',
+            '11/08', '12/08', '13/08', '14/08', '15/08', '16/08', '17/08', '18/08', '19/08', '20/08',
+            '21/08', '22/08', '23/08', '24/08', '25/08', '26/08', '27/08', '28/08', '29/08', '30/08', '31/08'
+        ];
+        
+        const fatData = [
+            634.32, 599.50, 816.15, 587.99, 734.96, 577.81, 712.59, 537.05, 627.42, 532.85,
+            569.34, 549.15, 676.27, 579.29, 654.42, 561.82, 515.03, 657.90, 676.71, 529.71,
+            698.54, 587.44, 631.61, 603.28, 568.30, 660.75, 558.44, 528.21, 598.74, 658.13, 526.77
+        ];
+        
+        const carbsData = [
+            852.61, 779.30, 871.30, 836.22, 863.10, 929.66, 803.84, 871.66, 808.18, 834.82,
+            932.09, 781.09, 829.33, 811.64, 926.53, 849.29, 751.64, 876.74, 826.75, 889.76,
+            765.74, 915.38, 661.09, 793.10, 764.63, 896.72, 708.06, 871.28, 717.57, 788.13, 817.52
+        ];
+        
+        const proteinData = [
+            285.99, 291.47, 313.37, 297.95, 312.20, 277.18, 324.01, 268.84, 314.75, 276.86,
+            312.59, 324.49, 291.31, 285.87, 370.74, 273.69, 250.84, 367.38, 317.48, 344.10,
+            260.49, 315.26, 358.57, 358.59, 290.94, 319.98, 281.60, 363.08, 298.40, 310.18, 354.49
+        ];
+
+        // Tính tổng năng lượng mỗi ngày
+        const totalData = fatData.map((fat, index) => 
+            fat + carbsData[index] + proteinData[index]
+        );
+
+        // Tính tỷ lệ phần trăm
+        const fatPercentage = fatData.map((fat, index) => 
+            (fat / totalData[index] * 100).toFixed(1)
+        );
+        
+        const carbsPercentage = carbsData.map((carbs, index) => 
+            (carbs / totalData[index] * 100).toFixed(1)
+        );
+        
+        const proteinPercentage = proteinData.map((protein, index) => 
+            (protein / totalData[index] * 100).toFixed(1)
+        );
+
+        // Tính giá trị trung bình
+        const avgFat = (fatData.reduce((a, b) => a + b, 0) / fatData.length).toFixed(2);
+        const avgCarbs = (carbsData.reduce((a, b) => a + b, 0) / carbsData.length).toFixed(2);
+        const avgProtein = (proteinData.reduce((a, b) => a + b, 0) / proteinData.length).toFixed(2);
+        const avgTotal = (totalData.reduce((a, b) => a + b, 0) / totalData.length).toFixed(2);
+
+        const avgFatPercentage = (avgFat / avgTotal * 100).toFixed(1);
+        const avgCarbsPercentage = (avgCarbs / avgTotal * 100).toFixed(1);
+        const avgProteinPercentage = (avgProtein / avgTotal * 100).toFixed(1);
+
+        // Vẽ biểu đồ so sánh với mục tiêu
+        const targetComparisonCtx = document.getElementById('targetComparisonChart').getContext('2d');
+        new Chart(targetComparisonCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Tổng năng lượng (kcal)', 'Chất béo (%)', 'Carbohydrate (%)', 'Protein (%)'],
+                datasets: [
+                    {
+                        label: 'Mục tiêu',
+                        data: [1700, 35, 45, 20],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Thực tế',
+                        data: [avgTotal, avgFatPercentage, avgCarbsPercentage, avgProteinPercentage],
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Giá trị'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Vẽ biểu đồ xu hướng hàng ngày
+        const dailyTrendCtx = document.getElementById('dailyTrendChart').getContext('2d');
+        new Chart(dailyTrendCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'Tổng năng lượng',
+                        data: totalData,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Chất béo',
+                        data: fatData,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: false,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Carbohydrate',
+                        data: carbsData,
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        fill: false,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Protein',
+                        data: proteinData,
+                        borderColor: 'rgba(255, 206, 86, 1)',
+                        backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                        fill: false,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Kcal'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Vẽ biểu đồ tỷ lệ dinh dưỡng
+        const ratioCtx = document.getElementById('ratioChart').getContext('2d');
+        new Chart(ratioCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Chất béo', 'Carbohydrate', 'Protein'],
+                datasets: [
+                    {
+                        label: 'Mục tiêu',
+                        data: [35, 45, 20],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)'
+                        ],
+                        borderWidth: 1,
+                        circumference: 180,
+                        rotation: -90
+                    },
+                    {
+                        label: 'Thực tế',
+                        data: [avgFatPercentage, avgCarbsPercentage, avgProteinPercentage],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)'
+                        ],
+                        borderWidth: 1,
+                        circumference: 180,
+                        rotation: -90
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

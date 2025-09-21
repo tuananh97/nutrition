@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Phân Tích Dinh Dưỡng (Dark Theme)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background-color: #121212;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border: 1px solid #333;
+        }
+        h1, h2, h3 {
+            color: #70a1ff;
+            border-bottom: 2px solid #70a1ff;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .patient-info {
+            background-color: #2c2c2c;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid #70a1ff;
+        }
+        .summary-cards {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card {
+            background-color: #2c2c2c;
+            padding: 20px;
+            border-radius: 8px;
+            flex-basis: 22%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            border: 1px solid #444;
+        }
+        .card h3 {
+            margin-top: 0;
+            font-size: 1.2em;
+            color: #ccc;
+            border: none;
+        }
+        .card .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #70a1ff;
+        }
+        .card .goal {
+            font-size: 1em;
+            color: #aaa;
+        }
+        .chart-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        .chart-wrapper {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .full-width-chart {
+             grid-column: 1 / -1;
+        }
+        /* --- CHỈNH BIỂU ĐỒ NHỎ GỌN --- */
+        .chart-canvas-container {
+            position: relative;
+            height: 300px; /* Giảm chiều cao của vùng chứa biểu đồ */
+            width: 100%;
+        }
+        .analysis-section {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #252525;
+            border-radius: 8px;
+        }
+        ul {
+            list-style-type: '✔  ';
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #444;
+            text-align: left;
+        }
+        th {
+            background-color: #333;
+            color: #e0e0e0;
+        }
+        tr:nth-child(even) {
+            background-color: #2a2a2a;
+        }
+        .highlight-red { color: #ff6b6b; font-weight: bold; }
+        .highlight-green { color: #69db7c; font-weight: bold; }
+
+        @media (max-width: 992px) {
+            .chart-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .summary-cards {
+                flex-direction: column;
+            }
+            .card {
+                flex-basis: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Báo Cáo Phân Tích Dinh Dưỡng</h1>
+        <div class="patient-info">
+            <h3>Thông Tin Bệnh Nhân</h3>
+            <p><strong>Tuổi:</strong> 28 tuổi, nam giới.</p>
+            <p><strong>Tình trạng:</strong> Ăn qua sond dạ dày PEG và uống đồ lỏng bằng miệng.</p>
+            <p><strong>Chế độ ăn:</strong> 6 bữa/ngày (3 súp xay, 2 sữa 230kcal, 1 nước trái cây, 1 sinh tố).</p>
+        </div>
+
+        <h2>1. Tóm Tắt & So Sánh Với Mục Tiêu Dinh Dưỡng</h2>
+        <div class="summary-cards">
+            <div class="card">
+                <h3>Năng Lượng (kcal)</h3>
+                <p class="value" id="avg-kcal">1800</p>
+                <p class="goal">Mục tiêu: 1700 kcal</p>
+            </div>
+            <div class="card">
+                <h3>Carbohydrate (kcal)</h3>
+                <p class="value" id="avg-carbs">830</p>
+                <p class="goal">Mục tiêu: 760 kcal (190g)</p>
+            </div>
+            <div class="card">
+                <h3>Chất Béo (kcal)</h3>
+                <p class="value" id="avg-fat">615</p>
+                <p class="goal">Mục tiêu: 585 kcal (65g)</p>
+            </div>
+            <div class="card">
+                <h3>Đạm (kcal)</h3>
+                <p class="value" id="avg-protein">310</p>
+                <p class="goal">Mục tiêu: 300 kcal (75g)</p>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <h3>So Sánh Năng Lượng Trung Bình & Mục Tiêu</h3>
+                <canvas id="goalComparisonChart"></canvas>
+            </div>
+            <div class="chart-wrapper">
+                <h3>Tỷ Lệ Dinh Dưỡng Trung Bình & Mục Tiêu</h3>
+                <canvas id="macroRatioChart"></canvas>
+            </div>
+        </div>
+
+        <h2>2. Phân Tích Dinh Dưỡng Theo Thời Gian & Độ Cân Đối</h2>
+         <div class="chart-container">
+            <div class="chart-wrapper full-width-chart">
+                <h3>Phân Bố Năng Lượng Hàng Ngày (Tháng 8/2025)</h3>
+                <div class="chart-canvas-container">
+                    <canvas id="dailyIntakeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="analysis-section">
+            <h3>Đánh Giá Độ Cân Đối & Xu Hướng</h3>
+            <ul>
+                <li><strong>Năng lượng tổng thể:</strong> Mức năng lượng trung bình hàng ngày (<span id="avg-kcal-text"></span> kcal) cao hơn một chút so với mục tiêu 1700 kcal.</li>
+                <li><strong>Tỷ lệ dinh dưỡng:</strong> Tỷ lệ dinh dưỡng thực tế (<span id="macro-ratio-text"></span>) cho thấy <strong>Carbohydrate đang chiếm tỷ trọng cao hơn</strong> mục tiêu.</li>
+                <li><strong>Mối quan hệ giữa các nhóm:</strong> Biểu đồ cột chồng cho thấy rõ các ngày năng lượng cao (ví dụ: 03/08, 05/08, 15/08) là do sự gia tăng đồng thời của cả 3 nhóm chất.</li>
+                <li><strong>Xu hướng theo thời gian:</strong> Mức tiêu thụ năng lượng có sự dao động theo từng ngày nhưng không có xu hướng tăng hay giảm rõ rệt.</li>
+            </ul>
+        </div>
+
+        <h2>3. Phân Tích Các Ngày Mạnh & Yếu</h2>
+        <div class="analysis-section">
+            <p>Phân tích các ngày có lượng calo cao nhất và thấp nhất giúp xác định các yếu tố ảnh hưởng đến sự cân bằng dinh dưỡng.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tiêu chí</th>
+                        <th>Ngày</th>
+                        <th>Tổng Năng Lượng (kcal)</th>
+                        <th>Phân tích</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Năng lượng cao nhất</strong></td>
+                        <td id="high-day-date"></td>
+                        <td id="high-day-kcal" class="highlight-red"></td>
+                        <td id="high-day-analysis"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Năng lượng thấp nhất</strong></td>
+                        <td id="low-day-date"></td>
+                        <td id="low-day-kcal" class="highlight-green"></td>
+                        <td id="low-day-analysis"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>4. Đề Xuất & Chiến Lược Cải Thiện</h2>
+        <div class="analysis-section">
+            <h3>Đánh giá chung:</h3>
+            <p>Chế độ ăn hiện tại đã đáp ứng tốt và vượt mục tiêu về năng lượng và đạm. Tuy nhiên, có thể tối ưu hóa bằng cách điều chỉnh nhẹ lượng carbohydrate và chất béo.</p>
+            <h3>Chiến lược cụ thể:</h3>
+            <ul>
+                <li><strong>Kiểm soát Carbohydrate:</strong> Giảm lượng đường, mật ong, trái cây quá ngọt (xoài, chuối) trong sinh tố. Ưu tiên rau củ ít tinh bột trong súp.</li>
+                <li><strong>Duy trì Đạm:</strong> Tiếp tục sử dụng các nguồn đạm chất lượng trong súp xay (thịt gà, cá) và sữa cao năng lượng.</li>
+                <li><strong>Tối ưu hóa Chất béo:</strong> Ưu tiên chất béo lành mạnh (dầu oliu, quả bơ xay) và kiểm soát chất béo bão hòa.</li>
+                <li><strong>Theo dõi Chất xơ (Mục tiêu 25g):</strong> Bổ sung rau củ quả xay nhuyễn, đậu, yến mạch vào súp và sinh tố để đảm bảo đủ chất xơ.</li>
+                <li><strong>Giảm Dao Động:</strong> Cố gắng duy trì sự ổn định trong thành phần các bữa ăn hàng ngày để giảm chênh lệch năng lượng.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        const nutritionData = [
+            {"DateTime": "01/08/2025", "Fat": 634.32, "Carbs": 852.61, "Protein": 285.99}, {"DateTime": "02/08/2025", "Fat": 599.50, "Carbs": 779.30, "Protein": 291.47},
+            {"DateTime": "03/08/2025", "Fat": 816.15, "Carbs": 871.30, "Protein": 313.37}, {"DateTime": "04/08/2025", "Fat": 587.99, "Carbs": 836.22, "Protein": 297.95},
+            {"DateTime": "05/08/2025", "Fat": 734.96, "Carbs": 863.10, "Protein": 312.20}, {"DateTime": "06/08/2025", "Fat": 577.81, "Carbs": 929.66, "Protein": 277.18},
+            {"DateTime": "07/08/2025", "Fat": 712.59, "Carbs": 803.84, "Protein": 324.01}, {"DateTime": "08/08/2025", "Fat": 537.05, "Carbs": 871.66, "Protein": 268.84},
+            {"DateTime": "09/08/2025", "Fat": 627.42, "Carbs": 808.18, "Protein": 314.75}, {"DateTime": "10/08/2025", "Fat": 532.85, "Carbs": 834.82, "Protein": 276.86},
+            {"DateTime": "11/08/2025", "Fat": 569.34, "Carbs": 932.09, "Protein": 312.59}, {"DateTime": "12/08/2025", "Fat": 549.15, "Carbs": 781.09, "Protein": 324.49},
+            {"DateTime": "13/08/2025", "Fat": 676.27, "Carbs": 829.33, "Protein": 291.31}, {"DateTime": "14/08/2025", "Fat": 579.29, "Carbs": 811.64, "Protein": 285.87},
+            {"DateTime": "15/08/2025", "Fat": 654.42, "Carbs": 926.53, "Protein": 370.74}, {"DateTime": "16/08/2025", "Fat": 561.82, "Carbs": 849.29, "Protein": 273.69},
+            {"DateTime": "17/08/2025", "Fat": 515.03, "Carbs": 751.64, "Protein": 250.84}, {"DateTime": "18/08/2025", "Fat": 657.90, "Carbs": 876.74, "Protein": 367.38},
+            {"DateTime": "19/08/2025", "Fat": 676.71, "Carbs": 826.75, "Protein": 317.48}, {"DateTime": "20/08/2025", "Fat": 529.71, "Carbs": 889.76, "Protein": 344.10},
+            {"DateTime": "21/08/2025", "Fat": 698.54, "Carbs": 765.74, "Protein": 260.49}, {"DateTime": "22/08/2025", "Fat": 587.44, "Carbs": 915.38, "Protein": 315.26},
+            {"DateTime": "23/08/2025", "Fat": 631.61, "Carbs": 661.09, "Protein": 358.57}, {"DateTime": "24/08/2025", "Fat": 603.28, "Carbs": 793.10, "Protein": 358.59},
+            {"DateTime": "25/08/2025", "Fat": 568.30, "Carbs": 764.63, "Protein": 290.94}, {"DateTime": "26/08/2025", "Fat": 660.75, "Carbs": 896.72, "Protein": 319.98},
+            {"DateTime": "27/08/2025", "Fat": 558.44, "Carbs": 708.06, "Protein": 281.60}, {"DateTime": "28/08/2025", "Fat": 528.21, "Carbs": 871.28, "Protein": 363.08},
+            {"DateTime": "29/08/2025", "Fat": 598.74, "Carbs": 717.57, "Protein": 298.40}, {"DateTime": "30/08/2025", "Fat": 658.13, "Carbs": 788.13, "Protein": 310.18},
+            {"DateTime": "31/08/2025", "Fat": 526.77, "Carbs": 817.52, "Protein": 354.49}
+        ];
+
+        const goals = { kcal: 1700, carbs: 760, fat: 585, protein: 300 };
+        const goalRatios = { carbs: 45, fat: 35, protein: 20 };
+
+        let totalFat = 0, totalCarbs = 0, totalProtein = 0;
+        const dailyTotals = nutritionData.map(day => {
+            const total = day.Fat + day.Carbs + day.Protein;
+            totalFat += day.Fat; totalCarbs += day.Carbs; totalProtein += day.Protein;
+            return { date: day.DateTime, total: total, ...day };
+        });
+
+        const numDays = nutritionData.length;
+        const avgFat = totalFat / numDays; const avgCarbs = totalCarbs / numDays;
+        const avgProtein = totalProtein / numDays; const avgKcal = avgFat + avgCarbs + avgProtein;
+        const totalAvgMacros = avgFat + avgCarbs + avgProtein;
+        const avgFatPercentage = (avgFat / totalAvgMacros) * 100;
+        const avgCarbsPercentage = (avgCarbs / totalAvgMacros) * 100;
+        const avgProteinPercentage = (avgProtein / totalAvgMacros) * 100;
+
+        document.getElementById('avg-kcal').textContent = avgKcal.toFixed(0);
+        document.getElementById('avg-carbs').textContent = avgCarbs.toFixed(0);
+        document.getElementById('avg-fat').textContent = avgFat.toFixed(0);
+        document.getElementById('avg-protein').textContent = avgProtein.toFixed(0);
+        document.getElementById('avg-kcal-text').textContent = avgKcal.toFixed(0);
+        document.getElementById('macro-ratio-text').textContent = `${avgCarbsPercentage.toFixed(0)}% Carbs, ${avgFatPercentage.toFixed(0)}% Fat, ${avgProteinPercentage.toFixed(0)}% Protein`;
+
+        const sortedDays = [...dailyTotals].sort((a, b) => a.total - b.total);
+        const lowestDay = sortedDays[0]; const highestDay = sortedDays[sortedDays.length - 1];
+        document.getElementById('high-day-date').textContent = highestDay.date;
+        document.getElementById('high-day-kcal').textContent = highestDay.total.toFixed(0);
+        document.getElementById('high-day-analysis').textContent = `Tăng cao ở cả 3 nhóm, đặc biệt là Chất béo (${highestDay.Fat.toFixed(0)} kcal) và Carbs (${highestDay.Carbs.toFixed(0)} kcal).`;
+        document.getElementById('low-day-date').textContent = lowestDay.date;
+        document.getElementById('low-day-kcal').textContent = lowestDay.total.toFixed(0);
+        document.getElementById('low-day-analysis').textContent = `Mức thấp nhất trong tháng, chủ yếu do giảm ở Chất béo (${lowestDay.Fat.toFixed(0)} kcal) và Đạm (${lowestDay.Protein.toFixed(0)} kcal).`;
+
+        const labels = nutritionData.map(d => d.DateTime.substring(0, 5));
+        const chartTextColor = '#e0e0e0';
+        const chartGridColor = 'rgba(255, 255, 255, 0.1)';
+
+        const goalCtx = document.getElementById('goalComparisonChart').getContext('2d');
+        new Chart(goalCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Năng Lượng', 'Carbs', 'Chất Béo', 'Đạm'],
+                datasets: [{
+                    label: 'Trung Bình Thực Tế (kcal)', data: [avgKcal, avgCarbs, avgFat, avgProtein],
+                    backgroundColor: 'rgba(112, 161, 255, 0.7)', borderColor: 'rgba(112, 161, 255, 1)', borderWidth: 1
+                }, {
+                    label: 'Mục Tiêu (kcal)', data: [goals.kcal, goals.carbs, goals.fat, goals.protein],
+                    backgroundColor: 'rgba(255, 107, 107, 0.7)', borderColor: 'rgba(255, 107, 107, 1)', borderWidth: 1
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: true,
+                scales: { x: { ticks: { color: chartTextColor }, grid: { color: chartGridColor } },
+                          y: { ticks: { color: chartTextColor }, grid: { color: chartGridColor } } },
+                plugins: { legend: { labels: { color: chartTextColor } } }
+            }
+        });
+
+        const macroCtx = document.getElementById('macroRatioChart').getContext('2d');
+        new Chart(macroCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [`Carbs (${avgCarbsPercentage.toFixed(1)}%)`, `Chất Béo (${avgFatPercentage.toFixed(1)}%)`, `Đạm (${avgProteinPercentage.toFixed(1)}%)`],
+                datasets: [{
+                    data: [avgCarbsPercentage, avgFatPercentage, avgProteinPercentage],
+                    backgroundColor: ['#ffc107', '#fd7e14', '#28a745'], hoverOffset: 4
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: true,
+                plugins: {
+                    legend: { labels: { color: chartTextColor } },
+                    tooltip: {
+                        callbacks: {
+                             footer: (tooltipItems) => {
+                                let macro = tooltipItems[0].label.split(' ')[0];
+                                if (macro === 'Carbs') return `Mục tiêu: ${goalRatios.carbs}%`;
+                                if (macro === 'Chất') return `Mục tiêu: ${goalRatios.fat}%`;
+                                if (macro === 'Đạm') return `Mục tiêu: ${goalRatios.protein}%`;
+                                return '';
+                             }
+                        }
+                    }
+                }
+            }
+        });
+
+        const dailyCtx = document.getElementById('dailyIntakeChart').getContext('2d');
+        new Chart(dailyCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Carbs (kcal)', data: nutritionData.map(d => d.Carbs), backgroundColor: '#ffc107' },
+                    { label: 'Chất Béo (kcal)', data: nutritionData.map(d => d.Fat), backgroundColor: '#fd7e14' },
+                    { label: 'Đạm (kcal)', data: nutritionData.map(d => d.Protein), backgroundColor: '#28a745' },
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false,
+                 scales: {
+                    x: { stacked: true, ticks: { color: chartTextColor }, grid: { color: chartGridColor } },
+                    y: { stacked: true, ticks: { color: chartTextColor, callback: (v) => v + ' kcal' }, grid: { color: chartGridColor } }
+                },
+                plugins: {
+                    legend: { labels: { color: chartTextColor } },
+                    tooltip: { mode: 'index', intersect: false }
+                }
+            }
+        });
+
+    </script>
+
+</body>
+</html>
