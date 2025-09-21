@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Báo cáo Phân tích Dinh dưỡng – HTML + JS</title>
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <!-- Chart.js DataLabels plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-6xl mx-auto p-6 bg-white min-h-screen">
+    <h1 class="text-3xl font-bold text-center mb-2">📊 Báo cáo Phân tích Dinh dưỡng</h1>
+    <p id="rangeText" class="text-center text-gray-600 mb-8">
+      <!-- Filled by JS -->
+    </p>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg shadow">
+        <h3 class="text-sm font-semibold mb-2">Tổng Calo TB</h3>
+        <p id="avgTotal" class="text-2xl font-bold">—</p>
+        <p class="text-xs opacity-80">Mục tiêu: <span id="targetTotal">—</span></p>
+      </div>
+
+      <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg shadow">
+        <h3 class="text-sm font-semibold mb-2">Carbs TB</h3>
+        <p id="avgCarbs" class="text-2xl font-bold">—</p>
+        <p id="avgCarbsPct" class="text-xs opacity-80">—</p>
+      </div>
+
+      <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg shadow">
+        <h3 class="text-sm font-semibold mb-2">Chất béo TB</h3>
+        <p id="avgFat" class="text-2xl font-bold">—</p>
+        <p id="avgFatPct" class="text-xs opacity-80">—</p>
+      </div>
+
+      <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-lg shadow">
+        <h3 class="text-sm font-semibold mb-2">Protein TB</h3>
+        <p id="avgProtein" class="text-2xl font-bold">—</p>
+        <p id="avgProteinPct" class="text-xs opacity-80">—</p>
+      </div>
+    </div>
+
+    <!-- Compliance Analysis -->
+    <div class="bg-gray-50 p-6 rounded-lg mb-8">
+      <h2 class="text-2xl font-bold mb-4">📈 Đánh giá Tuân thủ Mục tiêu</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-lg shadow">
+          <h3 class="font-semibold mb-2">Tổng Calo</h3>
+          <div id="compTotal" class="text-2xl font-bold">—</div>
+          <p id="compTotalDelta" class="text-sm text-gray-600">—</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow">
+          <h3 class="font-semibold mb-2">Tỷ lệ Carbs</h3>
+          <div id="compCarbs" class="text-2xl font-bold">—</div>
+          <p id="compCarbsDelta" class="text-sm text-gray-600">—</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow">
+          <h3 class="font-semibold mb-2">Tỷ lệ Protein</h3>
+          <div id="compProtein" class="text-2xl font-bold">—</div>
+          <p id="compProteinDelta" class="text-sm text-gray-600">—</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 gap-8 mb-8">
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h3 class="text-xl font-bold mb-4">🥧 So sánh Phân bố Macro</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <h4 class="text-center font-semibold mb-2">Thực tế</h4>
+            <canvas id="pieActual" height="220"></canvas>
+          </div>
+          <div>
+            <h4 class="text-center font-semibold mb-2">Mục tiêu</h4>
+            <canvas id="pieTarget" height="220"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Daily Data -->
+    <div class="bg-white p-6 rounded-lg shadow mb-8">
+      <h3 class="text-xl font-bold mb-4">📋 Chi tiết Theo ngày</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="p-2 text-left">Ngày</th>
+              <th class="p-2 text-center">Tổng Calo</th>
+              <th class="p-2 text-center">Carbs</th>
+              <th class="p-2 text-center">Chất béo</th>
+              <th class="p-2 text-center">Protein</th>
+              <th class="p-2 text-center">Đánh giá</th>
+            </tr>
+          </thead>
+          <tbody id="dailyTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg mb-6">
+      <h3 class="text-xl font-bold mb-4">💡 Khuyến nghị</h3>
+      <div id="recoList" class="space-y-2 text-gray-700"></div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="bg-gray-100 p-6 rounded-lg">
+      <h3 class="text-xl font-bold mb-4">📋 Thống kê Tổng quan</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div>
+          <p class="font-semibold text-gray-700">Tổng Calo tiêu thụ:</p>
+          <p id="sumTotal" class="text-lg font-bold text-blue-600">—</p>
+        </div>
+        <div>
+          <p class="font-semibold text-gray-700">Calo cao nhất/ngày:</p>
+          <p id="maxTotal" class="text-lg font-bold text-red-600">—</p>
+        </div>
+        <div>
+          <p class="font-semibold text-gray-700">Calo thấp nhất/ngày:</p>
+          <p id="minTotal" class="text-lg font-bold text-green-600">—</p>
+        </div>
+        <div>
+          <p class="font-semibold text-gray-700">Độ lệch chuẩn:</p>
+          <p id="stdTotal" class="text-lg font-bold text-purple-600">—</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Helpers =====
+    const getStatusColorClass = (actual, target, tolerance = 10) => {
+      const variancePct = Math.abs(actual - target) / target * 100;
+      if (variancePct <= tolerance) return 'text-green-600';
+      if (variancePct <= 20) return 'text-yellow-600';
+      return 'text-red-600';
+    };
+
+    const getStatusIcon = (actual, target, tolerance = 10) => {
+      const variancePct = Math.abs(actual - target) / target * 100;
+      if (variancePct <= tolerance) return '✅';
+      if (variancePct <= 20) return '⚠️';
+      return '❌';
+    };
+
+    // ===== Raw Data (CSV like the original) =====
+    const rawData = `DateTime,Fat (kcal),Carbs (kcal),Protein (kcal)
+29/08/2025,598.74,717.57,298.4
+30/08/2025,658.13,788.13,310.18
+31/08/2025,526.77,817.52,354.49
+01/09/2025,590.9,766.26,281.98
+02/09/2025,507.37,747.34,283.86
+03/09/2025,580.76,789.91,358.65
+04/09/2025,586.8,815.5,254.58
+05/09/2025,636.32,801.97,258.83
+06/09/2025,537.78,815.98,359.74
+07/09/2025,689.37,780.56,297.3
+08/09/2025,699.3,849.76,286.99
+09/09/2025,584.71,914.38,293.31
+10/09/2025,742.3,828.87,398.37
+11/09/2025,677.59,882.93,313.51
+12/09/2025,593.24,807.71,399.78
+13/09/2025,680.31,869.5,309.88
+14/09/2025,569.2,851.92,296.4
+15/09/2025,706.38,775.29,412.77
+16/09/2025,696.82,771.76,324.85
+17/09/2025,651.02,871.78,383.49`;
+
+    const targets = {
+      totalCalories: 1600,
+      carbs: 720,  // 45%
+      fat: 560,    // 35%
+      protein: 320 // 20%
+    };
+
+    // ===== Parse & Compute =====
+    const lines = rawData.trim().split('\n');
+    const dataLines = lines.slice(1);
+
+    const processedData = dataLines.map(line => {
+      const [dateTime, fatStr, carbsStr, proteinStr] = line.split(',');
+      const fat = parseFloat(fatStr);
+      const carbs = parseFloat(carbsStr);
+      const protein = parseFloat(proteinStr);
+      const total = fat + carbs + protein;
+      const [day, month] = dateTime.split('/');
+      const displayDate = `${day}/${month}`;
+      return {
+        date: displayDate,
+        fullDate: dateTime,
+        fat, carbs, protein, total,
+        fatPercent: fat / total * 100,
+        carbsPercent: carbs / total * 100,
+        proteinPercent: protein / total * 100,
+      };
+    });
+
+    const totalsAgg = processedData.reduce((acc, d) => {
+      acc.fat += d.fat;
+      acc.carbs += d.carbs;
+      acc.protein += d.protein;
+      acc.total += d.total;
+      return acc;
+    }, { fat: 0, carbs: 0, protein: 0, total: 0 });
+
+    const count = processedData.length;
+    const averages = {
+      fat: totalsAgg.fat / count,
+      carbs: totalsAgg.carbs / count,
+      protein: totalsAgg.protein / count,
+      total: totalsAgg.total / count,
+      fatPercent: (totalsAgg.fat / totalsAgg.total) * 100,
+      carbsPercent: (totalsAgg.carbs / totalsAgg.total) * 100,
+      proteinPercent: (totalsAgg.protein / totalsAgg.total) * 100,
+    };
+
+    // Range text
+    const startDate = processedData[0].fullDate;
+    const endDate = processedData[processedData.length - 1].fullDate;
+    document.getElementById('rangeText').textContent =
+      `Từ ${startDate} đến ${endDate} (${count} ngày) | So sánh với mục tiêu: ${targets.totalCalories} kcal, 45% Carbs, 35% Fat, 20% Protein`;
+
+    // ===== Fill Summary Cards =====
+    const round = (n) => Math.round(n);
+    document.getElementById('avgTotal').textContent = round(averages.total);
+    document.getElementById('targetTotal').textContent = targets.totalCalories;
+
+    document.getElementById('avgCarbs').textContent = `${round(averages.carbs)} kcal`;
+    document.getElementById('avgCarbsPct').textContent = `${averages.carbsPercent.toFixed(1)}% | Mục tiêu: 45%`;
+
+    document.getElementById('avgFat').textContent = `${round(averages.fat)} kcal`;
+    document.getElementById('avgFatPct').textContent = `${averages.fatPercent.toFixed(1)}% | Mục tiêu: 35%`;
+
+    document.getElementById('avgProtein').textContent = `${round(averages.protein)} kcal`;
+    document.getElementById('avgProteinPct').textContent = `${averages.proteinPercent.toFixed(1)}% | Mục tiêu: 20%`;
+
+    // ===== Compliance cards =====
+    const compTotalEl = document.getElementById('compTotal');
+    const totalIcon = getStatusIcon(averages.total, targets.totalCalories);
+    const totalDelta = round(averages.total - targets.totalCalories);
+    compTotalEl.className = `text-2xl font-bold ${getStatusColorClass(averages.total, targets.totalCalories)}`;
+    compTotalEl.textContent = `${totalIcon}${totalDelta >= 0 ? '+' : ''}${totalDelta} kcal`;
+    document.getElementById('compTotalDelta').textContent = `Chênh lệch: ${(Math.abs(averages.total - targets.totalCalories) / targets.totalCalories * 100).toFixed(1)}%`;
+
+    const compCarbsEl = document.getElementById('compCarbs');
+    const carbsIcon = getStatusIcon(averages.carbsPercent, 45);
+    compCarbsEl.className = `text-2xl font-bold ${getStatusColorClass(averages.carbsPercent, 45)}`;
+    compCarbsEl.textContent = `${carbsIcon}${averages.carbsPercent.toFixed(1)}%`;
+    document.getElementById('compCarbsDelta').textContent = `Mục tiêu: 45% | Chênh lệch: ${(averages.carbsPercent - 45).toFixed(1)}%`;
+
+    const compProteinEl = document.getElementById('compProtein');
+    const proteinIcon = getStatusIcon(averages.proteinPercent, 20);
+    compProteinEl.className = `text-2xl font-bold ${getStatusColorClass(averages.proteinPercent, 20)}`;
+    compProteinEl.textContent = `${proteinIcon}${averages.proteinPercent.toFixed(1)}%`;
+    document.getElementById('compProteinDelta').textContent = `Mục tiêu: 20% | Chênh lệch: ${(averages.proteinPercent - 20).toFixed(1)}%`;
+
+    // ===== Charts =====
+    Chart.register(ChartDataLabels);
+
+    // Pie charts (Actual vs Target)
+    const pieActualData = [averages.carbs, averages.fat, averages.protein];
+    const pieTargetData = [targets.carbs, targets.fat, targets.protein];
+    const pieLabels = ['Carbohydrate', 'Chất béo', 'Protein'];
+
+    const makePie = (ctx, data, title) => new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: pieLabels,
+        datasets: [{ data }]
+      },
+      options: {
+        plugins: {
+          legend: { position: 'bottom' },
+          title: { display: false, text: title },
+          datalabels: {
+            formatter: (value, context) => {
+              const arr = context.dataset.data;
+              const sum = arr.reduce((s, v) => s + v, 0);
+              const pct = sum ? (value / sum * 100) : 0;
+              return pct.toFixed(0) + '%';
+            },
+            font: { weight: '600' },
+          }
+        }
+      }
+    });
+
+    makePie(document.getElementById('pieActual').getContext('2d'), pieActualData, 'Thực tế');
+    makePie(document.getElementById('pieTarget').getContext('2d'), pieTargetData, 'Mục tiêu');
+
+    // ===== Table =====
+    const tbody = document.getElementById('dailyTableBody');
+    processedData.forEach((d, idx) => {
+      const tr = document.createElement('tr');
+      tr.className = idx % 2 === 0 ? 'bg-gray-50' : 'bg-white';
+      const delta = Math.round(d.total - targets.totalCalories);
+      const deltaSign = delta > 0 ? '+' : '';
+      tr.innerHTML = `
+        <td class="p-2" title="${d.fullDate}">${d.date}</td>
+        <td class="p-2 text-center font-semibold">
+          ${Math.round(d.total)}
+          <span class="text-xs ml-1 ${getStatusColorClass(d.total, targets.totalCalories)}">(${deltaSign}${delta})</span>
+        </td>
+        <td class="p-2 text-center">${Math.round(d.carbs)}
+          <span class="text-xs text-gray-600 block">(${d.carbsPercent.toFixed(0)}%)</span>
+        </td>
+        <td class="p-2 text-center">${Math.round(d.fat)}
+          <span class="text-xs text-gray-600 block">(${d.fatPercent.toFixed(0)}%)</span>
+        </td>
+        <td class="p-2 text-center">${Math.round(d.protein)}
+          <span class="text-xs text-gray-600 block">(${d.proteinPercent.toFixed(0)}%)</span>
+        </td>
+        <td class="p-2 text-center">${getStatusIcon(d.total, targets.totalCalories)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // ===== Recommendations =====
+    const reco = [];
+    if (averages.total > targets.totalCalories) {
+      reco.push(`• <span class="font-semibold text-orange-600">Calo dư thừa:</span> Bạn đang tiêu thụ trung bình ${round(averages.total - targets.totalCalories)} kcal/ngày nhiều hơn mục tiêu.`);
+    } else if (averages.total < targets.totalCalories) {
+      reco.push(`• <span class="font-semibold text-blue-600">Calo thiếu hụt:</span> Bạn đang tiêu thụ trung bình ${round(targets.totalCalories - averages.total)} kcal/ngày ít hơn mục tiêu.`);
+    }
+    if (averages.carbsPercent > 50) {
+      reco.push(`• <span class="font-semibold text-purple-600">Carbs cao:</span> Tỷ lệ carbohydrate (${averages.carbsPercent.toFixed(1)}%) vượt khuyến nghị. Hãy tăng protein và chất béo lành mạnh.`);
+    }
+    if (averages.proteinPercent < 18) {
+      reco.push(`• <span class="font-semibold text-red-600">Protein thấp:</span> Tỷ lệ protein (${averages.proteinPercent.toFixed(1)}%) dưới mục tiêu. Hãy bổ sung thêm thực phẩm giàu protein.`);
+    }
+    if (averages.fatPercent > 40) {
+      reco.push(`• <span class="font-semibold text-yellow-600">Chất béo cao:</span> Tỷ lệ chất béo (${averages.fatPercent.toFixed(1)}%) cao hơn khuyến nghị.`);
+    }
+    document.getElementById('recoList').innerHTML = reco.map(p => `<p>${p}</p>`).join('');
+
+    // ===== Summary Stats =====
+    const totals = processedData.map(d => d.total);
+    const sum = totals.reduce((s, v) => s + v, 0);
+    const max = Math.max(...totals);
+    const min = Math.min(...totals);
+    const mean = sum / totals.length;
+    const variance = totals.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / totals.length;
+    const std = Math.sqrt(variance);
+
+    document.getElementById('sumTotal').textContent = `${Math.round(sum).toLocaleString()} kcal`;
+    document.getElementById('maxTotal').textContent = `${Math.round(max)} kcal`;
+    document.getElementById('minTotal').textContent = `${Math.round(min)} kcal`;
+    document.getElementById('stdTotal').textContent = `±${Math.round(std)} kcal`;
+  </script>
+</body>
+</html>
