@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Báo cáo Dinh dưỡng - Tháng 07/2025</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>.kpi{font-variant-numeric:tabular-nums}</style>
+</head>
+<body class="bg-gray-50">
+<div class="max-w-7xl mx-auto px-4 py-8">
+<header class="mb-8">
+  <h1 class="text-3xl font-bold">Báo cáo Dinh dưỡng – 07/2025</h1>
+  <p class="text-gray-600 mt-2">Nam 28 tuổi • PEG + đồ lỏng • 6 bữa/ngày (3 súp xay, 2 sữa 230 kcal, 1 nước trái cây 200 ml, 1 sinh tố)</p>
+  <div class="mt-3 text-sm text-gray-600 flex flex-wrap gap-2">
+    <span class="inline-flex items-center rounded-full px-3 py-1 bg-gray-100">Mục tiêu năng lượng: <b class="ml-1">1,700 kcal</b></span>
+    <span class="inline-flex items-center rounded-full px-3 py-1 bg-gray-100">Carb: <b class="ml-1">190 g</b> (45%)</span>
+    <span class="inline-flex items-center rounded-full px-3 py-1 bg-gray-100">Béo: <b class="ml-1">65 g</b> (35%)</span>
+    <span class="inline-flex items-center rounded-full px-3 py-1 bg-gray-100">Đạm: <b class="ml-1">75 g</b> (20%)</span>
+    <span class="inline-flex items-center rounded-full px-3 py-1 bg-gray-100">Xơ: <b class="ml-1">25 g</b> (chưa có dữ liệu)</span>
+  </div>
+</header>
+
+<section class="grid md:grid-cols-3 gap-6 mb-8">
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <div class="text-sm text-gray-500">Trung bình/ngày</div>
+    <div class="mt-2 text-3xl kpi"><span id="avgKcal"></span> kcal</div>
+    <div class="mt-2 text-gray-600">CV (dao động): <span id="cvKcal"></span>%</div>
+  </div>
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <div class="text-sm text-gray-500">Tỷ lệ trung bình</div>
+    <div class="grid grid-cols-3 gap-2 mt-2">
+      <div><div class="text-2xl kpi" id="pctCarb"></div><div class="text-gray-500 text-sm">Carb</div></div>
+      <div><div class="text-2xl kpi" id="pctFat"></div><div class="text-gray-500 text-sm">Béo</div></div>
+      <div><div class="text-2xl kpi" id="pctPro"></div><div class="text-gray-500 text-sm">Đạm</div></div>
+    </div>
+  </div>
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <div class="text-sm text-gray-500">Tương quan (g)</div>
+    <ul class="mt-2 text-sm text-gray-700" id="corrList"></ul>
+  </div>
+</section>
+
+<section class="grid md:grid-cols-2 gap-6">
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <h2 class="font-semibold mb-3">Calo theo ngày & đường mục tiêu (1,700)</h2>
+    <canvas id="calLine"></canvas>
+  </div>
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <h2 class="font-semibold mb-3">Thành phần năng lượng theo ngày</h2>
+    <canvas id="stackKcal"></canvas>
+  </div>
+</section>
+
+<section class="grid md:grid-cols-2 gap-6 mt-6">
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <h2 class="font-semibold mb-3">Phân bố trung bình vs. Mục tiêu (%)</h2>
+    <div class="grid grid-cols-2 gap-4">
+      <div><canvas id="avgPct"></canvas></div>
+      <div><canvas id="targetPct"></canvas></div>
+    </div>
+    <p class="text-sm text-gray-600 mt-3">So sánh tỷ lệ năng lượng từ Carb/Béo/Đạm với mục tiêu 45/35/20.</p>
+  </div>
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <h2 class="font-semibold mb-3">Quan hệ giữa các nhóm (g)</h2>
+    <canvas id="scatter"></canvas>
+    <p class="text-sm text-gray-600 mt-3">Quan sát mối quan hệ giữa Carb và Béo; kích cỡ điểm phản ánh lượng Đạm.</p>
+  </div>
+</section>
+
+<section class="grid md:grid-cols-2 gap-6 mt-6">
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <h2 class="font-semibold mb-3">Xu hướng theo tuần</h2>
+    <canvas id="weeklyLine"></canvas>
+  </div>
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <h2 class="font-semibold mb-3">Ngày mạnh/yếu (lệch khỏi mục tiêu)</h2>
+    <div class="text-sm text-gray-600 mb-2">Tiêu chí: Calo ±10%, Macro ±15% so với mục tiêu.</div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-left text-gray-500">
+            <th class="py-2 pr-3">Ngày</th><th class="py-2 pr-3">Ghi chú</th>
+            <th class="py-2 pr-3">Calo</th><th class="py-2 pr-3">Béo (g)</th>
+            <th class="py-2 pr-3">Carb (g)</th><th class="py-2 pr-3">Đạm (g)</th>
+          </tr>
+        </thead>
+        <tbody id="weakBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="mt-6 bg-white rounded-2xl shadow-lg p-6">
+  <h2 class="font-semibold mb-3">Nhận xét & Chiến lược cải thiện</h2>
+  <ul class="list-disc pl-6 space-y-2 text-gray-800" id="insightsList"></ul>
+</section>
+
+<footer class="text-center text-xs text-gray-500 mt-10">Tạo tự động bằng ChatGPT • Tháng 07/2025</footer>
+</div>
+
+<script>
+const DATA={"dates": ["01/07/2025", "02/07/2025", "03/07/2025", "04/07/2025", "05/07/2025", "06/07/2025", "07/07/2025", "08/07/2025", "09/07/2025", "10/07/2025", "11/07/2025", "12/07/2025", "13/07/2025", "14/07/2025", "15/07/2025", "16/07/2025", "17/07/2025", "18/07/2025", "19/07/2025", "20/07/2025", "21/07/2025", "22/07/2025", "23/07/2025", "24/07/2025", "25/07/2025", "26/07/2025", "27/07/2025", "28/07/2025", "29/07/2025", "30/07/2025", "31/07/2025"], "total_kcal": [1544, 1648, 1582, 1752, 1683, 1608, 1816, 1830, 1768, 1676, 1723, 1885, 1776, 1804, 1781, 1817, 1667, 1505, 1796, 1647, 1742, 1905, 1841, 1829, 1653, 1746, 1649, 1610, 1721, 1705, 1835], "fat_kcal": [451, 547, 536, 681, 566, 591, 741, 733, 589, 635, 613, 691, 647, 575, 617, 616, 577, 501, 640, 573, 612, 774, 620, 587, 651, 634, 610, 562, 704, 710, 695], "carb_kcal": [829, 808, 759, 774, 834, 748, 762, 812, 892, 771, 833, 916, 857, 936, 850, 898, 805, 735, 894, 763, 879, 760, 929, 884, 744, 775, 793, 785, 722, 714, 799], "protein_kcal": [264, 293, 287, 297, 283, 269, 313, 285, 287, 270, 277, 278, 272, 293, 314, 303, 285, 269, 262, 311, 251, 371, 292, 358, 258, 337, 246, 263, 295, 281, 341], "fat_g": [50.11, 60.78, 59.56, 75.67, 62.89, 65.67, 82.33, 81.44, 65.44, 70.56, 68.11, 76.78, 71.89, 63.89, 68.56, 68.44, 64.11, 55.67, 71.11, 63.67, 68.0, 86.0, 68.89, 65.22, 72.33, 70.44, 67.78, 62.44, 78.22, 78.89, 77.22], "carb_g": [207.25, 202.0, 189.75, 193.5, 208.5, 187.0, 190.5, 203.0, 223.0, 192.75, 208.25, 229.0, 214.25, 234.0, 212.5, 224.5, 201.25, 183.75, 223.5, 190.75, 219.75, 190.0, 232.25, 221.0, 186.0, 193.75, 198.25, 196.25, 180.5, 178.5, 199.75], "protein_g": [66.0, 73.25, 71.75, 74.25, 70.75, 67.25, 78.25, 71.25, 71.75, 67.5, 69.25, 69.5, 68.0, 73.25, 78.5, 75.75, 71.25, 67.25, 65.5, 77.75, 62.75, 92.75, 73.0, 89.5, 64.5, 84.25, 61.5, 65.75, 73.75, 70.25, 85.25], "fat_pct": [29.21, 33.19, 33.88, 38.87, 33.63, 36.75, 40.8, 40.05, 33.31, 37.89, 35.58, 36.66, 36.43, 31.87, 34.64, 33.9, 34.61, 33.29, 35.63, 34.79, 35.13, 40.63, 33.68, 32.09, 39.38, 36.31, 36.99, 34.91, 40.91, 41.64, 37.87], "carb_pct": [53.69, 49.03, 47.98, 44.18, 49.55, 46.52, 41.96, 44.37, 50.45, 46.0, 48.35, 48.59, 48.25, 51.88, 47.73, 49.42, 48.29, 48.84, 49.78, 46.33, 50.46, 39.9, 50.46, 48.33, 45.01, 44.39, 48.09, 48.76, 41.95, 41.88, 43.54], "protein_pct": [17.1, 17.78, 18.14, 16.95, 16.82, 16.73, 17.24, 15.57, 16.23, 16.11, 16.08, 14.75, 15.32, 16.24, 17.63, 16.68, 17.1, 17.87, 14.59, 18.88, 14.41, 19.48, 15.86, 19.57, 15.61, 19.3, 14.92, 16.34, 17.14, 16.48, 18.58], "flags": ["Béo thấp", "", "", "Béo cao", "", "", "Béo cao", "Béo cao", "Carb cao", "", "", "Calo cao, Béo cao, Carb cao", "", "Carb cao", "", "Carb cao", "", "Calo thấp", "Carb cao", "", "Carb cao, Đạm thấp", "Calo cao, Béo cao, Đạm cao", "Carb cao", "Carb cao, Đạm cao", "", "", "Đạm thấp", "", "Béo cao", "Béo cao", "Béo cao"], "weekly_labels": ["2025-W27", "2025-W28", "2025-W29", "2025-W30", "2025-W31"], "weekly_total": [1636.17, 1782.0, 1716.71, 1766.43, 1717.75], "weekly_fat": [562.0, 664.14, 585.57, 641.14, 667.75], "weekly_carb": [792.0, 834.71, 840.14, 823.43, 755.0], "weekly_protein": [282.17, 283.14, 291.0, 301.86, 295.0], "target": {"total_kcal": 1700, "fat_g": 65, "carb_g": 190, "protein_g": 75, "pct": {"Carbs": 45, "Fat": 35, "Protein": 20}}, "summary": {"avg_total": 1727.23, "cv_total_pct": 5.81, "avg_fat_g": 69.1, "avg_carb_g": 203.71, "avg_protein_g": 72.62, "avg_pct_fat": 35.95, "avg_pct_carb": 47.22, "avg_pct_protein": 16.82}, "correlation": {"Fat_g": {"Fat_g": 1.0, "Carbs_g": -0.163, "Protein_g": 0.362}, "Carbs_g": {"Fat_g": -0.163, "Carbs_g": 1.0, "Protein_g": -0.026}, "Protein_g": {"Fat_g": 0.362, "Carbs_g": -0.026, "Protein_g": 1.0}}, "strong_days": ["02/07/2025", "05/07/2025", "10/07/2025", "11/07/2025", "17/07/2025", "20/07/2025"], "weak_rows": [{"DateTime": "01/07/2025", "Flags": "Béo thấp", "Total_kcal": 1544, "Fat_g": 50.1, "Carbs_g": 207.2, "Protein_g": 66.0}, {"DateTime": "04/07/2025", "Flags": "Béo cao", "Total_kcal": 1752, "Fat_g": 75.7, "Carbs_g": 193.5, "Protein_g": 74.2}, {"DateTime": "07/07/2025", "Flags": "Béo cao", "Total_kcal": 1816, "Fat_g": 82.3, "Carbs_g": 190.5, "Protein_g": 78.2}, {"DateTime": "08/07/2025", "Flags": "Béo cao", "Total_kcal": 1830, "Fat_g": 81.4, "Carbs_g": 203.0, "Protein_g": 71.2}, {"DateTime": "09/07/2025", "Flags": "Carb cao", "Total_kcal": 1768, "Fat_g": 65.4, "Carbs_g": 223.0, "Protein_g": 71.8}, {"DateTime": "12/07/2025", "Flags": "Calo cao, Béo cao, Carb cao", "Total_kcal": 1885, "Fat_g": 76.8, "Carbs_g": 229.0, "Protein_g": 69.5}, {"DateTime": "14/07/2025", "Flags": "Carb cao", "Total_kcal": 1804, "Fat_g": 63.9, "Carbs_g": 234.0, "Protein_g": 73.2}, {"DateTime": "16/07/2025", "Flags": "Carb cao", "Total_kcal": 1817, "Fat_g": 68.4, "Carbs_g": 224.5, "Protein_g": 75.8}, {"DateTime": "18/07/2025", "Flags": "Calo thấp", "Total_kcal": 1505, "Fat_g": 55.7, "Carbs_g": 183.8, "Protein_g": 67.2}, {"DateTime": "19/07/2025", "Flags": "Carb cao", "Total_kcal": 1796, "Fat_g": 71.1, "Carbs_g": 223.5, "Protein_g": 65.5}, {"DateTime": "21/07/2025", "Flags": "Carb cao, Đạm thấp", "Total_kcal": 1742, "Fat_g": 68.0, "Carbs_g": 219.8, "Protein_g": 62.8}, {"DateTime": "22/07/2025", "Flags": "Calo cao, Béo cao, Đạm cao", "Total_kcal": 1905, "Fat_g": 86.0, "Carbs_g": 190.0, "Protein_g": 92.8}, {"DateTime": "23/07/2025", "Flags": "Carb cao", "Total_kcal": 1841, "Fat_g": 68.9, "Carbs_g": 232.2, "Protein_g": 73.0}, {"DateTime": "24/07/2025", "Flags": "Carb cao, Đạm cao", "Total_kcal": 1829, "Fat_g": 65.2, "Carbs_g": 221.0, "Protein_g": 89.5}, {"DateTime": "27/07/2025", "Flags": "Đạm thấp", "Total_kcal": 1649, "Fat_g": 67.8, "Carbs_g": 198.2, "Protein_g": 61.5}, {"DateTime": "29/07/2025", "Flags": "Béo cao", "Total_kcal": 1721, "Fat_g": 78.2, "Carbs_g": 180.5, "Protein_g": 73.8}, {"DateTime": "30/07/2025", "Flags": "Béo cao", "Total_kcal": 1705, "Fat_g": 78.9, "Carbs_g": 178.5, "Protein_g": 70.2}, {"DateTime": "31/07/2025", "Flags": "Béo cao", "Total_kcal": 1835, "Fat_g": 77.2, "Carbs_g": 199.8, "Protein_g": 85.2}]};
+document.getElementById('avgKcal').textContent=Math.round(DATA.summary.avg_total);
+document.getElementById('cvKcal').textContent=DATA.summary.cv_total_pct.toFixed(1);
+document.getElementById('pctCarb').textContent=DATA.summary.avg_pct_carb.toFixed(1)+'%';
+document.getElementById('pctFat').textContent=DATA.summary.avg_pct_fat.toFixed(1)+'%';
+document.getElementById('pctPro').textContent=DATA.summary.avg_pct_protein.toFixed(1)+'%';
+const corr=DATA.correlation, list=document.getElementById('corrList');
+['Carbs_g','Fat_g','Protein_g']; 
+const items=[`Carb ↔ Béo: ${corr['Carbs_g']['Fat_g']}`,`Carb ↔ Đạm: ${corr['Carbs_g']['Protein_g']}`,`Béo ↔ Đạm: ${corr['Fat_g']['Protein_g']}`];
+items.forEach(t=>{const li=document.createElement('li'); li.textContent=t; list.appendChild(li);});
+
+new Chart(document.getElementById('calLine'),{type:'line',data:{labels:DATA.dates,datasets:[{label:'Tổng kcal',data:DATA.total_kcal,borderWidth:2,fill:false,tension:.2},{label:'Mục tiêu',data:DATA.dates.map(_=>DATA.target.total_kcal),borderWidth:1,borderDash:[6,6],fill:false}]},options:{responsive:true,plugins:{legend:{position:'top'}},scales:{y:{beginAtZero:false}}}});
+new Chart(document.getElementById('stackKcal'),{type:'bar',data:{labels:DATA.dates,datasets:[{label:'Béo (kcal)',data:DATA.fat_kcal,stack:'k'},{label:'Carb (kcal)',data:DATA.carb_kcal,stack:'k'},{label:'Đạm (kcal)',data:DATA.protein_kcal,stack:'k'}]},options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{stacked:true},y:{stacked:true}}}});
+new Chart(document.getElementById('avgPct'),{type:'doughnut',data:{labels:['Carb %','Béo %','Đạm %'],datasets:[{data:[DATA.summary.avg_pct_carb,DATA.summary.avg_pct_fat,DATA.summary.avg_pct_protein]}]},options:{plugins:{legend:{position:'bottom'}}}});
+new Chart(document.getElementById('targetPct'),{type:'doughnut',data:{labels:['Carb %','Béo %','Đạm %'],datasets:[{data:[DATA.target.pct.Carbs,DATA.target.pct.Fat,DATA.target.pct.Protein]}]},options:{plugins:{legend:{position:'bottom'}}}});
+const pts=DATA.carb_g.map((cg,i)=>({x:cg,y:DATA.fat_g[i],r:Math.max(4,Math.min(14,DATA.protein_g[i]/2))}));
+new Chart(document.getElementById('scatter'),{type:'bubble',data:{datasets:[{label:'Ngày',data:pts}]},options:{scales:{x:{title:{display:true,text:'Carb (g)'}},y:{title:{display:true,text:'Béo (g)'}}}}});
+new Chart(document.getElementById('weeklyLine'),{type:'line',data:{labels:DATA.weekly_labels,datasets:[{label:'TB tuần (kcal)',data:DATA.weekly_total,borderWidth:2,fill:false,tension:.2},{label:'Mục tiêu',data:DATA.weekly_labels.map(_=>DATA.target.total_kcal),borderWidth:1,borderDash:[6,6],fill:false}]},options:{plugins:{legend:{position:'top'}}}});
+
+const tbody=document.getElementById('weakBody');
+DATA.weak_rows.forEach(r=>{const tr=document.createElement('tr'); tr.innerHTML=`<td class="py-1 pr-3">${r.DateTime}</td><td class="py-1 pr-3">${r.Flags}</td><td class="py-1 pr-3">${r.Total_kcal}</td><td class="py-1 pr-3">${r.Fat_g}</td><td class="py-1 pr-3">${r.Carbs_g}</td><td class="py-1 pr-3">${r.Protein_g}</td>`; tbody.appendChild(tr);});
+const insights=[]; const kcalGap=DATA.summary.avg_total-DATA.target.total_kcal; const kcalGapPct=kcalGap/DATA.target.total_kcal*100;
+insights.push(`Năng lượng trung bình ${Math.round(DATA.summary.avg_total)} kcal (${kcalGapPct.toFixed(1)}% so với mục tiêu 1,700 kcal).`);
+insights.push(`Trung bình/ngày: Béo ${DATA.summary.avg_fat_g.toFixed(1)} g • Carb ${DATA.summary.avg_carb_g.toFixed(1)} g • Đạm ${DATA.summary.avg_protein_g.toFixed(1)} g.`);
+insights.push(`Tỷ lệ trung bình: Carb ${DATA.summary.avg_pct_carb.toFixed(1)}% • Béo ${DATA.summary.avg_pct_fat.toFixed(1)}% • Đạm ${DATA.summary.avg_pct_protein.toFixed(1)}% (mục tiêu 45/35/20).`);
+insights.push(`Số ngày cân bằng tốt: ${DATA.strong_days.length} ngày.`);
+const hi=DATA.dates.filter((d,i)=>DATA.total_kcal[i]>DATA.target.total_kcal*1.10).length; const lo=DATA.dates.filter((d,i)=>DATA.total_kcal[i]<DATA.target.total_kcal*0.90).length;
+insights.push(`Ngày calo cao (>110%): ${hi} • Ngày calo thấp (<90%): ${lo}.`);
+insights.push(`Tương quan: Carb–Béo = ${corr['Carbs_g']['Fat_g']}, Béo–Đạm = ${corr['Fat_g']['Protein_g']}, Carb–Đạm = ${corr['Carbs_g']['Protein_g']}.`);
+insights.push('Chiến lược: giảm đường tinh trong nước trái cây/sinh tố; chuẩn hoá dầu trong súp (≤1 thìa cà phê/bát); tăng whey/casein 10–20 g/lần khi thiếu đạm; giữ 6 lần nạp ~280–290 kcal.');
+insights.push('Bổ sung xơ hoà tan (yến mạch/chuối/psyllium 2–3 g) để tiến tới 25 g/ngày; theo dõi dung nạp qua PEG.');
+const ul=document.getElementById('insightsList'); insights.forEach(t=>{const li=document.createElement('li'); li.textContent=t; ul.appendChild(li);});
+</script>
+</body>
+</html>

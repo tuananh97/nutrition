@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Phân tích Dinh dưỡng</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;700&display=swap');
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        header {
+            text-align: center;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        header h1 {
+            color: #0056b3;
+            margin: 0;
+        }
+        header p {
+            font-size: 1.1em;
+            color: #555;
+            margin-top: 5px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            color: #0056b3;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .card {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 5px solid #007bff;
+        }
+        .card.warning { border-left-color: #ffc107; }
+        .card.success { border-left-color: #28a745; }
+        .card.danger { border-left-color: #dc3545; }
+        .card-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .card-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #0056b3;
+        }
+        .card-comparison {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .chart-container {
+            padding: 20px;
+            border-radius: 8px;
+            background: #fdfdfd;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .recommendations ul {
+            list-style-type: '✔ ';
+            padding-left: 20px;
+        }
+        .recommendations li {
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Báo cáo Phân tích Dinh dưỡng</h1>
+            <p>Bệnh nhân: Nam, 28 tuổi | Thời gian phân tích: 01/07/2025 - 31/07/2025</p>
+        </header>
+
+        <div class="section">
+            <h2>1. Tổng quan & So sánh Mục tiêu</h2>
+            <div class="grid-container">
+                <div id="avg-calories-card" class="card"></div>
+                <div id="avg-protein-card" class="card"></div>
+                <div id="avg-fat-card" class="card"></div>
+                <div id="avg-carbs-card" class="card"></div>
+            </div>
+            <br>
+            <div class="grid-container" style="grid-template-columns: 1fr 1fr; align-items: center;">
+                <div class="chart-container">
+                    <h3>Tỷ lệ Dinh dưỡng Trung bình (%)</h3>
+                    <canvas id="macroDoughnutChart"></canvas>
+                </div>
+                 <div class="recommendations">
+                    <ul>
+                        <li><strong>Tổng năng lượng trung bình</strong> thấp hơn mục tiêu đề ra.</li>
+                        <li>Tỷ lệ <strong>Protein</strong> và <strong>Chất béo</strong> thấp hơn so với mục tiêu.</li>
+                        <li>Tỷ lệ <strong>Carbohydrate</strong> cao hơn đáng kể so với mục tiêu.</li>
+                        <li><strong>Kết luận sơ bộ:</strong> Cần tăng cường năng lượng tổng thể, đặc biệt từ protein và chất béo, đồng thời kiểm soát lượng carbohydrate.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>2. Phân tích Xu hướng Hàng ngày</h2>
+            <div class="chart-container">
+                <h3>Biểu đồ Năng lượng (kcal) Hàng ngày</h3>
+                <canvas id="dailyCaloriesLineChart"></canvas>
+            </div>
+            <div class="chart-container">
+                 <h3>Biểu đồ Phân bổ Năng lượng (kcal) từ Dinh dưỡng Đa lượng</h3>
+                <canvas id="dailyMacrosAreaChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>3. Đánh giá chi tiết & Chiến lược Cải thiện</h2>
+            <div class="recommendations">
+                <h4>Phân tích & Đánh giá</h4>
+                <ul>
+                    <li><strong>Độ ổn định:</strong> Mức năng lượng hàng ngày có sự dao động nhưng không quá lớn, hầu hết các ngày đều dưới mức mục tiêu 1700 kcal. Ngày cao nhất (22/07) đạt 1865 kcal và thấp nhất (01/07) là 1544 kcal.</li>
+                    <li><strong>Mất cân đối dinh dưỡng:</strong> Chế độ ăn hiện tại có xu hướng thiên về carbohydrate. Trong hầu hết các ngày, năng lượng từ carbs chiếm trên 50%, trong khi năng lượng từ protein và chất béo lại không đạt tỷ lệ mục tiêu (20% và 35%).</li>
+                    <li><strong>Mối quan hệ giữa các nhóm:</strong> Biểu đồ cho thấy không có sự đánh đổi rõ rệt giữa các nhóm dinh dưỡng. Lượng calo từ mỗi nhóm có xu hướng tăng hoặc giảm cùng nhau theo tổng năng lượng nạp vào mỗi ngày.</li>
+                </ul>
+                <h4>Chiến lược Cải thiện & Tối ưu hóa</h4>
+                <ul>
+                    <li><strong>Tăng tổng năng lượng:</strong> Cần điều chỉnh để tăng năng lượng trung bình hàng ngày lên khoảng 1700 kcal. Có thể tăng nhẹ khẩu phần của các bữa ăn hiện có.</li>
+                    <li><strong>Tăng cường Protein:</strong> Đây là ưu tiên hàng đầu.
+                        <ul>
+                            <li>Sử dụng các loại sữa cao năng lượng, giàu protein hơn (ví dụ: các loại sữa chuyên dụng cho bệnh nhân).</li>
+                            <li>Thêm bột protein vào súp xay hoặc sinh tố để tăng hàm lượng đạm mà không làm tăng quá nhiều thể tích.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Bổ sung Chất béo lành mạnh:</strong>
+                        <ul>
+                            <li>Thêm các loại dầu thực vật tốt (dầu olive, dầu hạt cải, dầu MCT) vào súp xay.</li>
+                            <li>Sử dụng quả bơ trong sinh tố để cung cấp chất béo tốt và tăng độ sánh mịn.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Điều chỉnh Carbohydrate:</strong>
+                         <ul>
+                            <li>Giảm bớt lượng đường hoặc các loại trái cây ngọt trong sinh tố và nước ép.</li>
+                            <li>Ưu tiên các nguồn carb phức hợp trong súp xay (ví dụ: khoai lang, yến mạch) thay vì các loại tinh bột tinh chế.</li>
+                        </ul>
+                    </li>
+                     <li><strong>Theo dõi và điều chỉnh:</strong> Cần tiếp tục ghi chép và theo dõi dữ liệu dinh dưỡng để đánh giá hiệu quả của các thay đổi và điều chỉnh kịp thời.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // 1. DỮ LIỆU
+    const nutritionData = [
+        { date: '01/07', fat: 451, carbs: 829, protein: 264 }, { date: '02/07', fat: 547, carbs: 808, protein: 293 },
+        { date: '03/07', fat: 536, carbs: 759, protein: 287 }, { date: '04/07', fat: 681, carbs: 774, protein: 297 },
+        { date: '05/07', fat: 566, carbs: 834, protein: 283 }, { date: '06/07', fat: 591, carbs: 748, protein: 269 },
+        { date: '07/07', fat: 741, carbs: 762, protein: 313 }, { date: '08/07', fat: 733, carbs: 812, protein: 285 },
+        { date: '09/07', fat: 589, carbs: 892, protein: 287 }, { date: '10/07', fat: 635, carbs: 771, protein: 270 },
+        { date: '11/07', fat: 613, carbs: 833, protein: 277 }, { date: '12/07', fat: 691, carbs: 916, protein: 278 },
+        { date: '13/07', fat: 647, carbs: 857, protein: 272 }, { date: '14/07', fat: 575, carbs: 936, protein: 293 },
+        { date: '15/07', fat: 617, carbs: 850, protein: 314 }, { date: '16/07', fat: 616, carbs: 898, protein: 303 },
+        { date: '17/07', fat: 577, carbs: 805, protein: 285 }, { date: '18/07', fat: 501, carbs: 735, protein: 269 },
+        { date: '19/07', fat: 640, carbs: 894, protein: 262 }, { date: '20/07', fat: 573, carbs: 763, protein: 311 },
+        { date: '21/07', fat: 612, carbs: 879, protein: 251 }, { date: '22/07', fat: 774, carbs: 760, protein: 371 },
+        { date: '23/07', fat: 620, carbs: 929, protein: 292 }, { date: '24/07', fat: 587, carbs: 884, protein: 358 },
+        { date: '25/07', fat: 651, carbs: 744, protein: 258 }, { date: '26/07', fat: 634, carbs: 775, protein: 337 },
+        { date: '27/07', fat: 610, carbs: 793, protein: 246 }, { date: '28/07', fat: 562, carbs: 785, protein: 263 },
+        { date: '29/07', fat: 704, carbs: 722, protein: 295 }, { date: '30/07', fat: 710, carbs: 714, protein: 281 },
+        { date: '31/07', fat: 695, carbs: 799, protein: 341 }
+    ];
+
+    const targets = {
+        calories: 1700,
+        proteinG: 75,
+        fatG: 65,
+        carbsG: 190,
+        proteinKcal: 75 * 4, // 300
+        fatKcal: 65 * 9, // 585
+        carbsKcal: 190 * 4, // 760
+        proteinPercent: 20,
+        fatPercent: 35,
+        carbsPercent: 45
+    };
+
+    // 2. TÍNH TOÁN DỮ LIỆU
+    const dailyTotals = nutritionData.map(d => ({
+        ...d,
+        total: d.fat + d.carbs + d.protein
+    }));
+
+    const sum = dailyTotals.reduce((acc, curr) => {
+        acc.fat += curr.fat;
+        acc.carbs += curr.carbs;
+        acc.protein += curr.protein;
+        acc.total += curr.total;
+        return acc;
+    }, { fat: 0, carbs: 0, protein: 0, total: 0 });
+
+    const count = dailyTotals.length;
+    const avg = {
+        fat: Math.round(sum.fat / count),
+        carbs: Math.round(sum.carbs / count),
+        protein: Math.round(sum.protein / count),
+        total: Math.round(sum.total / count)
+    };
+
+    const avgPercent = {
+        fat: parseFloat((avg.fat / avg.total * 100).toFixed(1)),
+        carbs: parseFloat((avg.carbs / avg.total * 100).toFixed(1)),
+        protein: parseFloat((avg.protein / avg.total * 100).toFixed(1))
+    };
+
+    const labels = dailyTotals.map(d => d.date);
+
+    // 3. RENDER CARD THÔNG TIN
+    function createCard(id, title, actual, target, unit) {
+        const diff = actual - target;
+        const diffPercent = ((diff / target) * 100).toFixed(1);
+        let status = 'success';
+        let comparisonText = `Đạt mục tiêu`;
+
+        if (Math.abs(diffPercent) > 10) { // Sai lệch hơn 10%
+             status = diff > 0 ? 'warning' : 'danger';
+        }
+        if (diff !== 0) {
+            comparisonText = `${diff > 0 ? 'Cao hơn' : 'Thấp hơn'} ${Math.abs(diff)} ${unit} (${Math.abs(diffPercent)}%) so với mục tiêu`;
+        }
+
+        const card = document.getElementById(id);
+        card.classList.add(status);
+        card.innerHTML = `
+            <div class="card-title">${title}</div>
+            <div class="card-value">${actual.toLocaleString()} <span style="font-size:0.5em">${unit}</span></div>
+            <div class="card-comparison">${comparisonText}</div>
+        `;
+    }
+
+    createCard('avg-calories-card', 'Năng lượng Trung bình', avg.total, targets.calories, 'kcal');
+    createCard('avg-protein-card', 'Protein Trung bình', avg.protein, targets.proteinKcal, 'kcal');
+    createCard('avg-fat-card', 'Chất béo Trung bình', avg.fat, targets.fatKcal, 'kcal');
+    createCard('avg-carbs-card', 'Carbohydrate Trung bình', avg.carbs, targets.carbsKcal, 'kcal');
+
+
+    // 4. VẼ BIỂU ĐỒ
+    const chartColors = {
+        fat: 'rgba(255, 193, 7, 0.8)', // Vàng
+        carbs: 'rgba(0, 123, 255, 0.8)', // Xanh dương
+        protein: 'rgba(220, 53, 69, 0.8)', // Đỏ
+        target: 'rgba(108, 117, 125, 1)', // Xám
+        total: 'rgba(40, 167, 69, 0.8)', // Xanh lá
+    };
+     const chartBorderColors = {
+        fat: 'rgb(255, 193, 7)',
+        carbs: 'rgb(0, 123, 255)',
+        protein: 'rgb(220, 53, 69)',
+        total: 'rgb(40, 167, 69)',
+    };
+
+    // Biểu đồ Doughnut
+    new Chart(document.getElementById('macroDoughnutChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Carbs (%)', 'Chất béo (%)', 'Protein (%)'],
+            datasets: [{
+                label: 'Thực tế',
+                data: [avgPercent.carbs, avgPercent.fat, avgPercent.protein],
+                backgroundColor: [chartColors.carbs, chartColors.fat, chartColors.protein],
+                borderColor: '#fff',
+                borderWidth: 2
+            }, {
+                label: 'Mục tiêu',
+                data: [targets.carbsPercent, targets.fatPercent, targets.proteinPercent],
+                backgroundColor: [chartColors.carbs.replace('0.8', '0.3'), chartColors.fat.replace('0.8', '0.3'), chartColors.protein.replace('0.8', '0.3')],
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${context.raw}%` } }
+            }
+        }
+    });
+
+    // Biểu đồ đường
+    new Chart(document.getElementById('dailyCaloriesLineChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Tổng kcal Thực tế',
+                    data: dailyTotals.map(d => d.total),
+                    borderColor: chartBorderColors.total,
+                    backgroundColor: chartColors.total.replace('0.8', '0.2'),
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'Mục tiêu kcal',
+                    data: Array(count).fill(targets.calories),
+                    borderColor: chartColors.target,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: false } }
+        }
+    });
+
+    // Biểu đồ diện tích xếp chồng
+    new Chart(document.getElementById('dailyMacrosAreaChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                 {
+                    label: 'Protein (kcal)',
+                    data: dailyTotals.map(d => d.protein),
+                    backgroundColor: chartColors.protein,
+                    borderColor: chartBorderColors.protein,
+                    fill: true,
+                },
+                {
+                    label: 'Chất béo (kcal)',
+                    data: dailyTotals.map(d => d.fat),
+                    backgroundColor: chartColors.fat,
+                    borderColor: chartBorderColors.fat,
+                    fill: true,
+                },
+                {
+                    label: 'Carbs (kcal)',
+                    data: dailyTotals.map(d => d.carbs),
+                    backgroundColor: chartColors.carbs,
+                    borderColor: chartBorderColors.carbs,
+                    fill: true,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { stacked: true, beginAtZero: true }
+            },
+            plugins: {
+                filler: { propagate: false },
+                tooltip: { mode: 'index' }
+            },
+            interaction: {
+              mode: 'nearest',
+              axis: 'x',
+              intersect: false
+            }
+        }
+    });
+
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infographic Dinh Dưỡng Cho Bệnh Nhân DMD</title>
+    <style>
+        /* --- General Styles --- */
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap');
+
+        :root {
+            --primary-color: #0077b6;
+            --secondary-color: #00b4d8;
+            --background-color: #f8f9fa;
+            --card-bg-color: #ffffff;
+            --text-color: #343a40;
+            --heading-color: #003049;
+            --accent-color-1: #e76f51;
+            --accent-color-2: #2a9d8f;
+            --accent-color-3: #f4a261;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* --- Container and Header --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: var(--border-radius);
+            color: white;
+            box-shadow: var(--box-shadow);
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* --- Grid Layout for Infographic --- */
+        .infographic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .grid-section {
+            display: contents; /* Allows children to participate in the parent grid */
+        }
+
+        /* --- Card Styles --- */
+        .card {
+            background-color: var(--card-bg-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-right: 15px;
+            width: 50px;
+            text-align: center;
+        }
+
+        .card h2 {
+            font-size: 1.6rem;
+            color: var(--heading-color);
+            font-weight: 700;
+        }
+
+        /* Specific Icon Colors */
+        .protein .card-icon { color: var(--accent-color-1); }
+        .carbs .card-icon { color: var(--accent-color-3); }
+        .fats .card-icon { color: #e9c46a; }
+        .fiber .card-icon { color: var(--accent-color-2); }
+        .water .card-icon { color: var(--secondary-color); }
+        .vitamins .card-icon { color: #8e44ad; }
+
+
+        .card p, .card li {
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .card ul {
+            list-style-position: inside;
+            padding-left: 0;
+        }
+
+        .card ul li::marker {
+            color: var(--primary-color);
+        }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .source-list {
+            font-style: italic;
+            color: #555;
+            font-size: 0.9rem !important;
+        }
+
+        /* --- Specific Card Layouts --- */
+        .full-width {
+            grid-column: 1 / -1;
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .full-width h2 {
+            color: var(--heading-color);
+            margin-bottom: 15px;
+        }
+
+        .vitamins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            text-align: left;
+        }
+
+        .vitamin-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .vitamin-item h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        #calcium { border-color: #3498db; }
+        #vitamin-d { border-color: #f1c40f; }
+        #minerals { border-color: #2ecc71; }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.2rem;
+            }
+            header p {
+                font-size: 1rem;
+            }
+            .card h2 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Dinh Dưỡng Thiết Yếu</h1>
+            <p>Hướng dẫn dinh dưỡng quan trọng cho bệnh nhân Loạn dưỡng cơ Duchenne (DMD)</p>
+        </header>
+
+        <main class="infographic-grid">
+
+            <div class="card protein">
+                <div class="card-header">
+                    <i class="fa-solid fa-drumstick-bite card-icon"></i>
+                    <h2>Protein (Chất Đạm)</h2>
+                </div>
+                <p>Mục tiêu: <span class="highlight">1.5g protein / kg trọng lượng cơ thể</span> mỗi ngày. Protein giúp no lâu và duy trì cơ bắp.</p>
+                <p class="source-list">Nguồn protein nạc: Thịt gà, thịt bò, cá, đậu, sữa chua, các loại hạt.</p>
+            </div>
+
+            <div class="card carbs">
+                <div class="card-header">
+                     <i class="fa-solid fa-wheat-awn card-icon"></i>
+                    <h2>Carbohydrate (Carb)</h2>
+                </div>
+                <p>Chọn thực phẩm có <span class="highlight">chỉ số đường huyết (GI) thấp</span> để quản lý cân nặng và năng lượng ổn định.</p>
+                <p class="source-list">Nên dùng: Rau ít tinh bột (bông cải xanh), ngũ cốc nguyên hạt, khoai lang thay cho cơm trắng, bánh mì trắng.</p>
+            </div>
+
+            <div class="card fats">
+                <div class="card-header">
+                    <i class="fa-solid fa-seedling card-icon"></i>
+                    <h2>Chất Béo Lành Mạnh</h2>
+                </div>
+                <p>Tập trung vào chất béo <span class="highlight">không bão hòa đơn và đa</span>. Hạn chế chất béo bão hòa từ thực phẩm chế biến sẵn.</p>
+                <p class="source-list">Nguồn tốt: Cá hồi, quả bơ, dầu ô liu, các loại hạt.</p>
+            </div>
+
+             <div class="card fiber">
+                <div class="card-header">
+                     <i class="fa-solid fa-carrot card-icon"></i>
+                    <h2>Chất Xơ</h2>
+                </div>
+                <p>Rất quan trọng để <span class="highlight">ngăn ngừa táo bón</span>, một vấn đề phổ biến do giảm vận động.</p>
+                 <p class="source-list">Nguồn tốt: Rau xanh, trái cây, các loại đậu, ngũ cốc nguyên hạt.</p>
+            </div>
+
+            <div class="card water">
+                <div class="card-header">
+                    <i class="fa-solid fa-glass-water card-icon"></i>
+                    <h2>Nước</h2>
+                </div>
+                <p>Giúp loại bỏ chất thải, bôi trơn khớp và ngăn ngừa sỏi thận. Uống đủ nước là điều thiết yếu.</p>
+                <p>Công thức gợi ý: <span class="highlight">½ trọng lượng cơ thể (lbs) = lượng nước (oz)</span>.</p>
+                <p class="source-list">Ví dụ: Nặng 60 lbs (27kg) → uống 30 oz (0.9L) nước/ngày.</p>
+            </div>
+
+            <div class="full-width">
+                <div class="card-header" style="justify-content: center;">
+                    <i class="fa-solid fa-pills card-icon"></i>
+                    <h2>Vitamin và Khoáng Chất</h2>
+                </div>
+                <p>Đặc biệt quan trọng để hỗ trợ sức khỏe xương, nhất là khi dùng steroid.</p>
+
+                <div class="vitamins-grid">
+                    <div class="vitamin-item" id="calcium">
+                        <h3><i class="fa-solid fa-bone"></i> Canxi</h3>
+                        <p>Cần cho xương và răng chắc khỏe.</p>
+                        <ul>
+                            <li>9-18 tuổi: <span class="highlight">1300 mg/ngày</span></li>
+                            <li>19-70 tuổi: <span class="highlight">1000 mg/ngày</span></li>
+                            <li>Dùng steroid: <span class="highlight">1500 mg/ngày</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="vitamin-item" id="vitamin-d">
+                        <h3><i class="fa-solid fa-sun"></i> Vitamin D</h3>
+                        <p>Giúp cơ thể hấp thụ Canxi hiệu quả.</p>
+                        <ul>
+                             <li>Lượng khuyến nghị: <span class="highlight">600 IU/ngày</span></li>
+                             <li>Nguồn chính: Ánh nắng mặt trời. Thường cần bổ sung dạng uống.</li>
+                        </ul>
+                    </div>
+
+                    <div class="vitamin-item" id="minerals">
+                         <h3><i class="fa-solid fa-earth-americas"></i> Khoáng Chất Khác</h3>
+                         <p>Magie, kẽm, phốt phát, v.v. rất quan trọng.</p>
+                         <ul>
+                            <li>Nên dùng <span class="highlight">vitamin tổng hợp</span> hàng ngày để đảm bảo đủ vi chất.</li>
+                         </ul>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <footer>
+            <p><strong>Lưu ý:</strong> Thông tin này chỉ mang tính tham khảo. Hãy luôn hỏi ý kiến bác sĩ hoặc chuyên gia dinh dưỡng để có lời khuyên phù hợp nhất với tình trạng sức khỏe cá nhân.</p>
+        </footer>
+    </div>
+
+</body>
+</html>

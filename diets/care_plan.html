@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infographic: Kế Hoạch Chăm Sóc Bệnh Nhân Loạn Dưỡng Cơ Duchenne</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #F0F7FA;
+            color: #0A2342;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #23B5D3;
+            border: 4px solid #F0F7FA;
+            top: 50%;
+            left: -10px;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        .flowchart-step {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .flowchart-step::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 1.25rem;
+            bottom: -1.25rem;
+            width: 2px;
+            background-color: #84BCDA;
+        }
+        .flowchart-step:last-child::before {
+            display: none;
+        }
+        .flowchart-number {
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #00A6FB;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-6 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-0B3954">Kế Hoạch Chăm Sóc Toàn Diện</h1>
+            <p class="text-lg text-5D5C61 mt-2">Hướng dẫn trực quan cho người chăm sóc bệnh nhân Loạn Dưỡng Cơ Duchenne (DMD)</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="snapshot" class="mb-12">
+            <h2 class="text-2xl font-bold text-center mb-6 text-0B3954">Tổng Quan Tình Trạng Bệnh Nhân</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <p class="text-5xl font-bold text-00A6FB">28</p>
+                    <p class="text-lg text-5D5C61 mt-2">Tuổi</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <p class="text-5xl font-bold text-00A6FB">13.9</p>
+                    <p class="text-lg text-5D5C61 mt-2">BMI (Suy kiệt nặng)</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <p class="text-5xl font-bold text-00A6FB">2+</p>
+                    <p class="text-lg text-5D5C61 mt-2">Năm thở máy liên tục</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="pillars" class="mb-12">
+            <h2 class="text-2xl font-bold text-center mb-6 text-0B3954">4 Trụ Cột Chăm Sóc Chính</h2>
+             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white rounded-lg shadow-lg p-6 text-center flex flex-col items-center justify-center">
+                    <span class="text-5xl mb-3">🍎</span>
+                    <h3 class="text-xl font-bold text-0B3954">Dinh Dưỡng Tích Cực</h3>
+                    <p class="text-5D5C61 mt-2">Nền tảng cho sự sống và hồi phục vết loét.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6 text-center flex flex-col items-center justify-center">
+                    <span class="text-5xl mb-3">🫁</span>
+                    <h3 class="text-xl font-bold text-0B3954">Hô Hấp An Toàn</h3>
+                    <p class="text-5D5C61 mt-2">Duy trì thông thoáng đường thở, phòng ngừa nhiễm trùng.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6 text-center flex flex-col items-center justify-center">
+                    <span class="text-5xl mb-3">🩹</span>
+                    <h3 class="text-xl font-bold text-0B3954">Chăm Sóc Vết Loét</h3>
+                    <p class="text-5D5C61 mt-2">Giảm áp lực và tạo môi trường lành thương tối ưu.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6 text-center flex flex-col items-center justify-center">
+                     <span class="text-5xl mb-3">❤️</span>
+                    <h3 class="text-xl font-bold text-0B3954">Hỗ Trợ Toàn Diện</h3>
+                    <p class="text-5D5C61 mt-2">Vật lý trị liệu và nâng đỡ tinh thần cho cả bệnh nhân và gia đình.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="nutrition" class="mb-12">
+            <h2 class="text-2xl font-bold text-center mb-2 text-0B3954">Chiến Lược Dinh Dưỡng Chuyên Sâu</h2>
+            <p class="text-center text-5D5C61 mb-8 max-w-3xl mx-auto">Dinh dưỡng là can thiệp y khoa quan trọng nhất để phá vỡ vòng xoắn suy kiệt, cung cấp năng lượng và nguyên liệu để chữa lành vết loét, duy trì chức năng các cơ quan.</p>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <h3 class="text-xl font-bold mb-4 text-0B3954">Mục tiêu Năng Lượng</h3>
+                        <div class="chart-container h-64 md:h-auto">
+                             <canvas id="energyChart"></canvas>
+                        </div>
+                         <p class="mt-4 text-lg font-medium text-5D5C61">Mục tiêu: <span class="font-bold text-00A6FB">1250-1300</span> Kcal/ngày</p>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-xl font-bold mb-4 text-0B3954">Mục tiêu Đạm</h3>
+                        <div class="chart-container h-64 md:h-auto">
+                            <canvas id="proteinChart"></canvas>
+                        </div>
+                        <p class="mt-4 text-lg font-medium text-5D5C61">Mục tiêu: <span class="font-bold text-00A6FB">75</span> g/ngày</p>
+                    </div>
+                     <div class="text-center">
+                        <h3 class="text-xl font-bold mb-4 text-0B3954">Mục tiêu Dịch</h3>
+                        <div class="chart-container h-64 md:h-auto">
+                            <canvas id="fluidChart"></canvas>
+                        </div>
+                        <p class="mt-4 text-lg font-medium text-5D5C61">Mục tiêu: <span class="font-bold text-00A6FB">1.3-1.5</span> Lít/ngày</p>
+                    </div>
+                </div>
+                 <div class="mt-12">
+                    <h3 class="text-xl font-bold text-center mb-4 text-0B3954">Phân Bố Năng Lượng & Đạm Trong Ngày (Mẫu)</h3>
+                    <p class="text-center text-5D5C61 mb-6 max-w-2xl mx-auto">Chia nhỏ các bữa ăn giúp tối ưu hóa hấp thu và giảm gánh nặng cho hệ tiêu hóa. Kết hợp dinh dưỡng qua sonde và qua miệng để nâng cao chất lượng sống.</p>
+                    <div class="chart-container">
+                        <canvas id="mealPlanChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="schedule" class="mb-12">
+             <h2 class="text-2xl font-bold text-center mb-2 text-0B3954">Lịch Trình Chăm Sóc Mẫu 24 Giờ</h2>
+             <p class="text-center text-5D5C61 mb-8 max-w-3xl mx-auto">Một lịch trình có cấu trúc giúp hệ thống hóa các công việc, đảm bảo không bỏ sót các nhiệm vụ quan trọng và duy trì sự nhất quán trong chăm sóc.</p>
+            <div class="relative pl-8 border-l-2 border-dashed border-84BCDA">
+                <div class="timeline-item mb-8 pl-8">
+                    <h4 class="font-bold text-lg text-0B3954">6:00 - 8:00 (Khởi đầu ngày mới)</h4>
+                    <ul class="list-disc list-inside text-5D5C61 mt-2">
+                        <li>Vệ sinh cá nhân, thay tã</li>
+                        <li>Vật lý trị liệu hô hấp (Vỗ rung, dẫn lưu)</li>
+                        <li>Vệ sinh răng miệng lần 1</li>
+                        <li>Bữa sáng qua sonde PEG, uống thuốc</li>
+                    </ul>
+                </div>
+                <div class="timeline-item mb-8 pl-8">
+                    <h4 class="font-bold text-lg text-0B3954">8:00 - 12:00 (Chăm sóc chủ động)</h4>
+                    <ul class="list-disc list-inside text-5D5C61 mt-2">
+                        <li>Xoay trở tư thế (mỗi 2 giờ)</li>
+                        <li>Tập vật lý trị liệu thụ động</li>
+                        <li>Bữa phụ 1 (qua miệng để thưởng thức)</li>
+                        <li>Thay băng, chăm sóc vết loét</li>
+                    </ul>
+                </div>
+                <div class="timeline-item mb-8 pl-8">
+                    <h4 class="font-bold text-lg text-0B3954">12:00 - 18:00 (Duy trì & kết nối)</h4>
+                    <ul class="list-disc list-inside text-5D5C61 mt-2">
+                        <li>Bữa trưa qua sonde PEG</li>
+                        <li>Xoay trở tư thế, nghỉ ngơi</li>
+                        <li>Vật lý trị liệu hô hấp</li>
+                        <li>Bữa phụ 2, trò chuyện, nghe nhạc</li>
+                         <li>Xoay trở tư thế</li>
+                    </ul>
+                </div>
+                <div class="timeline-item mb-8 pl-8">
+                    <h4 class="font-bold text-lg text-0B3954">18:00 - 21:00 (Chuẩn bị cho giấc ngủ)</h4>
+                     <ul class="list-disc list-inside text-5D5C61 mt-2">
+                        <li>Bữa tối qua sonde PEG</li>
+                        <li>Vệ sinh cá nhân</li>
+                        <li>Vật lý trị liệu hô hấp</li>
+                        <li>Vệ sinh răng miệng lần 2 (rất quan trọng)</li>
+                        <li>Bữa phụ cuối ngày</li>
+                    </ul>
+                </div>
+                <div class="timeline-item pl-8">
+                    <h4 class="font-bold text-lg text-0B3954">Suốt Đêm</h4>
+                    <ul class="list-disc list-inside text-5D5C61 mt-2">
+                        <li><span class="font-bold text-00A6FB">Xoay trở tư thế nghiêm ngặt mỗi 2 giờ</span></li>
+                        <li>Hút đờm khi cần thiết</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <section id="respiratory" class="mb-12">
+            <h2 class="text-2xl font-bold text-center mb-8 text-0B3954">Quy Trình Chăm Sóc Hô Hấp</h2>
+             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                 <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-4 text-center text-0B3954">🚨 Dấu Hiệu Cảnh Báo Cần Chú Ý</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start"><span class="text-2xl mr-3">📉</span> <span><strong class="text-00A6FB">SpO2 &lt; 95%</strong> kéo dài dù đã hút đờm: Nguy cơ thiếu oxy. LIÊN HỆ Y TẾ KHẨN CẤP.</span></li>
+                        <li class="flex items-start"><span class="text-2xl mr-3">🟢</span> <span><strong class="text-00A6FB">Đờm đổi màu</strong> (vàng/xanh), có mùi, mủ/máu: Dấu hiệu nhiễm trùng. BÁO BÁC SĨ.</span></li>
+                        <li class="flex items-start"><span class="text-2xl mr-3">🌡️</span> <span><strong class="text-00A6FB">Sốt > 38°C</strong>: Dấu hiệu nhiễm trùng. BÁO BÁC SĨ.</span></li>
+                        <li class="flex items-start"><span class="text-2xl mr-3">💓</span> <span><strong class="text-00A6FB">Nhịp tim nhanh</strong> lúc nghỉ: Thiếu oxy, sốt, lo lắng. Kiểm tra SpO2, nhiệt độ.</span></li>
+                        <li class="flex items-start"><span class="text-2xl mr-3">🧠</span> <span><strong class="text-00A6FB">Bứt rứt, lú lẫn</strong>: Nguy cơ tăng CO2, thiếu oxy. LIÊN HỆ Y TẾ KHẨN CẤP.</span></li>
+                    </ul>
+                 </div>
+                 <div class="bg-white rounded-lg shadow-lg p-6">
+                     <h3 class="text-xl font-bold mb-6 text-center text-0B3954">Quy Trình Hút Đờm Vô Khuẩn (5 Bước)</h3>
+                     <div class="flowchart-step">
+                        <div class="flowchart-number">1</div>
+                        <div class="ml-4 pb-8">
+                            <h4 class="font-bold text-lg text-0B3954">Chuẩn bị</h4>
+                            <p class="text-5D5C61">Rửa tay, đeo găng vô khuẩn. Chuẩn bị ống hút, máy hút, nước muối vô khuẩn. Tăng FiO2 (nếu có) trước 1-2 phút.</p>
+                        </div>
+                     </div>
+                     <div class="flowchart-step">
+                        <div class="flowchart-number">2</div>
+                        <div class="ml-4 pb-8">
+                            <h4 class="font-bold text-lg text-0B3954">Đưa ống hút</h4>
+                            <p class="text-5D5C61">Nhẹ nhàng đưa ống vào canuyn đến khi có cản trở nhẹ. <strong class="text-red-600">Không bật lực hút</strong> khi đưa vào.</p>
+                        </div>
+                     </div>
+                     <div class="flowchart-step">
+                         <div class="flowchart-number">3</div>
+                        <div class="ml-4 pb-8">
+                            <h4 class="font-bold text-lg text-0B3954">Hút đờm</h4>
+                            <p class="text-5D5C61">Rút ống ra 1-2 cm, bịt lỗ điều khiển áp lực và rút ống ra theo chuyển động xoay. <strong class="text-red-600">Không quá 10-15 giây.</strong></p>
+                        </div>
+                     </div>
+                      <div class="flowchart-step">
+                         <div class="flowchart-number">4</div>
+                        <div class="ml-4 pb-8">
+                            <h4 class="font-bold text-lg text-0B3954">Nghỉ & Đánh giá</h4>
+                            <p class="text-5D5C61">Cho bệnh nhân nghỉ 30-60 giây, theo dõi SpO2. Tráng ống hút bằng nước muối vô khuẩn.</p>
+                        </div>
+                     </div>
+                     <div class="flowchart-step">
+                        <div class="flowchart-number">5</div>
+                        <div class="ml-4 pb-2">
+                            <h4 class="font-bold text-lg text-0B3954">Kết thúc</h4>
+                            <p class="text-5D5C61">Lặp lại nếu cần (tối đa 3 lượt). Hút miệng bằng ống khác. Vứt bỏ vật tư y tế và rửa tay.</p>
+                        </div>
+                     </div>
+                 </div>
+             </div>
+        </section>
+
+        <section id="woundcare" class="mb-12">
+            <h2 class="text-2xl font-bold text-center mb-2 text-0B3954">Chăm Sóc Vết Loét Nâng Cao</h2>
+            <p class="text-center text-5D5C61 mb-8 max-w-3xl mx-auto">Chữa lành vết loét là cuộc chiến song song với dinh dưỡng, đòi hỏi sự nhất quán trong việc giảm áp lực và lựa chọn băng gạc phù hợp để tạo môi trường lành thương tối ưu.</p>
+            <div class="bg-white rounded-lg shadow-lg p-6 overflow-x-auto">
+                <h3 class="text-xl font-bold mb-4 text-center text-0B3954">Hướng Dẫn Lựa Chọn Băng Gạc</h3>
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-blue-50">
+                            <th class="p-3 font-bold uppercase text-0B3954 border-b border-gray-200">Tình trạng vết loét</th>
+                            <th class="p-3 font-bold uppercase text-0B3954 border-b border-gray-200">Loại băng gạc phù hợp</th>
+                            <th class="p-3 font-bold uppercase text-0B3954 border-b border-gray-200">Chức năng chính</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 text-5D5C61 border-b border-gray-200">Tiết dịch nhiều, có hốc sâu</td>
+                            <td class="p-3 font-medium text-00A6FB border-b border-gray-200">Alginate</td>
+                            <td class="p-3 text-5D5C61 border-b border-gray-200">Thấm hút dịch rất mạnh, tạo gel</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 text-5D5C61 border-b border-gray-200">Tiết dịch trung bình đến nhiều</td>
+                            <td class="p-3 font-medium text-00A6FB border-b border-gray-200">Foam (Xốp)</td>
+                            <td class="p-3 text-5D5C61 border-b border-gray-200">Thấm hút tốt, êm ái, giảm áp lực</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 text-5D5C61 border-b border-gray-200">Tiết dịch ít, nền nông</td>
+                            <td class="p-3 font-medium text-00A6FB border-b border-gray-200">Hydrocolloid</td>
+                            <td class="p-3 text-5D5C61 border-b border-gray-200">Duy trì môi trường ẩm, thúc đẩy tự làm sạch</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 text-5D5C61 border-b border-gray-200">Vết thương khô, có mô hoại tử</td>
+                            <td class="p-3 font-medium text-00A6FB border-b border-gray-200">Hydrogel</td>
+                            <td class="p-3 text-5D5C61 border-b border-gray-200">Cung cấp độ ẩm, làm mềm mô hoại tử</td>
+                        </tr>
+                    </tbody>
+                </table>
+                 <p class="text-center mt-6 text-sm text-5D5C61"><strong>Lưu ý quan trọng:</strong> Luôn rửa vết thương bằng nước muối sinh lý 0.9% vô khuẩn. <span class="font-bold text-red-600">Không dùng</span> oxy già hoặc cồn iốt để rửa lên nền vết loét hở.</p>
+            </div>
+        </section>
+        
+    </main>
+    <footer class="bg-white mt-12 py-6">
+        <div class="container mx-auto px-4 text-center text-5D5C61">
+            <p>Thành công trong chăm sóc không phải là chữa khỏi bệnh, mà là chất lượng của mỗi ngày sống. Người chăm sóc chính là chuyên gia thực thụ, là người nắm giữ chìa khóa để duy trì sự sống và phẩm giá cho người thân yêu.</p>
+            <p class="mt-4 text-sm">&copy; 2024 - Infographic Chăm Sóc Sức Khỏe. Được tạo ra với sự đồng cảm và trân trọng.</p>
+        </div>
+    </footer>
+
+    <script>
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+              return label.join(' ');
+            }
+            return label;
+        };
+        
+        const commonDoughnutOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTitleCallback
+                    }
+                }
+            }
+        };
+
+        new Chart(document.getElementById('energyChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Đã đạt được', 'Chưa đạt được'],
+                datasets: [{
+                    data: [1, 1299],
+                    backgroundColor: ['#00A6FB', '#e0e0e0'],
+                    borderColor: '#F0F7FA',
+                    borderWidth: 2
+                }]
+            },
+            options: commonDoughnutOptions
+        });
+
+        new Chart(document.getElementById('proteinChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Đã đạt được', 'Chưa đạt được'],
+                datasets: [{
+                    data: [1, 74],
+                    backgroundColor: ['#23B5D3', '#e0e0e0'],
+                     borderColor: '#F0F7FA',
+                    borderWidth: 2
+                }]
+            },
+            options: commonDoughnutOptions
+        });
+
+         new Chart(document.getElementById('fluidChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Đã đạt được', 'Chưa đạt được'],
+                datasets: [{
+                    data: [0.1, 1.4],
+                    backgroundColor: ['#84BCDA', '#e0e0e0'],
+                     borderColor: '#F0F7FA',
+                    borderWidth: 2
+                }]
+            },
+            options: commonDoughnutOptions
+        });
+        
+        new Chart(document.getElementById('mealPlanChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Năng lượng (Kcal)', 'Đạm (g)'],
+                datasets: [
+                    {
+                        label: 'Bữa sáng 7:00',
+                        data: [350, 25],
+                        backgroundColor: '#0A2342',
+                    },
+                    {
+                        label: 'Bữa phụ 10:00',
+                        data: [200, 10],
+                        backgroundColor: '#0B3954',
+                    },
+                     {
+                        label: 'Bữa trưa 12:00',
+                        data: [350, 25],
+                        backgroundColor: '#00A6FB',
+                    },
+                     {
+                        label: 'Bữa phụ 15:00',
+                        data: [100, 5],
+                        backgroundColor: '#23B5D3',
+                    },
+                     {
+                        label: 'Bữa tối 18:00',
+                        data: [250, 15],
+                        backgroundColor: '#84BCDA',
+                    },
+                     {
+                        label: 'Bữa phụ 21:00',
+                        data: [50, 3],
+                        backgroundColor: '#5D5C61',
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                    },
+                    y: {
+                        stacked: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                       position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {
+                           title: tooltipTitleCallback
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
