@@ -3,438 +3,639 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Báo Cáo Phân Tích Dinh Dưỡng</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Dashboard Theo dõi Dinh dưỡng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/2.2.1/chartjs-plugin-annotation.min.js" xintegrity="sha512-SlHZNgraphoOBATsV7AnNotL3Iq/v3LpB3y1G/6HDvT2+C7Dha5/Jv3HjCG+9gu+QMDQqpTAV939OHU4OvuA5g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
         }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary), #2980b9);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-header {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-weight: 600;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        
+        .metric-card {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .progress {
+            height: 8px;
+            margin: 10px 0;
+        }
+        
+        .summary-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
         .chart-container {
             position: relative;
+            height: 300px;
             width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 320px;
-            max-height: 400px;
         }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
-            }
+        
+        .recommendation-box {
+            background-color: #fff9e6;
+            border-left: 5px solid var(--warning);
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .risk-box {
+            background-color: #ffeaea;
+            border-left: 5px solid var(--danger);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .nutrition-goal {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .goal-progress {
+            flex-grow: 1;
+            margin: 0 15px;
+        }
+        
+        .nav-tabs .nav-link.active {
+            font-weight: 600;
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .day-selector {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        
+        .day-item {
+            flex: 0 0 auto;
+            padding: 8px 15px;
+            margin-right: 10px;
+            border-radius: 20px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .day-item.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .badge-goal-met {
+            background-color: var(--secondary);
+        }
+        
+        .badge-goal-not-met {
+            background-color: var(--danger);
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+        
+        .section-title {
+            border-left: 5px solid var(--primary);
+            padding-left: 15px;
+            margin: 30px 0 20px;
+            font-weight: 600;
         }
     </style>
 </head>
-<body class="text-gray-800">
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-apple-alt me-2"></i>
+                Dashboard Dinh Dưỡng
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#overview">Tổng quan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#nutrition">Dinh dưỡng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#vitamins">Vitamin & Khoáng chất</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#recommendations">Khuyến nghị</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <div class="container mx-auto p-4 md:p-8">
-        <header class="text-center mb-10">
-            <h1 class="text-4xl md:text-5xl font-bold text-[#073B4C]">Báo Cáo Phân Tích Dinh Dưỡng</h1>
-            <p class="text-lg text-gray-600 mt-2">Phân tích dữ liệu trong 3 tháng qua so với mục tiêu của bạn.</p>
-        </header>
-
-        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-            <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                <h3 class="text-lg font-semibold text-[#118AB2]">Mục tiêu Calo</h3>
-                <p class="text-4xl font-bold text-[#073B4C] mt-2">1600</p>
-                <p class="text-sm text-gray-500">kcal/ngày</p>
-            </div>
-            <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                <h3 class="text-lg font-semibold text-[#118AB2]">Lượng Calo Trung bình</h3>
-                <p id="avg-calories" class="text-4xl font-bold text-[#073B4C] mt-2">...</p>
-                 <p class="text-sm text-gray-500">kcal/ngày</p>
-            </div>
-            <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                <h3 class="text-lg font-semibold text-[#118AB2]">Chênh lệch</h3>
-                <p id="calorie-diff" class="text-4xl font-bold text-[#073B4C] mt-2">...</p>
-                 <p class="text-sm text-gray-500">so với mục tiêu</p>
-            </div>
-            <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                <h3 class="text-lg font-semibold text-[#118AB2]">Số ngày Ghi nhận</h3>
-                <p id="day-count" class="text-4xl font-bold text-[#073B4C] mt-2">...</p>
-                <p class="text-sm text-gray-500">trong 3 tháng</p>
-            </div>
-        </main>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold text-[#073B4C] mb-4 text-center">Tỷ lệ Dinh dưỡng Mục tiêu</h2>
-                <p class="text-center text-gray-600 mb-4">Mục tiêu của bạn là 45% Carbs, 35% Chất béo, và 20% Protein.</p>
-                <div class="chart-container">
-                    <canvas id="targetMacroChart"></canvas>
+    <div class="container my-4">
+        <!-- Header Section -->
+        <div class="dashboard-header">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1 class="display-5 fw-bold">Phân tích Dinh dưỡng Cá nhân</h1>
+                    <p class="lead">Báo cáo từ ngày 01/09/2025 đến 30/09/2025</p>
                 </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold text-[#073B4C] mb-4 text-center">Tỷ lệ Dinh dưỡng Trung bình</h2>
-                <p class="text-center text-gray-600 mb-4">Tỷ lệ trung bình thực tế từ dữ liệu ghi nhận của bạn.</p>
-                <div class="chart-container">
-                    <canvas id="avgMacroChart"></canvas>
-                </div>
-            </div>
-
-            <div class="md:col-span-2 bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold text-[#073B4C] mb-4 text-center">Lượng Calo Hàng ngày so với Mục tiêu</h2>
-                <p class="text-center text-gray-600 mb-4">Biểu đồ này theo dõi lượng calo bạn tiêu thụ mỗi ngày so với mục tiêu 1600 kcal. Điều này giúp xác định sự ổn định và các xu hướng trong thói quen ăn uống của bạn.</p>
-                 <div class="chart-container h-96 max-h-[500px] w-full max-w-full">
-                    <canvas id="dailyCaloriesChart"></canvas>
-                </div>
-            </div>
-
-            <div class="md:col-span-2 bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold text-[#073B4C] mb-4 text-center">Phân tích Tỷ lệ Dinh dưỡng Đa lượng Theo Tuần</h2>
-                <p class="text-center text-gray-600 mb-4">Xem xét sự thay đổi trong tỷ lệ dinh dưỡng đa lượng của bạn qua từng tuần. Biểu đồ này cho thấy tỷ lệ phần trăm calo từ Carbs, Chất béo và Protein, giúp bạn hiểu rõ hơn về sự cân bằng trong chế độ ăn uống theo thời gian.</p>
-                <div class="chart-container h-96 max-h-[500px] w-full max-w-full">
-                    <canvas id="weeklyMacroChart"></canvas>
-                </div>
-            </div>
-
-            <div class="md:col-span-2 bg-white rounded-lg shadow-md p-6">
-                 <h2 class="text-2xl font-bold text-[#073B4C] mb-4 text-center">So sánh Lượng Tiêu thụ và Mục tiêu (kcal)</h2>
-                 <p class="text-center text-gray-600 mb-4">So sánh trực tiếp lượng calo trung bình thực tế từ mỗi loại dinh dưỡng đa lượng với lượng calo mục tiêu. Điều này làm nổi bật những chênh lệch cụ thể cần được điều chỉnh.</p>
-                 <div class="chart-container h-96 max-h-[500px] w-full max-w-full">
-                    <canvas id="comparisonMacroChart"></canvas>
+                <div class="col-md-4 text-md-end">
+                    <div class="d-flex flex-column">
+                        <span class="text-muted">Bệnh nhân</span>
+                        <span class="h5">Nguyễn Văn A</span>
+                        <span class="text-muted">28 tuổi, Nam</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <footer class="text-center mt-10 py-6 border-t border-gray-200">
-            <h2 class="text-2xl font-bold text-[#073B4C] mb-4">Kết luận & Khuyến nghị</h2>
-            <div class="max-w-3xl mx-auto text-left space-y-4 text-gray-700">
-                <p>✔️ Lượng calo trung bình hàng ngày của bạn <strong id="conclusion-calorie-comparison" class="text-[#118AB2]">cao hơn</strong> mục tiêu 1600 kcal. Đây là yếu tố quan trọng cần xem xét nếu mục tiêu của bạn là duy trì hoặc giảm cân.</p>
-                <p>✔️ Tỷ lệ <strong class="text-[#FF6B6B]">Chất béo</strong> trong chế độ ăn uống của bạn <strong id="conclusion-fat-comparison">cao hơn</strong> đáng kể so với mục tiêu 35%, trong khi tỷ lệ <strong class="text-[#06D6A0]">Protein</strong> lại <strong id="conclusion-protein-comparison">thấp hơn</strong> mục tiêu 20%. Tỷ lệ <strong class="text-[#FFD166]">Carbohydrate</strong> gần với mục tiêu.</p>
-                <p>💡 <strong>Hành động đề xuất:</strong> Để đạt được mục tiêu, hãy tập trung vào việc giảm lượng calo từ chất béo bằng cách chọn các nguồn thực phẩm ít béo hơn. Đồng thời, tăng cường các nguồn protein nạc như ức gà, cá, đậu phụ và các loại đậu để đáp ứng mục tiêu 20% protein, giúp hỗ trợ cơ bắp và cảm giác no lâu hơn.</p>
+        <!-- Patient Overview -->
+        <div class="row" id="overview">
+            <div class="col-md-4">
+                <div class="card metric-card">
+                    <div class="metric-label">Cân nặng</div>
+                    <div class="metric-value">45 kg</div>
+                    <div class="progress">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 75%"></div>
+                    </div>
+                    <div class="metric-label">Mục tiêu: 50-60 kg</div>
+                </div>
             </div>
-        </footer>
+            <div class="col-md-4">
+                <div class="card metric-card">
+                    <div class="metric-label">Chỉ số BMI</div>
+                    <div class="metric-value">16.5</div>
+                    <div class="progress">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 65%"></div>
+                    </div>
+                    <div class="metric-label">Thiếu cân nghiêm trọng</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card metric-card">
+                    <div class="metric-label">Năng lượng trung bình</div>
+                    <div class="metric-value">1780 kcal</div>
+                    <div class="progress">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 85%"></div>
+                    </div>
+                    <div class="metric-label">Mục tiêu: 2000 kcal</div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Nutrition Overview -->
+        <h3 class="section-title" id="nutrition">Phân tích Dinh dưỡng Đa lượng</h3>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Tiêu thụ Năng lượng & Đa lượng</span>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-primary active" data-chart="daily">Hàng ngày</button>
+                            <button type="button" class="btn btn-outline-primary" data-chart="average">Trung bình</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="nutritionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">Tỷ lệ Dinh dưỡng Đa lượng</div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="macronutrientRatioChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nutrition Goals -->
+        <div class="card mt-4">
+            <div class="card-header">Mục tiêu Dinh dưỡng</div>
+            <div class="card-body">
+                <div class="nutrition-goal">
+                    <span>Năng lượng (kcal)</span>
+                    <div class="goal-progress">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 89%">1780/2000</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-warning">89%</span>
+                </div>
+                
+                <div class="nutrition-goal">
+                    <span>Protein (g)</span>
+                    <div class="goal-progress">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 95%">71/75</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-success">95%</span>
+                </div>
+                
+                <div class="nutrition-goal">
+                    <span>Chất béo (g)</span>
+                    <div class="goal-progress">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 82%">53/65</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-warning">82%</span>
+                </div>
+                
+                <div class="nutrition-goal">
+                    <span>Carbohydrate (g)</span>
+                    <div class="goal-progress">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 78%">148/190</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-warning">78%</span>
+                </div>
+                
+                <div class="nutrition-goal">
+                    <span>Chất xơ (g)</span>
+                    <div class="goal-progress">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 65%">16/25</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-danger">65%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Assessment -->
+        <div class="risk-box">
+            <h5><i class="fas fa-exclamation-triangle me-2"></i>Đánh giá Nguy cơ</h5>
+            <p class="mb-1">Bệnh nhân có chỉ số BMI 16.5, thuộc nhóm thiếu cân nghiêm trọng.</p>
+            <p class="mb-0">Nguy cơ: Mệt mỏi, giảm miễn dịch, chậm lành vết thương, loãng xương, teo cơ.</p>
+        </div>
+
+        <!-- Vitamins & Minerals -->
+        <h3 class="section-title" id="vitamins">Vitamin & Khoáng chất</h3>
+        
+        <div class="card">
+            <div class="card-header">Lượng Vitamin & Khoáng chất Trung bình</div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="vitaminsMineralsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Selector -->
+        <div class="day-selector">
+            <div class="day-item active">Tất cả</div>
+            <div class="day-item">01/09</div>
+            <div class="day-item">05/09</div>
+            <div class="day-item">10/09</div>
+            <div class="day-item">15/09</div>
+            <div class="day-item">20/09</div>
+            <div class="day-item">25/09</div>
+            <div class="day-item">30/09</div>
+        </div>
+
+        <!-- Recommendations -->
+        <h3 class="section-title" id="recommendations">Khuyến nghị Dinh dưỡng</h3>
+        
+        <div class="recommendation-box">
+            <h5><i class="fas fa-lightbulb me-2"></i>Chiến lược Cải thiện Dinh dưỡng</h5>
+            <ol>
+                <li><strong>Tăng tổng năng lượng:</strong> Cần bổ sung thêm 220 kcal mỗi ngày để đạt mục tiêu.</li>
+                <li><strong>Tăng chất đạm:</strong> Thêm bột protein, sữa chua, thịt/cá xay vào khẩu phần ăn.</li>
+                <li><strong>Tăng chất béo lành mạnh:</strong> Bổ sung dầu ô liu, các loại hạt, bơ vào bữa ăn.</li>
+                <li><strong>Cải thiện chất xơ:</strong> Thêm rau củ, trái cây xay nhuyễn vào súp và sinh tố.</li>
+                <li><strong>Bổ sung vi chất:</strong> Xem xét bổ sung Vitamin D, Kẽm, Sắt theo chỉ dẫn bác sĩ.</li>
+                <li><strong>Chia nhỏ bữa ăn:</strong> Duy trì 6 bữa/ngày, tăng dần khẩu phần từ từ.</li>
+            </ol>
+        </div>
+
+        <!-- Progress Tracking -->
+        <div class="card mt-4">
+            <div class="card-header">Theo dõi Tiến triển</div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Dashboard Dinh Dưỡng</h5>
+                    <p>Theo dõi và phân tích chế độ dinh dưỡng để cải thiện sức khỏe</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Liên kết</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-light">Tổng quan</a></li>
+                        <li><a href="#" class="text-light">Dinh dưỡng</a></li>
+                        <li><a href="#" class="text-light">Vitamin & Khoáng chất</a></li>
+                        <li><a href="#" class="text-light">Khuyến nghị</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Hỗ trợ</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-light">Trợ giúp</a></li>
+                        <li><a href="#" class="text-light">Câu hỏi thường gặp</a></li>
+                        <li><a href="#" class="text-light">Liên hệ</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p>&copy; 2025 Dashboard Dinh Dưỡng. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const TARGET_CALORIES = 1600;
-            const TARGET_MACROS = { carbs: 0.45, fat: 0.35, protein: 0.20 };
-
-            const COLORS = {
-                fat: '#FF6B6B',
-                carbs: '#FFD166',
-                protein: '#06D6A0',
-                background: '#118AB2',
-                text: '#073B4C'
-            };
-
-            const chartTooltipOptions = {
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            title: function(tooltipItems) {
-                                const item = tooltipItems[0];
-                                let label = item.chart.data.labels[item.dataIndex];
-                                if (Array.isArray(label)) {
-                                    return label.join(' ');
-                                }
-                                return label;
+        // Initialize Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Nutrition Chart
+            const nutritionCtx = document.getElementById('nutritionChart').getContext('2d');
+            const nutritionChart = new Chart(nutritionCtx, {
+                type: 'line',
+                data: {
+                    labels: ['01/09', '02/09', '03/09', '04/09', '05/09', '06/09', '07/09', '08/09', '09/09', '10/09', 
+                            '11/09', '12/09', '13/09', '14/09', '15/09', '16/09', '17/09', '18/09', '19/09', '20/09',
+                            '21/09', '22/09', '23/09', '24/09', '25/09', '26/09', '27/09', '28/09', '29/09', '30/09'],
+                    datasets: [
+                        {
+                            label: 'Năng lượng (kcal)',
+                            data: [1639, 1539, 1730, 1657, 1697, 1714, 1767, 1836, 1792, 1971, 
+                                   1875, 1802, 1860, 1718, 1896, 1793, 1907, 1760, 1798, 1765,
+                                   1917, 1847, 1994, 1851, 1856, 1877, 1779, 1801, 1791, 1825],
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Protein (g)',
+                            data: [73, 74, 90, 65, 66, 90, 77, 74, 77, 99, 
+                                   84, 100, 82, 77, 105, 87, 99, 83, 80, 82,
+                                   84, 81, 96, 81, 81, 96, 82, 96, 83, 97],
+                            borderColor: '#2ecc71',
+                            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Chất béo (g)',
+                            data: [67, 58, 66, 67, 73, 61, 79, 80, 67, 84,
+                                   77, 67, 78, 65, 80, 79, 74, 80, 71, 78,
+                                   86, 85, 86, 80, 82, 81, 80, 79, 82, 81],
+                            borderColor: '#f39c12',
+                            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Lượng'
                             }
                         }
                     }
                 }
-            };
+            });
 
-            function wrapLabel(label) {
-                const maxLength = 16;
-                if (typeof label !== 'string' || label.length <= maxLength) {
-                    return label;
+            // Macronutrient Ratio Chart
+            const ratioCtx = document.getElementById('macronutrientRatioChart').getContext('2d');
+            const ratioChart = new Chart(ratioCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Carbohydrate', 'Chất béo', 'Protein'],
+                    datasets: [{
+                        data: [45, 35, 20],
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.8)',
+                            'rgba(243, 156, 18, 0.8)',
+                            'rgba(46, 204, 113, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(52, 152, 219)',
+                            'rgb(243, 156, 18)',
+                            'rgb(46, 204, 113)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    }
                 }
-                const words = label.split(' ');
-                const lines = [];
-                let currentLine = '';
-                words.forEach(word => {
-                    if ((currentLine + ' ' + word).trim().length > maxLength) {
-                        lines.push(currentLine.trim());
-                        currentLine = word;
+            });
+
+            // Vitamins & Minerals Chart
+            const vitaminsCtx = document.getElementById('vitaminsMineralsChart').getContext('2d');
+            const vitaminsChart = new Chart(vitaminsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Vitamin A', 'Vitamin C', 'Vitamin D', 'Vitamin E', 'Calcium', 'Sắt', 'Magie', 'Kali', 'Kẽm'],
+                    datasets: [{
+                        label: 'Lượng trung bình',
+                        data: [1300, 190, 500, 18, 1200, 16, 400, 3500, 13],
+                        backgroundColor: 'rgba(155, 89, 182, 0.7)',
+                        borderColor: 'rgb(155, 89, 182)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Progress Chart
+            const progressCtx = document.getElementById('progressChart').getContext('2d');
+            const progressChart = new Chart(progressCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
+                    datasets: [{
+                        label: 'Năng lượng (kcal)',
+                        data: [1650, 1750, 1820, 1900],
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgb(52, 152, 219)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Protein (g)',
+                        data: [70, 72, 75, 78],
+                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                        borderColor: 'rgb(46, 204, 113)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Day selector functionality
+            const dayItems = document.querySelectorAll('.day-item');
+            dayItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    dayItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // In a real app, this would update the charts with data for the selected day
+                    // For this demo, we'll just simulate it with a small animation
+                    nutritionChart.update();
+                });
+            });
+
+            // Chart type toggle
+            const chartButtons = document.querySelectorAll('[data-chart]');
+            chartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    chartButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // In a real app, this would switch between daily and average views
+                    // For this demo, we'll just simulate it
+                    if (this.dataset.chart === 'average') {
+                        nutritionChart.data.datasets[0].data = Array(30).fill(1780);
+                        nutritionChart.data.datasets[1].data = Array(30).fill(84);
+                        nutritionChart.data.datasets[2].data = Array(30).fill(74);
                     } else {
-                        currentLine = (currentLine + ' ' + word).trim();
+                        nutritionChart.data.datasets[0].data = [1639, 1539, 1730, 1657, 1697, 1714, 1767, 1836, 1792, 1971, 
+                                1875, 1802, 1860, 1718, 1896, 1793, 1907, 1760, 1798, 1765,
+                                1917, 1847, 1994, 1851, 1856, 1877, 1779, 1801, 1791, 1825];
+                        nutritionChart.data.datasets[1].data = [73, 74, 90, 65, 66, 90, 77, 74, 77, 99, 
+                                84, 100, 82, 77, 105, 87, 99, 83, 80, 82,
+                                84, 81, 96, 81, 81, 96, 82, 96, 83, 97];
+                        nutritionChart.data.datasets[2].data = [67, 58, 66, 67, 73, 61, 79, 80, 67, 84,
+                                77, 67, 78, 65, 80, 79, 74, 80, 71, 78,
+                                86, 85, 86, 80, 82, 81, 80, 79, 82, 81];
                     }
+                    nutritionChart.update();
                 });
-                if (currentLine) {
-                    lines.push(currentLine.trim());
-                }
-                return lines;
-            }
-
-            async function fetchData() {
-                // VUI LÒNG THAY THẾ 'YOUR_CSV_FILE_URL_HERE' BẰNG URL CÔNG KHAI CỦA TỆP CSV CỦA BẠN
-                // VÍ DỤ: MỘT URL GIST CỦA GITHUB, GOOGLE SHEETS ĐÃ XUẤT BẢN, V.V.
-                const csvUrl = './3monthdata.csv';
-                try {
-                    const response = await fetch(csvUrl);
-                    if (!response.ok) {
-                        throw new Error(`Network response was not ok: ${response.statusText}`);
-                    }
-                    const csvText = await response.text();
-                    const data = parseCSV(csvText);
-                    processData(data);
-                } catch (error) {
-                    console.error('Error fetching or parsing data:', error);
-                    alert('Không thể tải hoặc phân tích dữ liệu CSV. Vui lòng kiểm tra URL và định dạng tệp.');
-                }
-            }
-
-            function parseCSV(text) {
-                const lines = text.trim().split(/\r?\n/).slice(1);
-                return lines.map(line => {
-                    const values = line.split(',');
-                    if (values.length < 4) return null;
-                    const [dateTime, fat, carbs, protein] = values;
-                    return {
-                        date: new Date(dateTime.split('/').reverse().join('-')),
-                        fat: parseFloat(fat),
-                        carbs: parseFloat(carbs),
-                        protein: parseFloat(protein)
-                    };
-                }).filter(row => row && row.date instanceof Date && !isNaN(row.date) && !isNaN(row.fat) && !isNaN(row.carbs) && !isNaN(row.protein));
-            }
-
-            function processData(data) {
-                if (data.length === 0) {
-                    alert('Không có dữ liệu hợp lệ nào được tìm thấy trong tệp CSV.');
-                    return;
-                }
-
-                data.sort((a, b) => a.date - b.date);
-
-                let totalCalories = 0, totalFat = 0, totalCarbs = 0, totalProtein = 0;
-                const dailyData = data.map(day => {
-                    const dailyTotal = day.fat + day.carbs + day.protein;
-                    totalCalories += dailyTotal;
-                    totalFat += day.fat;
-                    totalCarbs += day.carbs;
-                    totalProtein += day.protein;
-                    return { ...day, total: dailyTotal };
-                });
-
-                const numDays = data.length;
-                const avgCalories = totalCalories / numDays;
-                const avgFat = totalFat / numDays;
-                const avgCarbs = totalCarbs / numDays;
-                const avgProtein = totalProtein / numDays;
-
-                const avgMacroPercents = {
-                    fat: (totalFat / totalCalories) * 100,
-                    carbs: (totalCarbs / totalCalories) * 100,
-                    protein: (totalProtein / totalCalories) * 100
-                };
-
-                updateSummaryCards(avgCalories, numDays);
-                updateConclusionText(avgCalories, avgMacroPercents);
-
-                createTargetMacroChart();
-                createAvgMacroChart(avgMacroPercents);
-                createDailyCaloriesChart(dailyData);
-                createWeeklyMacroChart(dailyData);
-                createComparisonMacroChart({fat: avgFat, carbs: avgCarbs, protein: avgProtein});
-            }
-
-            function updateSummaryCards(avgCalories, numDays) {
-                const diff = avgCalories - TARGET_CALORIES;
-                document.getElementById('avg-calories').textContent = Math.round(avgCalories);
-                document.getElementById('day-count').textContent = numDays;
-                const diffElem = document.getElementById('calorie-diff');
-                diffElem.textContent = `${diff > 0 ? '+' : ''}${Math.round(diff)}`;
-                diffElem.classList.toggle('text-red-500', diff > 0);
-                diffElem.classList.toggle('text-green-500', diff <= 0);
-            }
-
-            function updateConclusionText(avgCalories, avgMacros) {
-                document.getElementById('conclusion-calorie-comparison').textContent = avgCalories > TARGET_CALORIES ? 'cao hơn' : 'thấp hơn';
-                document.getElementById('conclusion-fat-comparison').textContent = avgMacros.fat > (TARGET_MACROS.fat * 100) ? 'cao hơn' : 'thấp hơn';
-                document.getElementById('conclusion-protein-comparison').textContent = avgMacros.protein > (TARGET_MACROS.protein * 100) ? 'cao hơn' : 'thấp hơn';
-            }
-
-            function createTargetMacroChart() {
-                const ctx = document.getElementById('targetMacroChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Carbs (45%)', 'Chất béo (35%)', 'Protein (20%)'],
-                        datasets: [{
-                            data: [45, 35, 20],
-                            backgroundColor: [COLORS.carbs, COLORS.fat, COLORS.protein],
-                            borderColor: '#ffffff',
-                            borderWidth: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                             ...chartTooltipOptions.plugins,
-                            legend: { position: 'bottom' }
-                        },
-                        cutout: '60%'
-                    }
-                });
-            }
-
-            function createAvgMacroChart(macros) {
-                const ctx = document.getElementById('avgMacroChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: [`Carbs (${macros.carbs.toFixed(1)}%)`, `Chất béo (${macros.fat.toFixed(1)}%)`, `Protein (${macros.protein.toFixed(1)}%)`],
-                        datasets: [{
-                            data: [macros.carbs, macros.fat, macros.protein],
-                            backgroundColor: [COLORS.carbs, COLORS.fat, COLORS.protein],
-                            borderColor: '#ffffff',
-                            borderWidth: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            ...chartTooltipOptions.plugins,
-                            legend: { position: 'bottom' }
-                        },
-                        cutout: '60%'
-                    }
-                });
-            }
-
-            function createDailyCaloriesChart(data) {
-                const ctx = document.getElementById('dailyCaloriesChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: data.map(d => d.date.toLocaleDateString('vi-VN')),
-                        datasets: [{
-                            label: 'Lượng Calo tiêu thụ',
-                            data: data.map(d => d.total),
-                            borderColor: COLORS.background,
-                            backgroundColor: 'rgba(17, 138, 178, 0.1)',
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        ...chartTooltipOptions,
-                        scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Kcal' } }
-                        },
-                        plugins: {
-                            ...chartTooltipOptions.plugins,
-                            annotation: {
-                                annotations: {
-                                    line1: {
-                                        type: 'line',
-                                        yMin: TARGET_CALORIES,
-                                        yMax: TARGET_CALORIES,
-                                        borderColor: COLORS.fat,
-                                        borderWidth: 2,
-                                        borderDash: [6, 6],
-                                        label: {
-                                            content: 'Mục tiêu 1600 kcal',
-                                            enabled: true,
-                                            position: 'end',
-                                            backgroundColor: 'rgba(255, 107, 107, 0.8)'
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            function createWeeklyMacroChart(data) {
-                const weeklyData = {};
-                data.forEach(d => {
-                    const startOfWeek = new Date(d.date);
-                    startOfWeek.setDate(d.date.getDate() - d.date.getDay() + (d.date.getDay() === 0 ? -6 : 1));
-                    const key = startOfWeek.toISOString().split('T')[0];
-                    if (!weeklyData[key]) {
-                        weeklyData[key] = { fat: 0, carbs: 0, protein: 0, total: 0 };
-                    }
-                    weeklyData[key].fat += d.fat;
-                    weeklyData[key].carbs += d.carbs;
-                    weeklyData[key].protein += d.protein;
-                    weeklyData[key].total += d.total;
-                });
-
-                const labels = Object.keys(weeklyData).sort().map(k => new Date(k).toLocaleDateString('vi-VN', { month: 'numeric', day: 'numeric' }));
-                const fatData = Object.values(weeklyData).map(w => (w.fat / w.total) * 100);
-                const carbsData = Object.values(weeklyData).map(w => (w.carbs / w.total) * 100);
-                const proteinData = Object.values(weeklyData).map(w => (w.protein / w.total) * 100);
-
-                const ctx = document.getElementById('weeklyMacroChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            { label: 'Carbs', data: carbsData, backgroundColor: COLORS.carbs },
-                            { label: 'Chất béo', data: fatData, backgroundColor: COLORS.fat },
-                            { label: 'Protein', data: proteinData, backgroundColor: COLORS.protein }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        ...chartTooltipOptions,
-                        scales: {
-                            x: { stacked: true },
-                            y: { stacked: true, title: { display: true, text: 'Tỷ lệ % Calo' } }
-                        }
-                    }
-                });
-            }
-
-            function createComparisonMacroChart(avgKcal) {
-                const targetKcal = {
-                    carbs: TARGET_CALORIES * TARGET_MACROS.carbs,
-                    fat: TARGET_CALORIES * TARGET_MACROS.fat,
-                    protein: TARGET_CALORIES * TARGET_MACROS.protein
-                };
-                const ctx = document.getElementById('comparisonMacroChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Carbs', 'Chất béo', 'Protein'],
-                        datasets: [
-                            {
-                                label: 'Trung bình Thực tế (kcal)',
-                                data: [avgKcal.carbs, avgKcal.fat, avgKcal.protein],
-                                backgroundColor: COLORS.background,
-                                 borderColor: COLORS.background,
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Mục tiêu (kcal)',
-                                data: [targetKcal.carbs, targetKcal.fat, targetKcal.protein],
-                                backgroundColor: 'rgba(255, 107, 107, 0.5)',
-                                borderColor: COLORS.fat,
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        ...chartTooltipOptions,
-                        scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Kcal' } }
-                        }
-                    }
-                });
-            }
-
-            fetchData();
+            });
         });
     </script>
 </body>
