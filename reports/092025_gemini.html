@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Theo dõi Dinh dưỡng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary), #2980b9);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-header {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-weight: 600;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        
+        .metric-card {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .progress {
+            height: 8px;
+            margin: 10px 0;
+        }
+        
+        .summary-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .recommendation-box {
+            background-color: #fff9e6;
+            border-left: 5px solid var(--warning);
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .risk-box {
+            background-color: #ffeaea;
+            border-left: 5px solid var(--danger);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .nutrition-goal {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .goal-progress {
+            flex-grow: 1;
+            margin: 0 15px;
+        }
+        
+        .nav-tabs .nav-link.active {
+            font-weight: 600;
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .day-selector {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        
+        .day-item {
+            flex: 0 0 auto;
+            padding: 8px 15px;
+            margin-right: 10px;
+            border-radius: 20px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .day-item.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .badge-goal-met {
+            background-color: var(--secondary);
+        }
+        
+        .badge-goal-not-met {
+            background-color: var(--danger);
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+        
+        .section-title {
+            border-left: 5px solid var(--primary);
+            padding-left: 15px;
+            margin: 30px 0 20px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-apple-alt me-2"></i>
+                Dashboard Dinh Dưỡng
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#overview">Tổng quan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#nutrition">Dinh dưỡng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#vitamins">Vitamin & Khoáng chất</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#recommendations">Khuyến nghị</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <!-- Header Section -->
+        <div class="dashboard-header">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1 class="display-5 fw-bold">Phân tích Dinh dưỡng Cá nhân</h1>
+                    <p class="lead">Báo cáo từ ngày 01/09/2025 đến 30/09/2025</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="d-flex flex-column">
+                        <span class="text-muted">Bệnh nhân</span>
+                        <span class="h5">Nguyễn Văn A</span>
+                        <span class="text-muted">28 tuổi, Nam</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Overview -->
+        <div class="row" id="overview">
+            <div class="col-md-4">
+                <div class="card metric-card">
+                    <div class="metric-label">Cân nặng</div>
+                    <div class="metric-value">45 kg</div>
+                    <div class="progress">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 75%"></div>
+                    </div>
+                    <div class="metric-label">Mục tiêu: 50-60 kg</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card metric-card">
+                    <div class="metric-label">Chỉ số BMI</div>
+                    <div class="metric-value">16.5</div>
+                    <div class="progress">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 65%"></div>
+                    </div>
+                    <div class="metric-label">Thiếu cân nghiêm trọng</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card metric-card">
+                    <div class="metric-label">Năng lượng trung bình</div>
+                    <div class="metric-value">1780 kcal</div>
+                    <div class="progress">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 85%"></div>
+                    </div>
+                    <div class="metric-label">Mục tiêu: 2000 kcal</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nutrition Overview -->
+        <h3 class="section-title" id="nutrition">Phân tích Dinh dưỡng Đa lượng</h3>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Tiêu thụ Năng lượng & Đa lượng</span>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-primary active" data-chart="daily">Hàng ngày</button>
+                            <button type="button" class="btn btn-outline-primary" data-chart="average">Trung bình</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="nutritionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">Tỷ lệ Dinh dưỡng Đa lượng</div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="macronutrientRatioChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nutrition Goals -->
+        <div class="card mt-4">
+            <div class="card-header">Mục tiêu Dinh dưỡng</div>
+            <div class="card-body">
+                <div class="nutrition-goal">
+                    <span>Năng lượng (kcal)</span>
+                    <div class="goal-progress">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 89%">1780/2000</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-warning">89%</span>
+                </div>
+                
+                <div class="nutrition-goal">
+                    <span>Protein (g)</span>
+                    <div class="goal-progress">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 95%">71/75</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-success">95%</span>
+                </div>
+                
+                <div class="nutrition-goal">
+                    <span>Chất béo (g)</span>
+                    <div class="goal-progress">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 82%">53/65</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-warning">82%</span>
+                </div>
+                
+                <div class="nutrition-goal">
+                    <span>Carbohydrate (g)</span>
+                    <div class="goal-progress">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 78%">148/190</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-warning">78%</span>
+                </div>
+                
+                <div class="nutrition-goal">
+                    <span>Chất xơ (g)</span>
+                    <div class="goal-progress">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 65%">16/25</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-danger">65%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Assessment -->
+        <div class="risk-box">
+            <h5><i class="fas fa-exclamation-triangle me-2"></i>Đánh giá Nguy cơ</h5>
+            <p class="mb-1">Bệnh nhân có chỉ số BMI 16.5, thuộc nhóm thiếu cân nghiêm trọng.</p>
+            <p class="mb-0">Nguy cơ: Mệt mỏi, giảm miễn dịch, chậm lành vết thương, loãng xương, teo cơ.</p>
+        </div>
+
+        <!-- Vitamins & Minerals -->
+        <h3 class="section-title" id="vitamins">Vitamin & Khoáng chất</h3>
+        
+        <div class="card">
+            <div class="card-header">Lượng Vitamin & Khoáng chất Trung bình</div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="vitaminsMineralsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Selector -->
+        <div class="day-selector">
+            <div class="day-item active">Tất cả</div>
+            <div class="day-item">01/09</div>
+            <div class="day-item">05/09</div>
+            <div class="day-item">10/09</div>
+            <div class="day-item">15/09</div>
+            <div class="day-item">20/09</div>
+            <div class="day-item">25/09</div>
+            <div class="day-item">30/09</div>
+        </div>
+
+        <!-- Recommendations -->
+        <h3 class="section-title" id="recommendations">Khuyến nghị Dinh dưỡng</h3>
+        
+        <div class="recommendation-box">
+            <h5><i class="fas fa-lightbulb me-2"></i>Chiến lược Cải thiện Dinh dưỡng</h5>
+            <ol>
+                <li><strong>Tăng tổng năng lượng:</strong> Cần bổ sung thêm 220 kcal mỗi ngày để đạt mục tiêu.</li>
+                <li><strong>Tăng chất đạm:</strong> Thêm bột protein, sữa chua, thịt/cá xay vào khẩu phần ăn.</li>
+                <li><strong>Tăng chất béo lành mạnh:</strong> Bổ sung dầu ô liu, các loại hạt, bơ vào bữa ăn.</li>
+                <li><strong>Cải thiện chất xơ:</strong> Thêm rau củ, trái cây xay nhuyễn vào súp và sinh tố.</li>
+                <li><strong>Bổ sung vi chất:</strong> Xem xét bổ sung Vitamin D, Kẽm, Sắt theo chỉ dẫn bác sĩ.</li>
+                <li><strong>Chia nhỏ bữa ăn:</strong> Duy trì 6 bữa/ngày, tăng dần khẩu phần từ từ.</li>
+            </ol>
+        </div>
+
+        <!-- Progress Tracking -->
+        <div class="card mt-4">
+            <div class="card-header">Theo dõi Tiến triển</div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Dashboard Dinh Dưỡng</h5>
+                    <p>Theo dõi và phân tích chế độ dinh dưỡng để cải thiện sức khỏe</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Liên kết</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-light">Tổng quan</a></li>
+                        <li><a href="#" class="text-light">Dinh dưỡng</a></li>
+                        <li><a href="#" class="text-light">Vitamin & Khoáng chất</a></li>
+                        <li><a href="#" class="text-light">Khuyến nghị</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Hỗ trợ</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-light">Trợ giúp</a></li>
+                        <li><a href="#" class="text-light">Câu hỏi thường gặp</a></li>
+                        <li><a href="#" class="text-light">Liên hệ</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p>&copy; 2025 Dashboard Dinh Dưỡng. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Nutrition Chart
+            const nutritionCtx = document.getElementById('nutritionChart').getContext('2d');
+            const nutritionChart = new Chart(nutritionCtx, {
+                type: 'line',
+                data: {
+                    labels: ['01/09', '02/09', '03/09', '04/09', '05/09', '06/09', '07/09', '08/09', '09/09', '10/09', 
+                            '11/09', '12/09', '13/09', '14/09', '15/09', '16/09', '17/09', '18/09', '19/09', '20/09',
+                            '21/09', '22/09', '23/09', '24/09', '25/09', '26/09', '27/09', '28/09', '29/09', '30/09'],
+                    datasets: [
+                        {
+                            label: 'Năng lượng (kcal)',
+                            data: [1639, 1539, 1730, 1657, 1697, 1714, 1767, 1836, 1792, 1971, 
+                                   1875, 1802, 1860, 1718, 1896, 1793, 1907, 1760, 1798, 1765,
+                                   1917, 1847, 1994, 1851, 1856, 1877, 1779, 1801, 1791, 1825],
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Protein (g)',
+                            data: [73, 74, 90, 65, 66, 90, 77, 74, 77, 99, 
+                                   84, 100, 82, 77, 105, 87, 99, 83, 80, 82,
+                                   84, 81, 96, 81, 81, 96, 82, 96, 83, 97],
+                            borderColor: '#2ecc71',
+                            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Chất béo (g)',
+                            data: [67, 58, 66, 67, 73, 61, 79, 80, 67, 84,
+                                   77, 67, 78, 65, 80, 79, 74, 80, 71, 78,
+                                   86, 85, 86, 80, 82, 81, 80, 79, 82, 81],
+                            borderColor: '#f39c12',
+                            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Lượng'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Macronutrient Ratio Chart
+            const ratioCtx = document.getElementById('macronutrientRatioChart').getContext('2d');
+            const ratioChart = new Chart(ratioCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Carbohydrate', 'Chất béo', 'Protein'],
+                    datasets: [{
+                        data: [45, 35, 20],
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.8)',
+                            'rgba(243, 156, 18, 0.8)',
+                            'rgba(46, 204, 113, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(52, 152, 219)',
+                            'rgb(243, 156, 18)',
+                            'rgb(46, 204, 113)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Vitamins & Minerals Chart
+            const vitaminsCtx = document.getElementById('vitaminsMineralsChart').getContext('2d');
+            const vitaminsChart = new Chart(vitaminsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Vitamin A', 'Vitamin C', 'Vitamin D', 'Vitamin E', 'Calcium', 'Sắt', 'Magie', 'Kali', 'Kẽm'],
+                    datasets: [{
+                        label: 'Lượng trung bình',
+                        data: [1300, 190, 500, 18, 1200, 16, 400, 3500, 13],
+                        backgroundColor: 'rgba(155, 89, 182, 0.7)',
+                        borderColor: 'rgb(155, 89, 182)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Progress Chart
+            const progressCtx = document.getElementById('progressChart').getContext('2d');
+            const progressChart = new Chart(progressCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
+                    datasets: [{
+                        label: 'Năng lượng (kcal)',
+                        data: [1650, 1750, 1820, 1900],
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgb(52, 152, 219)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Protein (g)',
+                        data: [70, 72, 75, 78],
+                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                        borderColor: 'rgb(46, 204, 113)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Day selector functionality
+            const dayItems = document.querySelectorAll('.day-item');
+            dayItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    dayItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // In a real app, this would update the charts with data for the selected day
+                    // For this demo, we'll just simulate it with a small animation
+                    nutritionChart.update();
+                });
+            });
+
+            // Chart type toggle
+            const chartButtons = document.querySelectorAll('[data-chart]');
+            chartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    chartButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // In a real app, this would switch between daily and average views
+                    // For this demo, we'll just simulate it
+                    if (this.dataset.chart === 'average') {
+                        nutritionChart.data.datasets[0].data = Array(30).fill(1780);
+                        nutritionChart.data.datasets[1].data = Array(30).fill(84);
+                        nutritionChart.data.datasets[2].data = Array(30).fill(74);
+                    } else {
+                        nutritionChart.data.datasets[0].data = [1639, 1539, 1730, 1657, 1697, 1714, 1767, 1836, 1792, 1971, 
+                                1875, 1802, 1860, 1718, 1896, 1793, 1907, 1760, 1798, 1765,
+                                1917, 1847, 1994, 1851, 1856, 1877, 1779, 1801, 1791, 1825];
+                        nutritionChart.data.datasets[1].data = [73, 74, 90, 65, 66, 90, 77, 74, 77, 99, 
+                                84, 100, 82, 77, 105, 87, 99, 83, 80, 82,
+                                84, 81, 96, 81, 81, 96, 82, 96, 83, 97];
+                        nutritionChart.data.datasets[2].data = [67, 58, 66, 67, 73, 61, 79, 80, 67, 84,
+                                77, 67, 78, 65, 80, 79, 74, 80, 71, 78,
+                                86, 85, 86, 80, 82, 81, 80, 79, 82, 81];
+                    }
+                    nutritionChart.update();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

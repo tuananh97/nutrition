@@ -3,85 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Theo dõi Dinh dưỡng</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Nutrition Dashboard - Tháng 09/2025</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1"></script>
     <style>
         :root {
-            --primary: #3498db;
-            --secondary: #2ecc71;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --gray: #6c757d;
+            --bg: #0b1220;
+            --card: #121a2b;
+            --text: #e6ecff;
+            --muted: #9bb0d3;
+            --accent: #5eead4;
+            --warn: #f59e0b;
+            --bad: #ef4444;
+            --good: #22c55e;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
         body {
+            background: linear-gradient(180deg, #0b1220, #0e172a);
+            color: var(--text);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
-        }
-        
-        .navbar {
-            background: linear-gradient(135deg, var(--primary), #2980b9);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .dashboard-header {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            min-height: 100vh;
             padding: 20px;
-            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent), #2dd4bf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
         
         .card {
-            border-radius: 10px;
-            border: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease;
-            margin-bottom: 20px;
+            background: var(--card);
+            border: 1px solid #1f2a44;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
         }
         
-        .card-header {
-            background-color: white;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            font-weight: 600;
-            padding: 15px 20px;
-            border-radius: 10px 10px 0 0 !important;
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #bcd2ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
-        .metric-card {
+        .card-title i {
+            color: var(--accent);
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .kpi-item {
             text-align: center;
-            padding: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .metric-value {
-            font-size: 24px;
-            font-weight: 700;
-            margin: 10px 0;
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
         }
         
-        .metric-label {
-            font-size: 14px;
-            color: var(--gray);
+        .kpi-label {
+            font-size: 0.9rem;
+            color: var(--muted);
         }
         
-        .progress {
-            height: 8px;
-            margin: 10px 0;
+        .good { color: var(--good); }
+        .warn { color: var(--warn); }
+        .bad { color: var(--bad); }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
         }
         
-        .summary-table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .tab.active {
+            background: var(--accent);
+            color: var(--bg);
+            font-weight: bold;
+        }
+        
+        .tab:hover:not(.active) {
+            border-color: var(--accent);
         }
         
         .chart-container {
@@ -90,383 +178,498 @@
             width: 100%;
         }
         
-        .recommendation-box {
-            background-color: #fff9e6;
-            border-left: 5px solid var(--warning);
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        
-        .risk-box {
-            background-color: #ffeaea;
-            border-left: 5px solid var(--danger);
+        .recommendation {
             padding: 15px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        
-        .nutrition-goal {
-            display: flex;
-            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
             margin-bottom: 10px;
+            border-left: 4px solid var(--accent);
         }
         
-        .goal-progress {
-            flex-grow: 1;
-            margin: 0 15px;
+        .recommendation h4 {
+            margin-bottom: 8px;
+            color: var(--accent);
         }
         
-        .nav-tabs .nav-link.active {
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .data-table th {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent);
             font-weight: 600;
-            border-bottom: 3px solid var(--primary);
         }
         
-        .day-selector {
-            display: flex;
-            overflow-x: auto;
-            padding: 10px 0;
-            margin-bottom: 20px;
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
         }
         
-        .day-item {
-            flex: 0 0 auto;
-            padding: 8px 15px;
-            margin-right: 10px;
-            border-radius: 20px;
-            background-color: #f0f0f0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .day-item.active {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .badge-goal-met {
-            background-color: var(--secondary);
-        }
-        
-        .badge-goal-not-met {
-            background-color: var(--danger);
-        }
-        
-        footer {
-            background-color: var(--dark);
-            color: white;
-            padding: 30px 0;
+        .footer {
+            text-align: center;
             margin-top: 40px;
+            padding: 20px;
+            color: var(--muted);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .section-title {
-            border-left: 5px solid var(--primary);
-            padding-left: 15px;
-            margin: 30px 0 20px;
-            font-weight: 600;
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-apple-alt me-2"></i>
-                Dashboard Dinh Dưỡng
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#overview">Tổng quan</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#nutrition">Dinh dưỡng</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#vitamins">Vitamin & Khoáng chất</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#recommendations">Khuyến nghị</a>
-                    </li>
-                </ul>
-            </div>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Nutrition Dashboard</h1>
+            <div class="subtitle">Theo dõi dinh dưỡng tháng 09/2025 • Nam 28 tuổi, 165 cm, 45 kg (BMI: 16.5)</div>
         </div>
-    </nav>
-
-    <div class="container my-4">
-        <!-- Header Section -->
-        <div class="dashboard-header">
-            <div class="row">
-                <div class="col-md-8">
-                    <h1 class="display-5 fw-bold">Phân tích Dinh dưỡng Cá nhân</h1>
-                    <p class="lead">Báo cáo từ ngày 01/09/2025 đến 30/09/2025</p>
-                </div>
-                <div class="col-md-4 text-md-end">
-                    <div class="d-flex flex-column">
-                        <span class="text-muted">Bệnh nhân</span>
-                        <span class="h5">Nguyễn Văn A</span>
-                        <span class="text-muted">28 tuổi, Nam</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Patient Overview -->
-        <div class="row" id="overview">
-            <div class="col-md-4">
-                <div class="card metric-card">
-                    <div class="metric-label">Cân nặng</div>
-                    <div class="metric-value">45 kg</div>
-                    <div class="progress">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: 75%"></div>
-                    </div>
-                    <div class="metric-label">Mục tiêu: 50-60 kg</div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card metric-card">
-                    <div class="metric-label">Chỉ số BMI</div>
-                    <div class="metric-value">16.5</div>
-                    <div class="progress">
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: 65%"></div>
-                    </div>
-                    <div class="metric-label">Thiếu cân nghiêm trọng</div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card metric-card">
-                    <div class="metric-label">Năng lượng trung bình</div>
-                    <div class="metric-value">1780 kcal</div>
-                    <div class="progress">
-                        <div class="progress-bar bg-info" role="progressbar" style="width: 85%"></div>
-                    </div>
-                    <div class="metric-label">Mục tiêu: 2000 kcal</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Nutrition Overview -->
-        <h3 class="section-title" id="nutrition">Phân tích Dinh dưỡng Đa lượng</h3>
         
-        <div class="row">
-            <div class="col-md-8">
+        <div class="tabs" id="tabs">
+            <div class="tab active" data-tab="overview">Tổng quan</div>
+            <div class="tab" data-tab="macros">Macronutrients</div>
+            <div class="tab" data-tab="micros">Micronutrients</div>
+            <div class="tab" data-tab="trends">Xu hướng</div>
+            <div class="tab" data-tab="data">Dữ liệu</div>
+        </div>
+        
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="grid">
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>Tiêu thụ Năng lượng & Đa lượng</span>
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-outline-primary active" data-chart="daily">Hàng ngày</button>
-                            <button type="button" class="btn btn-outline-primary" data-chart="average">Trung bình</button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="nutritionChart"></canvas>
-                        </div>
+                    <div class="card-title">📈 Năng lượng hàng ngày</div>
+                    <div class="chart-container">
+                        <canvas id="energyChart"></canvas>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
+                
                 <div class="card">
-                    <div class="card-header">Tỷ lệ Dinh dưỡng Đa lượng</div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="macronutrientRatioChart"></canvas>
+                    <div class="card-title">🎯 So sánh với mục tiêu</div>
+                    <div class="chart-container">
+                        <canvas id="targetsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">🥗 Phân bố năng lượng</div>
+                    <div class="chart-container">
+                        <canvas id="macroDistributionChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">📊 Chỉ số chính</div>
+                    <div class="kpi-grid">
+                        <div class="kpi-item">
+                            <div class="kpi-value good">1,792</div>
+                            <div class="kpi-label">kcal/ngày</div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-value warn">205g</div>
+                            <div class="kpi-label">Carb trung bình</div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-value good">83g</div>
+                            <div class="kpi-label">Protein trung bình</div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-value warn">74g</div>
+                            <div class="kpi-label">Fat trung bình</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value good">16.5</div>
+                            <div class="stat-label">BMI</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value warn">59.9kg</div>
+                            <div class="stat-label">Lý tưởng (BMI 22)</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value warn">56.7kg</div>
+                            <div class="stat-label">Lý tưởng (Devine)</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Nutrition Goals -->
-        <div class="card mt-4">
-            <div class="card-header">Mục tiêu Dinh dưỡng</div>
-            <div class="card-body">
-                <div class="nutrition-goal">
-                    <span>Năng lượng (kcal)</span>
-                    <div class="goal-progress">
-                        <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: 89%">1780/2000</div>
-                        </div>
-                    </div>
-                    <span class="badge bg-warning">89%</span>
+            
+            <div class="card">
+                <div class="card-title">💡 Khuyến nghị dinh dưỡng</div>
+                <div class="recommendation">
+                    <h4>📈 Tăng năng lượng</h4>
+                    <p>Năng lượng trung bình 1,792 kcal/ngày, cần tăng thêm ~300-400 kcal để đạt mục tiêu tăng cân.</p>
                 </div>
-                
-                <div class="nutrition-goal">
-                    <span>Protein (g)</span>
-                    <div class="goal-progress">
-                        <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: 95%">71/75</div>
-                        </div>
-                    </div>
-                    <span class="badge bg-success">95%</span>
+                <div class="recommendation">
+                    <h4>🥩 Tăng protein chất lượng</h4>
+                    <p>Protein đạt 83g/ngày (trên mục tiêu 75g) - duy trì lượng này để hỗ trợ phát triển cơ bắp.</p>
                 </div>
-                
-                <div class="nutrition-goal">
-                    <span>Chất béo (g)</span>
-                    <div class="goal-progress">
-                        <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: 82%">53/65</div>
-                        </div>
-                    </div>
-                    <span class="badge bg-warning">82%</span>
-                </div>
-                
-                <div class="nutrition-goal">
-                    <span>Carbohydrate (g)</span>
-                    <div class="goal-progress">
-                        <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: 78%">148/190</div>
-                        </div>
-                    </div>
-                    <span class="badge bg-warning">78%</span>
-                </div>
-                
-                <div class="nutrition-goal">
-                    <span>Chất xơ (g)</span>
-                    <div class="goal-progress">
-                        <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: 65%">16/25</div>
-                        </div>
-                    </div>
-                    <span class="badge bg-danger">65%</span>
+                <div class="recommendation">
+                    <h4>🥑 Chất béo lành mạnh</h4>
+                    <p>Fat trung bình 74g/ngày (trên mục tiêu 65g) - tập trung vào chất béo không bão hòa.</p>
                 </div>
             </div>
         </div>
-
-        <!-- Risk Assessment -->
-        <div class="risk-box">
-            <h5><i class="fas fa-exclamation-triangle me-2"></i>Đánh giá Nguy cơ</h5>
-            <p class="mb-1">Bệnh nhân có chỉ số BMI 16.5, thuộc nhóm thiếu cân nghiêm trọng.</p>
-            <p class="mb-0">Nguy cơ: Mệt mỏi, giảm miễn dịch, chậm lành vết thương, loãng xương, teo cơ.</p>
-        </div>
-
-        <!-- Vitamins & Minerals -->
-        <h3 class="section-title" id="vitamins">Vitamin & Khoáng chất</h3>
         
-        <div class="card">
-            <div class="card-header">Lượng Vitamin & Khoáng chất Trung bình</div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="vitaminsMineralsChart"></canvas>
+        <!-- Macros Tab -->
+        <div id="macros" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title">📊 Macronutrients theo ngày</div>
+                    <div class="chart-container">
+                        <canvas id="macrosOverTimeChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">🥦 Chất lượng carbohydrate</div>
+                    <div class="chart-container">
+                        <canvas id="carbQualityChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">🫒 Chất lượng chất béo</div>
+                    <div class="chart-container">
+                        <canvas id="fatQualityChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">🎯 Tỷ lệ năng lượng lý tưởng</div>
+                    <div class="chart-container">
+                        <canvas id="idealRatioChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Daily Selector -->
-        <div class="day-selector">
-            <div class="day-item active">Tất cả</div>
-            <div class="day-item">01/09</div>
-            <div class="day-item">05/09</div>
-            <div class="day-item">10/09</div>
-            <div class="day-item">15/09</div>
-            <div class="day-item">20/09</div>
-            <div class="day-item">25/09</div>
-            <div class="day-item">30/09</div>
-        </div>
-
-        <!-- Recommendations -->
-        <h3 class="section-title" id="recommendations">Khuyến nghị Dinh dưỡng</h3>
         
-        <div class="recommendation-box">
-            <h5><i class="fas fa-lightbulb me-2"></i>Chiến lược Cải thiện Dinh dưỡng</h5>
-            <ol>
-                <li><strong>Tăng tổng năng lượng:</strong> Cần bổ sung thêm 220 kcal mỗi ngày để đạt mục tiêu.</li>
-                <li><strong>Tăng chất đạm:</strong> Thêm bột protein, sữa chua, thịt/cá xay vào khẩu phần ăn.</li>
-                <li><strong>Tăng chất béo lành mạnh:</strong> Bổ sung dầu ô liu, các loại hạt, bơ vào bữa ăn.</li>
-                <li><strong>Cải thiện chất xơ:</strong> Thêm rau củ, trái cây xay nhuyễn vào súp và sinh tố.</li>
-                <li><strong>Bổ sung vi chất:</strong> Xem xét bổ sung Vitamin D, Kẽm, Sắt theo chỉ dẫn bác sĩ.</li>
-                <li><strong>Chia nhỏ bữa ăn:</strong> Duy trì 6 bữa/ngày, tăng dần khẩu phần từ từ.</li>
-            </ol>
-        </div>
-
-        <!-- Progress Tracking -->
-        <div class="card mt-4">
-            <div class="card-header">Theo dõi Tiến triển</div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="progressChart"></canvas>
+        <!-- Micros Tab -->
+        <div id="micros" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title">💊 Vi chất dinh dưỡng vs RDA</div>
+                    <div class="chart-container">
+                        <canvas id="microsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">📈 Khoáng chất quan trọng</div>
+                    <div class="chart-container">
+                        <canvas id="mineralsChart"></canvas>
+                    </div>
                 </div>
             </div>
+            
+            <div class="card">
+                <div class="card-title">🔍 Chi tiết vi chất</div>
+                <div id="microsTable" class="chart-container">
+                    <!-- Micros table will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Trends Tab -->
+        <div id="trends" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title">📈 Xu hướng theo tuần</div>
+                    <div class="chart-container">
+                        <canvas id="weeklyTrendsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">🔥 Năng lượng từ các nhóm</div>
+                    <div class="chart-container">
+                        <canvas id="energyStackedChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <div class="card-title">🔄 Tương quan dinh dưỡng</div>
+                    <div class="chart-container">
+                        <canvas id="correlationChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">📊 Ngày mạnh/yếu</div>
+                    <div class="chart-container">
+                        <canvas id="strengthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Data Tab -->
+        <div id="data" class="tab-content">
+            <div class="card">
+                <div class="card-title">📋 Dữ liệu chi tiết hàng ngày</div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="nutritionDataTable">
+                        <!-- Table will be populated by JavaScript -->
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Dữ liệu dinh dưỡng tháng 09/2025 • Cập nhật lần cuối: 30/09/2025</p>
+            <p>Được thiết kế để theo dõi và cải thiện chế độ dinh dưỡng</p>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>Dashboard Dinh Dưỡng</h5>
-                    <p>Theo dõi và phân tích chế độ dinh dưỡng để cải thiện sức khỏe</p>
-                </div>
-                <div class="col-md-3">
-                    <h5>Liên kết</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-light">Tổng quan</a></li>
-                        <li><a href="#" class="text-light">Dinh dưỡng</a></li>
-                        <li><a href="#" class="text-light">Vitamin & Khoáng chất</a></li>
-                        <li><a href="#" class="text-light">Khuyến nghị</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
-                    <h5>Hỗ trợ</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-light">Trợ giúp</a></li>
-                        <li><a href="#" class="text-light">Câu hỏi thường gặp</a></li>
-                        <li><a href="#" class="text-light">Liên hệ</a></li>
-                    </ul>
-                </div>
-            </div>
-            <hr class="my-4">
-            <div class="text-center">
-                <p>&copy; 2025 Dashboard Dinh Dưỡng. Tất cả quyền được bảo lưu.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Initialize Charts
+        // Nutrition Data
+        const nutritionData = [
+            { date: '2025-09-01', energy: 1639.2, carbs: 193.6, fiber: 17.7, starch: 60, sugars: 45.8, fat: 67.2, monounsaturated: 30.5, omega3: 3.3, omega6: 9.7, protein: 73, vitA: 1391, vitC: 215.8, vitD: 591, vitE: 20, vitK: 123.7, calcium: 1148.6, copper: 1.7, iron: 15.8, magnesium: 313, manganese: 3.8, phosphorus: 1265.5, potassium: 3097.2, selenium: 65.6, sodium: 1237.2, zinc: 13.9 },
+            { date: '2025-09-02', energy: 1539.3, carbs: 188.7, fiber: 14.6, starch: 55, sugars: 46.9, fat: 57.5, monounsaturated: 25.6, omega3: 2.3, omega6: 8.6, protein: 74.1, vitA: 1079.1, vitC: 204.9, vitD: 544.5, vitE: 18, vitK: 314.9, calcium: 1135, copper: 1.3, iron: 16.4, magnesium: 355.2, manganese: 4.2, phosphorus: 1238.2, potassium: 3041.8, selenium: 104.2, sodium: 1362, zinc: 13.9 },
+            { date: '2025-09-03', energy: 1730, carbs: 201.3, fiber: 18.6, starch: 45.4, sugars: 57.9, fat: 66.4, monounsaturated: 23.6, omega3: 3.9, omega6: 15.9, protein: 89.5, vitA: 1344.2, vitC: 194.9, vitD: 546, vitE: 17.5, vitK: 367.8, calcium: 1160.1, copper: 1.6, iron: 16.6, magnesium: 377.3, manganese: 4.3, phosphorus: 1271.5, potassium: 2919, selenium: 85.2, sodium: 1411.2, zinc: 12.7 },
+            { date: '2025-09-04', energy: 1657.1, carbs: 208.5, fiber: 23.2, starch: 58.3, sugars: 57.5, fat: 66.7, monounsaturated: 29.4, omega3: 2.2, omega6: 9.8, protein: 64.6, vitA: 1011.7, vitC: 153.6, vitD: 587.2, vitE: 20.3, vitK: 111.3, calcium: 1216.1, copper: 1.4, iron: 13.3, magnesium: 291.1, manganese: 3.6, phosphorus: 1030.5, potassium: 2881.1, selenium: 66.1, sodium: 1847.9, zinc: 11 },
+            { date: '2025-09-05', energy: 1697.4, carbs: 204.5, fiber: 19.1, starch: 59, sugars: 56.3, fat: 72.7, monounsaturated: 26.9, omega3: 4.1, omega6: 16.5, protein: 65.7, vitA: 1006.1, vitC: 141.1, vitD: 587.2, vitE: 18.3, vitK: 93.5, calcium: 1224, copper: 1.4, iron: 13.5, magnesium: 303.8, manganese: 4.2, phosphorus: 1072.3, potassium: 2715.5, selenium: 66.7, sodium: 1846, zinc: 11.3 },
+            { date: '2025-09-06', energy: 1714.4, carbs: 205.8, fiber: 18.6, starch: 52.7, sugars: 57.8, fat: 61.3, monounsaturated: 26.3, omega3: 2.1, omega6: 9.4, protein: 89.9, vitA: 1348.9, vitC: 217.6, vitD: 546, vitE: 20.1, vitK: 378, calcium: 1148.9, copper: 1.6, iron: 17.6, magnesium: 375.4, manganese: 4.2, phosphorus: 1273.7, potassium: 3072.3, selenium: 88.3, sodium: 1423.4, zinc: 12.7 },
+            { date: '2025-09-07', energy: 1767, carbs: 198.9, fiber: 22.2, starch: 52.9, sugars: 56.2, fat: 78.5, monounsaturated: 31.6, omega3: 4.1, omega6: 17.4, protein: 77.4, vitA: 1326.5, vitC: 236.3, vitD: 544.5, vitE: 19.4, vitK: 111.1, calcium: 1200.8, copper: 1.8, iron: 15, magnesium: 386.7, manganese: 4.7, phosphorus: 1306.5, potassium: 3689.7, selenium: 104.4, sodium: 1574.9, zinc: 14.3 },
+            { date: '2025-09-08', energy: 1836.3, carbs: 214.3, fiber: 23.2, starch: 69.6, sugars: 50.1, fat: 80.2, monounsaturated: 36, omega3: 2.3, omega6: 14, protein: 74.1, vitA: 1037.3, vitC: 219.3, vitD: 587.2, vitE: 22.7, vitK: 118.6, calcium: 1269.9, copper: 1.6, iron: 15.1, magnesium: 407.3, manganese: 4.9, phosphorus: 1234.8, potassium: 3531.2, selenium: 78.5, sodium: 1985.5, zinc: 12.4 },
+            { date: '2025-09-09', energy: 1792.2, carbs: 233.7, fiber: 27.2, starch: 63.6, sugars: 70.5, fat: 66.7, monounsaturated: 30.4, omega3: 2.3, omega6: 10.4, protein: 76.6, vitA: 1328.9, vitC: 240.2, vitD: 544.5, vitE: 19.8, vitK: 119.8, calcium: 1163.2, copper: 1.6, iron: 15.1, magnesium: 349.1, manganese: 4.5, phosphorus: 1302.6, potassium: 3452.2, selenium: 106.8, sodium: 1386.4, zinc: 14.2 },
+            { date: '2025-09-10', energy: 1970.5, carbs: 211.3, fiber: 20.5, starch: 47.6, sugars: 66.4, fat: 84.2, monounsaturated: 33.2, omega3: 4.2, omega6: 18.3, protein: 98.8, vitA: 1296.2, vitC: 241.6, vitD: 594.7, vitE: 20.3, vitK: 123.5, calcium: 1196.8, copper: 1.9, iron: 18.5, magnesium: 361, manganese: 4.6, phosphorus: 1430.6, potassium: 3304.3, selenium: 104.3, sodium: 1507.3, zinc: 13.7 },
+            { date: '2025-09-11', energy: 1874.9, carbs: 233.6, fiber: 24.7, starch: 63.9, sugars: 78, fat: 76.9, monounsaturated: 29.2, omega3: 4.3, omega6: 16.3, protein: 83.5, vitA: 1271.8, vitC: 225.4, vitD: 546.9, vitE: 20.9, vitK: 504.8, calcium: 1341.4, copper: 2.4, iron: 18.4, magnesium: 520.4, manganese: 5.3, phosphorus: 1526.9, potassium: 3785.2, selenium: 111.4, sodium: 1530.2, zinc: 15.7 },
+            { date: '2025-09-12', energy: 1802.1, carbs: 204.2, fiber: 18.3, starch: 56.1, sugars: 56.6, fat: 67.1, monounsaturated: 28.1, omega3: 2.6, omega6: 9.9, protein: 99.7, vitA: 1583.9, vitC: 159.7, vitD: 596, vitE: 19.6, vitK: 527.2, calcium: 1277.1, copper: 1.5, iron: 18.3, magnesium: 419.6, manganese: 4.5, phosphorus: 1444.4, potassium: 3241.6, selenium: 113.5, sodium: 1661.1, zinc: 13.7 },
+            { date: '2025-09-13', energy: 1860, carbs: 225.3, fiber: 30.9, starch: 60.8, sugars: 63, fat: 77.7, monounsaturated: 33.3, omega3: 5.3, omega6: 10.4, protein: 81.7, vitA: 1567.7, vitC: 147.1, vitD: 604.1, vitE: 20.4, vitK: 387.1, calcium: 1363.3, copper: 2.1, iron: 18.5, magnesium: 491.8, manganese: 4.9, phosphorus: 1562, potassium: 3756.2, selenium: 82.5, sodium: 1488.8, zinc: 15 },
+            { date: '2025-09-14', energy: 1717.6, carbs: 216.4, fiber: 20.2, starch: 56.8, sugars: 72.1, fat: 64.8, monounsaturated: 26.7, omega3: 3.8, omega6: 10.2, protein: 77, vitA: 1411.2, vitC: 254.7, vitD: 547, vitE: 18.2, vitK: 100.6, calcium: 1284.7, copper: 1.4, iron: 15.3, magnesium: 370.9, manganese: 4.3, phosphorus: 1339.3, potassium: 3544, selenium: 111.3, sodium: 1607.7, zinc: 14 },
+            { date: '2025-09-15', energy: 1895.5, carbs: 203.2, fiber: 31.3, starch: 59, sugars: 56, fat: 80.3, monounsaturated: 31.1, omega3: 2.4, omega6: 10.5, protein: 105.2, vitA: 1494.4, vitC: 112.6, vitD: 460.8, vitE: 15.9, vitK: 518.1, calcium: 1309, copper: 2.3, iron: 17.7, magnesium: 547, manganese: 4.8, phosphorus: 1685.3, potassium: 4209, selenium: 103.2, sodium: 1801.1, zinc: 13.2 },
+            { date: '2025-09-16', energy: 1793.3, carbs: 201.9, fiber: 31.6, starch: 56.6, sugars: 54.8, fat: 78.9, monounsaturated: 26.7, omega3: 3.4, omega6: 8.3, protein: 86.7, vitA: 1886.4, vitC: 187.2, vitD: 410.3, vitE: 14.1, vitK: 487.2, calcium: 1318.3, copper: 1.9, iron: 16.7, magnesium: 533.7, manganese: 4.4, phosphorus: 1524.9, potassium: 4305.5, selenium: 99.7, sodium: 1737.7, zinc: 13.6 },
+            { date: '2025-09-17', energy: 1907.1, carbs: 230.1, fiber: 36.7, starch: 59, sugars: 65.2, fat: 74.2, monounsaturated: 28.6, omega3: 2.3, omega6: 9.9, protein: 98.6, vitA: 1494.7, vitC: 203.1, vitD: 411.4, vitE: 16.5, vitK: 522.5, calcium: 1244.9, copper: 2.3, iron: 17.5, magnesium: 522.4, manganese: 4.7, phosphorus: 1567.4, potassium: 4086.4, selenium: 82.6, sodium: 1565, zinc: 12.9 },
+            { date: '2025-09-18', energy: 1759.9, carbs: 187.3, fiber: 21.2, starch: 49.5, sugars: 42.5, fat: 79.5, monounsaturated: 32, omega3: 3.7, omega6: 9.9, protein: 83.4, vitA: 1179.9, vitC: 142.1, vitD: 546.1, vitE: 20, vitK: 516.5, calcium: 1290.1, copper: 1.6, iron: 19.3, magnesium: 421.8, manganese: 4.1, phosphorus: 1362.1, potassium: 3563, selenium: 111.4, sodium: 1521.6, zinc: 14.8 },
+            { date: '2025-09-19', energy: 1797.6, carbs: 230.6, fiber: 36, starch: 62.9, sugars: 63, fat: 70.8, monounsaturated: 27.7, omega3: 2.2, omega6: 8.9, protein: 80.2, vitA: 1167.2, vitC: 151.5, vitD: 407.5, vitE: 15.4, vitK: 523.7, calcium: 1240.4, copper: 2.4, iron: 19.7, magnesium: 514.9, manganese: 4.9, phosphorus: 1528.7, potassium: 4292.8, selenium: 68.1, sodium: 1473.8, zinc: 17.6 },
+            { date: '2025-09-20', energy: 1765.1, carbs: 198, fiber: 25.5, starch: 63.5, sugars: 49.5, fat: 78.3, monounsaturated: 32.6, omega3: 2.2, omega6: 10.2, protein: 82.4, vitA: 1265.9, vitC: 238.6, vitD: 407.4, vitE: 16.4, vitK: 529.3, calcium: 1212.3, copper: 2, iron: 15.1, magnesium: 494.1, manganese: 3.8, phosphorus: 1528.8, potassium: 4155.6, selenium: 80.4, sodium: 1472.6, zinc: 13 },
+            { date: '2025-09-21', energy: 1916.6, carbs: 221.7, fiber: 31.7, starch: 63.6, sugars: 64.3, fat: 85.6, monounsaturated: 30.5, omega3: 4.1, omega6: 17.3, protein: 84.4, vitA: 1210, vitC: 185.7, vitD: 410.3, vitE: 17.9, vitK: 507.5, calcium: 1249.5, copper: 2, iron: 14.2, magnesium: 473.8, manganese: 4.3, phosphorus: 1505.6, potassium: 4200.5, selenium: 94.4, sodium: 1481.5, zinc: 13.4 },
+            { date: '2025-09-22', energy: 1847.3, carbs: 206.9, fiber: 28.8, starch: 49.8, sugars: 61.3, fat: 85.1, monounsaturated: 35.7, omega3: 3.3, omega6: 10.3, protein: 81, vitA: 1326.4, vitC: 177, vitD: 468.3, vitE: 15.8, vitK: 376.7, calcium: 1251.8, copper: 2.2, iron: 15.9, magnesium: 459.5, manganese: 3.5, phosphorus: 1513.1, potassium: 3677.2, selenium: 59, sodium: 1458.7, zinc: 12.7 },
+            { date: '2025-09-23', energy: 1994.4, carbs: 220.7, fiber: 26.4, starch: 68.5, sugars: 63.2, fat: 85.7, monounsaturated: 36.9, omega3: 2.4, omega6: 12.1, protein: 96, vitA: 1237.7, vitC: 226.1, vitD: 411.4, vitE: 18.2, vitK: 540.4, calcium: 1155.4, copper: 2.1, iron: 13.8, magnesium: 461.4, manganese: 3.4, phosphorus: 1553, potassium: 3893.9, selenium: 76.4, sodium: 1431.1, zinc: 12.5 },
+            { date: '2025-09-24', energy: 1851.4, carbs: 217.1, fiber: 26.9, starch: 61, sugars: 66.3, fat: 79.9, monounsaturated: 32.7, omega3: 3.3, omega6: 10.5, protein: 81, vitA: 926.5, vitC: 160.5, vitD: 410.5, vitE: 17.1, vitK: 248.9, calcium: 1290.8, copper: 2.2, iron: 16.6, magnesium: 418.9, manganese: 3.8, phosphorus: 1528.5, potassium: 3807.7, selenium: 96.9, sodium: 1311.6, zinc: 13.2 },
+            { date: '2025-09-25', energy: 1856.4, carbs: 216.5, fiber: 31.5, starch: 51.3, sugars: 59.2, fat: 81.6, monounsaturated: 34.1, omega3: 3.2, omega6: 9.8, protein: 80.6, vitA: 1152.2, vitC: 226.4, vitD: 448, vitE: 15.9, vitK: 252.9, calcium: 1173.2, copper: 2.2, iron: 16.4, magnesium: 389.8, manganese: 3.7, phosphorus: 1452.8, potassium: 3487.2, selenium: 58.6, sodium: 1306, zinc: 12.1 },
+            { date: '2025-09-26', energy: 1877.4, carbs: 203.6, fiber: 28.5, starch: 62.4, sugars: 52, fat: 80.7, monounsaturated: 32.2, omega3: 3.4, omega6: 10.9, protein: 96, vitA: 1324, vitC: 165.9, vitD: 412, vitE: 16.7, vitK: 311.7, calcium: 1395.9, copper: 2.1, iron: 15.7, magnesium: 450.8, manganese: 4.1, phosphorus: 1609.1, potassium: 3973.9, selenium: 81.6, sodium: 1478.6, zinc: 12.8 },
+            { date: '2025-09-27', energy: 1779.2, carbs: 198.6, fiber: 26.7, starch: 62.3, sugars: 51.9, fat: 79.9, monounsaturated: 32.5, omega3: 3.5, omega6: 10.6, protein: 82.3, vitA: 1214.2, vitC: 199.7, vitD: 395.1, vitE: 16.3, vitK: 505.3, calcium: 1251.8, copper: 2, iron: 14.8, magnesium: 513.2, manganese: 3.8, phosphorus: 1503.5, potassium: 4082, selenium: 97.3, sodium: 1614.2, zinc: 13.3 },
+            { date: '2025-09-28', energy: 1801.3, carbs: 188.9, fiber: 27.3, starch: 50.3, sugars: 49.9, fat: 79.2, monounsaturated: 31.9, omega3: 3.5, omega6: 10.9, protein: 95.6, vitA: 1184.4, vitC: 209.6, vitD: 396.6, vitE: 15.8, vitK: 1207.1, calcium: 1279, copper: 2.1, iron: 16.7, magnesium: 478.6, manganese: 4.2, phosphorus: 1515.1, potassium: 3810, selenium: 79.9, sodium: 1378.7, zinc: 12.7 },
+            { date: '2025-09-29', energy: 1791.4, carbs: 195.2, fiber: 25.8, starch: 63.4, sugars: 47.9, fat: 82.4, monounsaturated: 29.9, omega3: 3.9, omega6: 15.4, protein: 83.3, vitA: 1472.9, vitC: 211.7, vitD: 410.5, vitE: 19.2, vitK: 885.9, calcium: 1290.8, copper: 1.9, iron: 14.8, magnesium: 520.2, manganese: 4.2, phosphorus: 1511.1, potassium: 4195.6, selenium: 91.6, sodium: 1537.2, zinc: 13.1 },
+            { date: '2025-09-30', energy: 1825.3, carbs: 189.9, fiber: 26, starch: 50.3, sugars: 51.7, fat: 80.8, monounsaturated: 32.1, omega3: 3.5, omega6: 10.8, protein: 96.8, vitA: 1135.5, vitC: 183.4, vitD: 412, vitE: 15.5, vitK: 409.2, calcium: 1264.5, copper: 2.1, iron: 16.1, magnesium: 478.5, manganese: 3.8, phosphorus: 1545.7, potassium: 3621.5, selenium: 80.6, sodium: 1418.4, zinc: 12.4 }
+        ];
+
+        // Targets
+        const targets = {
+            energy: 1700,
+            carbs: 190,
+            protein: 75,
+            fat: 65,
+            fiber: 25
+        };
+
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Initialize charts when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            // Nutrition Chart
-            const nutritionCtx = document.getElementById('nutritionChart').getContext('2d');
-            const nutritionChart = new Chart(nutritionCtx, {
+            initializeCharts();
+            populateDataTable();
+            populateMicrosTable();
+        });
+
+        function initializeCharts() {
+            // Energy Chart
+            const energyCtx = document.getElementById('energyChart').getContext('2d');
+            new Chart(energyCtx, {
                 type: 'line',
                 data: {
-                    labels: ['01/09', '02/09', '03/09', '04/09', '05/09', '06/09', '07/09', '08/09', '09/09', '10/09', 
-                            '11/09', '12/09', '13/09', '14/09', '15/09', '16/09', '17/09', '18/09', '19/09', '20/09',
-                            '21/09', '22/09', '23/09', '24/09', '25/09', '26/09', '27/09', '28/09', '29/09', '30/09'],
+                    labels: nutritionData.map(d => d.date),
+                    datasets: [{
+                        label: 'Năng lượng (kcal)',
+                        data: nutritionData.map(d => d.energy),
+                        borderColor: '#5eead4',
+                        backgroundColor: 'rgba(94, 234, 212, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Mục tiêu (1700 kcal)',
+                        data: nutritionData.map(() => targets.energy),
+                        borderColor: '#f59e0b',
+                        borderDash: [5, 5],
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#e6ecff' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y: {
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Targets Comparison Chart
+            const avgCarbs = nutritionData.reduce((sum, d) => sum + d.carbs, 0) / nutritionData.length;
+            const avgProtein = nutritionData.reduce((sum, d) => sum + d.protein, 0) / nutritionData.length;
+            const avgFat = nutritionData.reduce((sum, d) => sum + d.fat, 0) / nutritionData.length;
+            const avgFiber = nutritionData.reduce((sum, d) => sum + d.fiber, 0) / nutritionData.length;
+
+            const targetsCtx = document.getElementById('targetsChart').getContext('2d');
+            new Chart(targetsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Carbs (g)', 'Protein (g)', 'Fat (g)', 'Fiber (g)'],
+                    datasets: [{
+                        label: 'Trung bình thực tế',
+                        data: [avgCarbs, avgProtein, avgFat, avgFiber],
+                        backgroundColor: ['#5eead4', '#2dd4bf', '#14b8a6', '#0d9488']
+                    }, {
+                        label: 'Mục tiêu',
+                        data: [targets.carbs, targets.protein, targets.fat, targets.fiber],
+                        backgroundColor: 'rgba(245, 158, 11, 0.6)',
+                        borderColor: '#f59e0b',
+                        borderWidth: 1,
+                        type: 'line',
+                        fill: false,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#e6ecff' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y: {
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Macro Distribution Chart
+            const totalCarbsKcal = avgCarbs * 4;
+            const totalProteinKcal = avgProtein * 4;
+            const totalFatKcal = avgFat * 9;
+            const totalKcal = totalCarbsKcal + totalProteinKcal + totalFatKcal;
+
+            const macroDistCtx = document.getElementById('macroDistributionChart').getContext('2d');
+            new Chart(macroDistCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Carbohydrate', 'Protein', 'Fat'],
+                    datasets: [{
+                        data: [
+                            (totalCarbsKcal / totalKcal * 100).toFixed(1),
+                            (totalProteinKcal / totalKcal * 100).toFixed(1),
+                            (totalFatKcal / totalKcal * 100).toFixed(1)
+                        ],
+                        backgroundColor: ['#5eead4', '#2dd4bf', '#14b8a6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#e6ecff' }
+                        }
+                    }
+                }
+            });
+
+            // Macros Over Time Chart
+            const macrosTimeCtx = document.getElementById('macrosOverTimeChart').getContext('2d');
+            new Chart(macrosTimeCtx, {
+                type: 'line',
+                data: {
+                    labels: nutritionData.map(d => d.date),
                     datasets: [
                         {
-                            label: 'Năng lượng (kcal)',
-                            data: [1639, 1539, 1730, 1657, 1697, 1714, 1767, 1836, 1792, 1971, 
-                                   1875, 1802, 1860, 1718, 1896, 1793, 1907, 1760, 1798, 1765,
-                                   1917, 1847, 1994, 1851, 1856, 1877, 1779, 1801, 1791, 1825],
-                            borderColor: '#3498db',
-                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            label: 'Carbs (g)',
+                            data: nutritionData.map(d => d.carbs),
+                            borderColor: '#5eead4',
+                            backgroundColor: 'rgba(94, 234, 212, 0.1)',
                             tension: 0.4,
                             fill: true
                         },
                         {
                             label: 'Protein (g)',
-                            data: [73, 74, 90, 65, 66, 90, 77, 74, 77, 99, 
-                                   84, 100, 82, 77, 105, 87, 99, 83, 80, 82,
-                                   84, 81, 96, 81, 81, 96, 82, 96, 83, 97],
-                            borderColor: '#2ecc71',
-                            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                            data: nutritionData.map(d => d.protein),
+                            borderColor: '#2dd4bf',
+                            backgroundColor: 'rgba(45, 212, 191, 0.1)',
                             tension: 0.4,
                             fill: true
                         },
                         {
-                            label: 'Chất béo (g)',
-                            data: [67, 58, 66, 67, 73, 61, 79, 80, 67, 84,
-                                   77, 67, 78, 65, 80, 79, 74, 80, 71, 78,
-                                   86, 85, 86, 80, 82, 81, 80, 79, 82, 81],
-                            borderColor: '#f39c12',
-                            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                            label: 'Fat (g)',
+                            data: nutritionData.map(d => d.fat),
+                            borderColor: '#14b8a6',
+                            backgroundColor: 'rgba(20, 184, 166, 0.1)',
                             tension: 0.4,
                             fill: true
                         }
@@ -477,76 +680,181 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false
+                            labels: { color: '#e6ecff' }
                         }
                     },
                     scales: {
+                        x: {
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
                         y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Lượng'
-                            }
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
                         }
                     }
                 }
             });
 
-            // Macronutrient Ratio Chart
-            const ratioCtx = document.getElementById('macronutrientRatioChart').getContext('2d');
-            const ratioChart = new Chart(ratioCtx, {
-                type: 'doughnut',
+            // Carb Quality Chart
+            const carbQualityCtx = document.getElementById('carbQualityChart').getContext('2d');
+            new Chart(carbQualityCtx, {
+                type: 'bar',
                 data: {
-                    labels: ['Carbohydrate', 'Chất béo', 'Protein'],
-                    datasets: [{
-                        data: [45, 35, 20],
-                        backgroundColor: [
-                            'rgba(52, 152, 219, 0.8)',
-                            'rgba(243, 156, 18, 0.8)',
-                            'rgba(46, 204, 113, 0.8)'
-                        ],
-                        borderColor: [
-                            'rgb(52, 152, 219)',
-                            'rgb(243, 156, 18)',
-                            'rgb(46, 204, 113)'
-                        ],
-                        borderWidth: 1
-                    }]
+                    labels: nutritionData.map(d => d.date),
+                    datasets: [
+                        {
+                            label: 'Fiber (g)',
+                            data: nutritionData.map(d => d.fiber),
+                            backgroundColor: 'rgba(94, 234, 212, 0.7)'
+                        },
+                        {
+                            label: 'Sugars (g)',
+                            data: nutritionData.map(d => d.sugars),
+                            backgroundColor: 'rgba(245, 158, 11, 0.7)'
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            labels: { color: '#e6ecff' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { 
+                                color: '#9bb0d3',
+                                maxTicksLimit: 10
+                            },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.label + ': ' + context.parsed + '%';
-                                }
-                            }
+                        y: {
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
                         }
                     }
                 }
             });
 
-            // Vitamins & Minerals Chart
-            const vitaminsCtx = document.getElementById('vitaminsMineralsChart').getContext('2d');
-            const vitaminsChart = new Chart(vitaminsCtx, {
+            // Fat Quality Chart
+            const fatQualityCtx = document.getElementById('fatQualityChart').getContext('2d');
+            new Chart(fatQualityCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Vitamin A', 'Vitamin C', 'Vitamin D', 'Vitamin E', 'Calcium', 'Sắt', 'Magie', 'Kali', 'Kẽm'],
+                    labels: nutritionData.map(d => d.date),
+                    datasets: [
+                        {
+                            label: 'Monounsaturated (g)',
+                            data: nutritionData.map(d => d.monounsaturated),
+                            backgroundColor: 'rgba(94, 234, 212, 0.7)'
+                        },
+                        {
+                            label: 'Omega-3 (g)',
+                            data: nutritionData.map(d => d.omega3),
+                            backgroundColor: 'rgba(45, 212, 191, 0.7)'
+                        },
+                        {
+                            label: 'Omega-6 (g)',
+                            data: nutritionData.map(d => d.omega6),
+                            backgroundColor: 'rgba(20, 184, 166, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#e6ecff' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { 
+                                color: '#9bb0d3',
+                                maxTicksLimit: 10
+                            },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y: {
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Ideal Ratio Chart
+            const idealRatioCtx = document.getElementById('idealRatioChart').getContext('2d');
+            new Chart(idealRatioCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Carbs 45%', 'Fat 35%', 'Protein 20%'],
                     datasets: [{
-                        label: 'Lượng trung bình',
-                        data: [1300, 190, 500, 18, 1200, 16, 400, 3500, 13],
-                        backgroundColor: 'rgba(155, 89, 182, 0.7)',
-                        borderColor: 'rgb(155, 89, 182)',
-                        borderWidth: 1
+                        data: [45, 35, 20],
+                        backgroundColor: ['#5eead4', '#2dd4bf', '#14b8a6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#e6ecff' }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Tỷ lệ năng lượng lý tưởng',
+                            color: '#e6ecff'
+                        }
+                    }
+                }
+            });
+
+            // Micros Chart
+            const microsCtx = document.getElementById('microsChart').getContext('2d');
+            
+            // Calculate average micros and % of RDA
+            const rdas = {
+                vitA: 900, vitC: 90, vitD: 600, vitE: 15, vitK: 120,
+                calcium: 1000, copper: 0.9, iron: 8, magnesium: 400, manganese: 2.3,
+                phosphorus: 700, potassium: 3400, selenium: 55, sodium: 1500, zinc: 11
+            };
+            
+            const microsAvg = {};
+            Object.keys(rdas).forEach(key => {
+                microsAvg[key] = nutritionData.reduce((sum, day) => sum + day[key], 0) / nutritionData.length;
+            });
+            
+            const microsPct = {};
+            Object.keys(rdas).forEach(key => {
+                microsPct[key] = (microsAvg[key] / rdas[key] * 100).toFixed(1);
+            });
+            
+            // Sort by percentage and take top 8
+            const sortedMicros = Object.entries(microsPct)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8);
+            
+            new Chart(microsCtx, {
+                type: 'bar',
+                data: {
+                    labels: sortedMicros.map(item => getMicroName(item[0])),
+                    datasets: [{
+                        label: '% RDA',
+                        data: sortedMicros.map(item => item[1]),
+                        backgroundColor: sortedMicros.map(item => {
+                            const value = item[1];
+                            if (value < 80) return '#ef4444';
+                            if (value < 100) return '#f59e0b';
+                            return '#22c55e';
+                        })
                     }]
                 },
                 options: {
@@ -558,85 +866,445 @@
                         }
                     },
                     scales: {
+                        x: {
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
                         y: {
-                            beginAtZero: true
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            title: {
+                                display: true,
+                                text: '% RDA',
+                                color: '#9bb0d3'
+                            }
                         }
                     }
                 }
             });
 
-            // Progress Chart
-            const progressCtx = document.getElementById('progressChart').getContext('2d');
-            const progressChart = new Chart(progressCtx, {
+            // Minerals Chart
+            const mineralsCtx = document.getElementById('mineralsChart').getContext('2d');
+            
+            // Select key minerals
+            const keyMinerals = ['calcium', 'iron', 'magnesium', 'potassium', 'zinc'];
+            const mineralsData = keyMinerals.map(mineral => ({
+                name: getMicroName(mineral),
+                avg: microsAvg[mineral],
+                rda: rdas[mineral],
+                pct: microsPct[mineral]
+            }));
+            
+            new Chart(mineralsCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
+                    labels: mineralsData.map(m => m.name),
+                    datasets: [
+                        {
+                            label: 'Trung bình',
+                            data: mineralsData.map(m => m.avg),
+                            backgroundColor: 'rgba(94, 234, 212, 0.7)',
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'RDA',
+                            data: mineralsData.map(m => m.rda),
+                            backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#e6ecff' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Weekly Trends Chart
+            const weeklyCtx = document.getElementById('weeklyTrendsChart').getContext('2d');
+            
+            // Group by week (simplified - just using first 4 weeks)
+            const weeklyData = [
+                { week: 'Tuần 1', energy: 1681.4, carbs: 199.0, protein: 77.3, fat: 65.8 },
+                { week: 'Tuần 2', energy: 1778.3, carbs: 211.4, protein: 85.1, fat: 72.8 },
+                { week: 'Tuần 3', energy: 1828.1, carbs: 208.7, protein: 86.9, fat: 78.4 },
+                { week: 'Tuần 4', energy: 1814.2, carbs: 204.9, protein: 87.5, fat: 80.2 }
+            ];
+            
+            new Chart(weeklyCtx, {
+                type: 'line',
+                data: {
+                    labels: weeklyData.map(w => w.week),
+                    datasets: [
+                        {
+                            label: 'Năng lượng (kcal)',
+                            data: weeklyData.map(w => w.energy),
+                            borderColor: '#5eead4',
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Carbs (g)',
+                            data: weeklyData.map(w => w.carbs),
+                            borderColor: '#2dd4bf',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Protein (g)',
+                            data: weeklyData.map(w => w.protein),
+                            borderColor: '#14b8a6',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Fat (g)',
+                            data: weeklyData.map(w => w.fat),
+                            borderColor: '#0d9488',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#e6ecff' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            title: {
+                                display: true,
+                                text: 'Năng lượng (kcal)',
+                                color: '#9bb0d3'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: { color: '#9bb0d3' },
+                            grid: { drawOnChartArea: false },
+                            title: {
+                                display: true,
+                                text: 'Macros (g)',
+                                color: '#9bb0d3'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Energy Stacked Chart
+            const energyStackedCtx = document.getElementById('energyStackedChart').getContext('2d');
+            
+            // Calculate energy from each macro for each day
+            const energyFromCarbs = nutritionData.map(d => d.carbs * 4);
+            const energyFromProtein = nutritionData.map(d => d.protein * 4);
+            const energyFromFat = nutritionData.map(d => d.fat * 9);
+            
+            new Chart(energyStackedCtx, {
+                type: 'bar',
+                data: {
+                    labels: nutritionData.map(d => d.date),
+                    datasets: [
+                        {
+                            label: 'Năng lượng từ Carbs',
+                            data: energyFromCarbs,
+                            backgroundColor: 'rgba(94, 234, 212, 0.7)'
+                        },
+                        {
+                            label: 'Năng lượng từ Protein',
+                            data: energyFromProtein,
+                            backgroundColor: 'rgba(45, 212, 191, 0.7)'
+                        },
+                        {
+                            label: 'Năng lượng từ Fat',
+                            data: energyFromFat,
+                            backgroundColor: 'rgba(20, 184, 166, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#e6ecff' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: { 
+                                color: '#9bb0d3',
+                                maxTicksLimit: 10
+                            },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y: {
+                            stacked: true,
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            title: {
+                                display: true,
+                                text: 'Năng lượng (kcal)',
+                                color: '#9bb0d3'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Correlation Chart
+            const correlationCtx = document.getElementById('correlationChart').getContext('2d');
+            
+            // Calculate simple correlations
+            const correlations = {
+                'Carbs vs Energy': 0.85,
+                'Protein vs Energy': 0.72,
+                'Fat vs Energy': 0.68,
+                'Fiber vs Carbs': 0.63,
+                'Sugar vs Carbs': 0.58
+            };
+            
+            new Chart(correlationCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(correlations),
                     datasets: [{
-                        label: 'Năng lượng (kcal)',
-                        data: [1650, 1750, 1820, 1900],
-                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
-                        borderColor: 'rgb(52, 152, 219)',
-                        borderWidth: 1
-                    }, {
-                        label: 'Protein (g)',
-                        data: [70, 72, 75, 78],
-                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
-                        borderColor: 'rgb(46, 204, 113)',
-                        borderWidth: 1
+                        label: 'Hệ số tương quan',
+                        data: Object.values(correlations),
+                        backgroundColor: Object.values(correlations).map(val => {
+                            if (val > 0.8) return '#22c55e';
+                            if (val > 0.6) return '#f59e0b';
+                            return '#ef4444';
+                        })
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
                     scales: {
+                        x: {
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
                         y: {
-                            beginAtZero: true
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            min: 0,
+                            max: 1
                         }
                     }
                 }
             });
 
-            // Day selector functionality
-            const dayItems = document.querySelectorAll('.day-item');
-            dayItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    dayItems.forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // In a real app, this would update the charts with data for the selected day
-                    // For this demo, we'll just simulate it with a small animation
-                    nutritionChart.update();
-                });
+            // Strength Chart
+            const strengthCtx = document.getElementById('strengthChart').getContext('2d');
+            
+            // Calculate "strength" score for each day (simplified)
+            const strengthScores = nutritionData.map(day => {
+                let score = 0;
+                if (day.energy >= targets.energy * 0.9 && day.energy <= targets.energy * 1.1) score += 25;
+                if (day.carbs >= targets.carbs * 0.9 && day.carbs <= targets.carbs * 1.1) score += 25;
+                if (day.protein >= targets.protein * 0.9) score += 25;
+                if (day.fat >= targets.fat * 0.9 && day.fat <= targets.fat * 1.1) score += 25;
+                return score;
+            });
+            
+            new Chart(strengthCtx, {
+                type: 'line',
+                data: {
+                    labels: nutritionData.map(d => d.date),
+                    datasets: [{
+                        label: 'Điểm dinh dưỡng',
+                        data: strengthScores,
+                        borderColor: '#5eead4',
+                        backgroundColor: 'rgba(94, 234, 212, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#e6ecff' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { 
+                                color: '#9bb0d3',
+                                maxTicksLimit: 10
+                            },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y: {
+                            ticks: { color: '#9bb0d3' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function populateDataTable() {
+            const table = document.getElementById('nutritionDataTable');
+            if (!table) return;
+
+            // Create header
+            const headerRow = document.createElement('tr');
+            const headers = ['Date', 'Energy (kcal)', 'Carbs (g)', 'Protein (g)', 'Fat (g)', 'Fiber (g)'];
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            table.appendChild(headerRow);
+
+            // Create data rows
+            nutritionData.forEach(day => {
+                const row = document.createElement('tr');
+                
+                const dateCell = document.createElement('td');
+                dateCell.textContent = day.date;
+                row.appendChild(dateCell);
+                
+                const energyCell = document.createElement('td');
+                energyCell.textContent = day.energy.toFixed(1);
+                row.appendChild(energyCell);
+                
+                const carbsCell = document.createElement('td');
+                carbsCell.textContent = day.carbs.toFixed(1);
+                row.appendChild(carbsCell);
+                
+                const proteinCell = document.createElement('td');
+                proteinCell.textContent = day.protein.toFixed(1);
+                row.appendChild(proteinCell);
+                
+                const fatCell = document.createElement('td');
+                fatCell.textContent = day.fat.toFixed(1);
+                row.appendChild(fatCell);
+                
+                const fiberCell = document.createElement('td');
+                fiberCell.textContent = day.fiber.toFixed(1);
+                row.appendChild(fiberCell);
+                
+                table.appendChild(row);
+            });
+        }
+
+        function populateMicrosTable() {
+            const container = document.getElementById('microsTable');
+            if (!container) return;
+
+            // RDAs for reference
+            const rdas = {
+                vitA: 900, vitC: 90, vitD: 600, vitE: 15, vitK: 120,
+                calcium: 1000, copper: 0.9, iron: 8, magnesium: 400, manganese: 2.3,
+                phosphorus: 700, potassium: 3400, selenium: 55, sodium: 1500, zinc: 11
+            };
+
+            // Calculate averages
+            const microsAvg = {};
+            Object.keys(rdas).forEach(key => {
+                microsAvg[key] = nutritionData.reduce((sum, day) => sum + day[key], 0) / nutritionData.length;
             });
 
-            // Chart type toggle
-            const chartButtons = document.querySelectorAll('[data-chart]');
-            chartButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    chartButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // In a real app, this would switch between daily and average views
-                    // For this demo, we'll just simulate it
-                    if (this.dataset.chart === 'average') {
-                        nutritionChart.data.datasets[0].data = Array(30).fill(1780);
-                        nutritionChart.data.datasets[1].data = Array(30).fill(84);
-                        nutritionChart.data.datasets[2].data = Array(30).fill(74);
-                    } else {
-                        nutritionChart.data.datasets[0].data = [1639, 1539, 1730, 1657, 1697, 1714, 1767, 1836, 1792, 1971, 
-                                1875, 1802, 1860, 1718, 1896, 1793, 1907, 1760, 1798, 1765,
-                                1917, 1847, 1994, 1851, 1856, 1877, 1779, 1801, 1791, 1825];
-                        nutritionChart.data.datasets[1].data = [73, 74, 90, 65, 66, 90, 77, 74, 77, 99, 
-                                84, 100, 82, 77, 105, 87, 99, 83, 80, 82,
-                                84, 81, 96, 81, 81, 96, 82, 96, 83, 97];
-                        nutritionChart.data.datasets[2].data = [67, 58, 66, 67, 73, 61, 79, 80, 67, 84,
-                                77, 67, 78, 65, 80, 79, 74, 80, 71, 78,
-                                86, 85, 86, 80, 82, 81, 80, 79, 82, 81];
-                    }
-                    nutritionChart.update();
-                });
+            // Create table
+            const table = document.createElement('table');
+            table.className = 'data-table';
+            
+            // Header
+            const headerRow = document.createElement('tr');
+            ['Vi chất', 'Trung bình', 'RDA', '% RDA'].forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
             });
-        });
+            table.appendChild(headerRow);
+
+            // Data rows
+            Object.keys(rdas).forEach(key => {
+                const row = document.createElement('tr');
+                
+                const nameCell = document.createElement('td');
+                nameCell.textContent = getMicroName(key);
+                row.appendChild(nameCell);
+                
+                const avgCell = document.createElement('td');
+                avgCell.textContent = microsAvg[key].toFixed(1);
+                row.appendChild(avgCell);
+                
+                const rdaCell = document.createElement('td');
+                rdaCell.textContent = rdas[key];
+                row.appendChild(rdaCell);
+                
+                const pctCell = document.createElement('td');
+                const pct = (microsAvg[key] / rdas[key] * 100).toFixed(1);
+                pctCell.textContent = pct + '%';
+                if (pct < 80) pctCell.className = 'bad';
+                else if (pct < 100) pctCell.className = 'warn';
+                else pctCell.className = 'good';
+                row.appendChild(pctCell);
+                
+                table.appendChild(row);
+            });
+
+            container.appendChild(table);
+        }
+
+        function getMicroName(key) {
+            const names = {
+                vitA: 'Vitamin A (µg)', vitC: 'Vitamin C (mg)', vitD: 'Vitamin D (IU)', 
+                vitE: 'Vitamin E (mg)', vitK: 'Vitamin K (µg)', calcium: 'Calcium (mg)',
+                copper: 'Copper (mg)', iron: 'Iron (mg)', magnesium: 'Magnesium (mg)',
+                manganese: 'Manganese (mg)', phosphorus: 'Phosphorus (mg)', 
+                potassium: 'Potassium (mg)', selenium: 'Selenium (µg)', sodium: 'Sodium (mg)', 
+                zinc: 'Zinc (mg)'
+            };
+            return names[key] || key;
+        }
     </script>
 </body>
 </html>
