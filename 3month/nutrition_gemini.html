@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đồ họa thông tin Phân tích Dinh dưỡng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .chart-container img {
+            object-fit: contain;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-5xl">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Báo Cáo Phân Tích Dinh Dưỡng</h1>
+            <p class="text-gray-600 mt-2 text-lg">Tổng hợp 20 ngày (29/08/2025 - 17/09/2025)</p>
+        </header>
+
+        <main>
+            <!-- Key Metrics Section -->
+            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <!-- Calo Card -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-red-500 text-center">
+                    <h3 class="font-semibold text-gray-500">Calo Trung Bình</h3>
+                    <p class="text-4xl font-bold text-red-600 my-2">1932<span class="text-lg font-medium text-gray-500"> kcal</span></p>
+                    <p class="text-sm text-gray-500">Mục tiêu: 1600 kcal</p>
+                    <div class="flex items-center justify-center text-red-500 mt-2">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                        <span class="font-semibold">Cao hơn 20.75%</span>
+                    </div>
+                </div>
+                <!-- Fat Card -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-green-500 text-center">
+                     <h3 class="font-semibold text-gray-500">Chất Béo</h3>
+                    <p class="text-4xl font-bold text-green-600 my-2">34.8<span class="text-lg font-medium text-gray-500">%</span></p>
+                    <p class="text-sm text-gray-500">Mục tiêu: 35%</p>
+                     <div class="flex items-center justify-center text-green-500 mt-2">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        <span class="font-semibold">Đạt mục tiêu</span>
+                    </div>
+                </div>
+                <!-- Carb Card -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-yellow-500 text-center">
+                    <h3 class="font-semibold text-gray-500">Carbohydrate</h3>
+                    <p class="text-4xl font-bold text-yellow-600 my-2">47.6<span class="text-lg font-medium text-gray-500">%</span></p>
+                    <p class="text-sm text-gray-500">Mục tiêu: 45%</p>
+                     <div class="flex items-center justify-center text-yellow-500 mt-2">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                        <span class="font-semibold">Cao hơn 2.6%</span>
+                    </div>
+                </div>
+                <!-- Protein Card -->
+                 <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 text-center">
+                     <h3 class="font-semibold text-gray-500">Protein</h3>
+                    <p class="text-4xl font-bold text-blue-600 my-2">17.6<span class="text-lg font-medium text-gray-500">%</span></p>
+                    <p class="text-sm text-gray-500">Mục tiêu: 20%</p>
+                     <div class="flex items-center justify-center text-blue-500 mt-2">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                        <span class="font-semibold">Thấp hơn 2.4%</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-10">
+                <!-- Doughnut and Bar charts card -->
+                <div class="bg-white p-6 rounded-xl shadow-lg lg:col-span-2">
+                    <h2 class="text-xl font-bold mb-4 text-center">Tỷ Lệ Dinh Dưỡng</h2>
+                    <div class="chart-container">
+                        <img src="https://quickchart.io/chart?c={type:'doughnut',options:{plugins:{legend:{position:'bottom'}}},data:{labels:['Chất%20béo','Carbohydrate','Protein'],datasets:[{label:'Mục%20tiêu',data:[35,45,20],backgroundColor:['rgba(22,163,74,0.3)','rgba(202,138,4,0.3)','rgba(37,99,235,0.3)']},{label:'Thực%20tế',data:[34.8,47.6,17.6],backgroundColor:['rgb(22,163,74)','rgb(202,138,4)','rgb(37,99,235)']}]}}" alt="Biểu đồ tỷ lệ dinh dưỡng">
+                    </div>
+                    <hr class="my-6">
+                    <h2 class="text-xl font-bold mb-4 text-center">Tổng Lượng Calo</h2>
+                    <div class="chart-container h-48">
+                         <img src="https://quickchart.io/chart?c={type:'bar',data:{labels:['Mục%20tiêu','Thực%20tế'],datasets:[{label:'Tổng%20calo',data:[1600,1932],backgroundColor:['rgb(156,163,175)','rgb(220,38,38)']}]}}" alt="Biểu đồ so sánh tổng calo">
+                    </div>
+                </div>
+
+                <!-- Line chart card -->
+                <div class="bg-white p-6 rounded-xl shadow-lg lg:col-span-3">
+                    <h2 class="text-xl font-bold mb-4 text-center">Xu Hướng Tiêu Thụ Calo Hàng Ngày</h2>
+                     <div class="h-full w-full min-h-[400px]">
+                        <img class="object-contain w-full h-full" src="https://quickchart.io/chart?c={type:'line',options:{plugins:{legend:{position:'bottom'}}},data:{labels:['29/08','','31/08','','02/09','','04/09','','06/09','','08/09','','10/09','','12/09','','14/09','','16/09','17/09'],datasets:[{label:'Tổng%20calo',data:[1615,1756,1699,1639,1539,1729,1657,1697,1714,1767,1836,1792,1969,1874,1801,1859,1717,1894,1793,1906],borderColor:'rgb(220,38,38)',backgroundColor:'rgba(220,38,38,0.1)',fill:true,tension:0.3},{label:'Mục%20tiêu',data:[1600,1600,1600,1600,1600,1600,1600,1600,1600,1600,1600,1600,1600,1600,1600,1600,1600,1600,1600,1600],borderColor:'rgb(156,163,175)',borderDash:[5,5]}]}}" alt="Biểu đồ xu hướng hàng ngày">
+                     </div>
+                </div>
+            </section>
+            
+            <!-- Recommendations Section -->
+            <section class="bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-6 text-center">Nhận Xét & Kế Hoạch Hành Động</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Nhận xét -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-700">Những Điểm Chính Cần Lưu Ý</h3>
+                        <ul class="space-y-4">
+                            <li class="flex"><span class="text-red-500 font-bold text-xl mr-3">🔴</span><div><strong class="text-gray-900">Lượng calo cao:</strong> Vượt 332 kcal/ngày so với mục tiêu. Đây là ưu tiên hàng đầu cần điều chỉnh.</div></li>
+                            <li class="flex"><span class="text-blue-500 font-bold text-xl mr-3">🔵</span><div><strong class="text-gray-900">Protein thấp:</strong> Thiếu 2.4% so với mục tiêu. Cần bổ sung thêm để xây dựng cơ bắp và no lâu hơn.</div></li>
+                            <li class="flex"><span class="text-yellow-500 font-bold text-xl mr-3">🟡</span><div><strong class="text-gray-900">Carb hơi cao:</strong> Vượt 2.6%, nên giảm bớt để cân bằng lại tỷ lệ dinh dưỡng.</div></li>
+                            <li class="flex"><span class="text-green-500 font-bold text-xl mr-3">🟢</span><div><strong class="text-gray-900">Chất béo tốt:</strong> Tỷ lệ chất béo gần như hoàn hảo. Hãy tiếp tục phát huy!</div></li>
+                        </ul>
+                    </div>
+                    <!-- Đề xuất -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-700">Bạn Nên Làm Gì Tiếp Theo?</h3>
+                        <ul class="space-y-5">
+                            <li class="flex items-center">
+                                <div class="flex-shrink-0 bg-blue-100 text-blue-600 p-3 rounded-full mr-4">
+                                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                                </div>
+                                <div><p class="font-semibold text-gray-900">Tăng cường Protein</p><p class="text-sm text-gray-600">Thêm ức gà, cá, trứng, đậu phụ vào bữa ăn.</p></div>
+                            </li>
+                            <li class="flex items-center">
+                                <div class="flex-shrink-0 bg-yellow-100 text-yellow-600 p-3 rounded-full mr-4">
+                                     <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 019 9v.375M10.125 2.25A3.375 3.375 0 0113.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 013.375 3.375M9 15l2.25 2.25L15 12" /></svg>
+                                </div>
+                                <div><p class="font-semibold text-gray-900">Giảm Tinh Bột</p><p class="text-sm text-gray-600">Giảm khẩu phần cơm, bánh mì, bún, phở.</p></div>
+                            </li>
+                             <li class="flex items-center">
+                                 <div class="flex-shrink-0 bg-green-100 text-green-600 p-3 rounded-full mr-4">
+                                     <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
+                                 </div>
+                                <div><p class="font-semibold text-gray-900">Duy trì Chất Béo Tốt</p><p class="text-sm text-gray-600">Tiếp tục sử dụng quả bơ, dầu oliu, các loại hạt.</p></div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>
