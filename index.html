@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kế hoạch Dinh dưỡng cho Bệnh nhân Loạn dưỡng cơ Duchenne</title>
+    <title>Kế hoạch Dinh dưỡng Cá Nhân</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -56,29 +56,17 @@
                 transform: translateY(-50%);
             }
          }
-         .ai-tool-btn {
-            transition: all 0.3s ease;
-         }
-         .ai-tool-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-         }
-         .ai-tool-btn.selected {
-            border: 2px solid #00449E;
-            background-color: #EBF3FF;
-         }
     </style>
 </head>
 <body class="text-gray-700">
     <div class="container mx-auto p-4 md:p-8">
         <header class="text-center mb-6">
-            <h1 class="text-4xl md:text-5xl font-bold text-[#00449E]">Kế hoạch Dinh dưỡng Chuyên sâu</h1>
-            <p class="text-lg md:text-xl mt-2 text-[#005BC5]">Dành cho Bệnh nhân Loạn dưỡng cơ Duchenne</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-[#00449E]">Kế hoạch Dinh dưỡng</h1>
         </header>
 
         <!-- Thanh điều hướng chọn báo cáo -->
         <nav class="bg-white rounded-lg shadow-md mb-8 p-6">
-            <h2 class="text-xl font-semibold text-[#00449E] mb-4 text-center md:text-left">Báo cáo Dinh dưỡng Theo Tháng & Công cụ AI</h2>
+            <h2 class="text-xl font-semibold text-[#00449E] mb-4 text-center md:text-left">Báo cáo Dinh dưỡng Theo Tháng</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div>
@@ -109,21 +97,15 @@
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 mb-2">Công cụ AI:</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button data-tool="deepseek" class="ai-tool-btn bg-[#EBF3FF] text-[#00449E] p-2 rounded-md border border-[#66A9FF] selected">
-                            DeepSeek
-                        </button>
-                        <button data-tool="claude" class="ai-tool-btn bg-[#F0F9FF] text-[#00449E] p-2 rounded-md border border-[#66A9FF]">
-                            Claude
-                        </button>
-                        <button data-tool="gemini" class="ai-tool-btn bg-[#FFF6EB] text-[#00449E] p-2 rounded-md border border-[#66A9FF]">
-                            Gemini
-                        </button>
-                        <button data-tool="gpt" class="ai-tool-btn bg-[#F5F3FF] text-[#00449E] p-2 rounded-md border border-[#66A9FF]">
-                            ChatGPT
-                        </button>
-                    </div>
+                    <label for="ai-tool-select" class="block text-gray-700 mb-2">Công cụ AI:</label>
+                    <select id="ai-tool-select" class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#0072F0]">
+                        <option value="deepseek">DeepSeek</option>
+                        <option value="claude">Claude</option>
+                        <option value="gemini">Gemini</option>
+                        <option value="gpt" selected>ChatGPT</option>
+                        <option value="manus">Manus</option>
+                        <option value="kimi">Kimi</option>
+                    </select>
                 </div>
             </div>
 
@@ -166,12 +148,12 @@
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
                     <div class="bg-white rounded-lg shadow-md p-6">
                         <p class="text-lg text-[#005BC5] font-semibold">Năng lượng</p>
-                        <p class="text-4xl font-bold text-[#00449E] mt-2">1550</p>
+                        <p class="text-4xl font-bold text-[#00449E] mt-2">1750</p>
                         <p class="text-md text-gray-500">kcal</p>
                     </div>
                     <div class="bg-white rounded-lg shadow-md p-6">
                         <p class="text-lg text-[#005BC5] font-semibold">Chất đạm</p>
-                        <p class="text-4xl font-bold text-[#00449E] mt-2">65</p>
+                        <p class="text-4xl font-bold text-[#00449E] mt-2">75</p>
                         <p class="text-md text-gray-500">grams</p>
                     </div>
                     <div class="bg-white rounded-lg shadow-md p-6">
@@ -181,7 +163,7 @@
                     </div>
                      <div class="bg-white rounded-lg shadow-md p-6">
                         <p class="text-lg text-[#005BC5] font-semibold">Chất xơ</p>
-                        <p class="text-4xl font-bold text-[#00449E] mt-2">22</p>
+                        <p class="text-4xl font-bold text-[#00449E] mt-2">25</p>
                         <p class="text-md text-gray-500">grams</p>
                     </div>
                 </div>
@@ -213,38 +195,38 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-12">
                     <div class="flowchart-step">
                          <div class="bg-white rounded-lg shadow-md p-6 w-full text-center border-t-4 border-[#0072F0]">
-                            <p class="font-bold text-lg text-[#00449E]">☀️ 08:00 - Bữa 1</p>
-                            <p class="mt-2">Bữa ăn xay nhuyễn chính, giàu protein và năng lượng. (VD: Gà tây & Khoai lang).</p>
+                            <p class="font-bold text-lg text-[#00449E]">☀️ 07:00 - Bữa phụ 1</p>
+                            <p class="mt-2">Sữa dinh dưỡng, giàu protein và năng lượng. (VD: Sữa bột pha cùng bột cacao, bột hạt điều).</p>
                         </div>
                     </div>
                     <div class="flowchart-step">
                          <div class="bg-white rounded-lg shadow-md p-6 w-full text-center border-t-4 border-[#338DFF]">
-                            <p class="font-bold text-lg text-[#00449E]">🕚 11:00 - Bữa phụ 1</p>
-                            <p class="mt-2">Bữa ăn nhẹ giàu protein để duy trì tổng hợp cơ. (VD: Sữa chua Hy Lạp & Dâu tây xay).</p>
+                            <p class="font-bold text-lg text-[#00449E]">🕚 10:00 - Bữa 1</p>
+                            <p class="mt-2">Bữa ăn xay nhuyễn chính thứ nhất, đa dạng nguồn dinh dưỡng. (VD: Súp đậu hạt, thịt (cá) & Rau củ).</p>
                         </div>
                     </div>
                     <div class="flowchart-step">
                         <div class="bg-white rounded-lg shadow-md p-6 w-full text-center border-t-4 border-[#66A9FF]">
                             <p class="font-bold text-lg text-[#00449E]">🕐 13:00 - Bữa 2</p>
-                            <p class="mt-2">Bữa ăn xay nhuyễn chính thứ hai, đa dạng nguồn dinh dưỡng. (VD: Súp đậu lăng & Rau củ).</p>
+                            <p class="mt-2">Bữa ăn xay nhuyễn chính thứ hai, đa dạng nguồn dinh dưỡng. (VD: Súp đậu hạt, thịt (cá) & Rau củ).</p>
                         </div>
                     </div>
                     <div class="flowchart-step">
                          <div class="bg-white rounded-lg shadow-md p-6 w-full text-center border-t-4 border-[#0072F0]">
-                            <p class="font-bold text-lg text-[#00449E]">🕓 16:00 - Bữa lỏng</p>
-                            <p class="mt-2">Chất lỏng uống qua miệng nếu dung nạp tốt. (VD: Nước ép trái cây không đường hoặc smoothie loãng).</p>
+                            <p class="font-bold text-lg text-[#00449E]">🕓 16:00 - Bữa sinh tố</p>
+                            <p class="mt-2">Sinh tố giàu dinh dưỡng uống qua miệng. (VD: smoothie chuối, bơ cùng với yến mạch/óc chó/điều).</p>
                         </div>
                     </div>
                     <div class="flowchart-step">
                         <div class="bg-white rounded-lg shadow-md p-6 w-full text-center border-t-4 border-[#338DFF]">
-                            <p class="font-bold text-lg text-[#00449E]">🕕 18:00 - Bữa 3</p>
-                            <p class="mt-2">Bữa ăn xay nhuyễn chính cuối cùng trong ngày, giàu chất béo lành mạnh. (VD: Cá hồi & Bơ).</p>
+                            <p class="font-bold text-lg text-[#00449E]">🕕 19:00 - Bữa 3</p>
+                            <p class="mt-2">Bữa ăn xay nhuyễn chính cuối cùng trong ngày, đa dạng nguồn dinh dưỡng. (VD: Súp đậu hạt, thịt (cá) & Rau củ).</p>
                         </div>
                     </div>
                     <div class="flowchart-step">
                         <div class="bg-white rounded-lg shadow-md p-6 w-full text-center border-t-4 border-[#66A9FF]">
-                            <p class="font-bold text-lg text-[#00449E]">🕘 21:00 - Bữa phụ 2</p>
-                            <p class="mt-2">Sữa công thức chuyên biệt để đảm bảo cung cấp đủ calo và vi chất qua đêm.</p>
+                            <p class="font-bold text-lg text-[#00449E]">🕘 22:00 - Bữa phụ 2</p>
+                            <p class="mt-2">Sữa công thức chuyên biệt để đảm bảo cung cấp đủ calo và vi chất qua đêm. (VD: Ensure Gold, Varna)</p>
                         </div>
                     </div>
                 </div>
@@ -302,32 +284,27 @@
         </main>
 
         <footer class="text-center mt-12 text-gray-500 text-sm">
-            <p>Thông tin này chỉ mang tính chất tham khảo và không thể thay thế cho tư vấn y tế chuyên nghiệp. Luôn tuân thủ theo chỉ định của bác sĩ và chuyên gia dinh dưỡng.</p>
+            <p>Thông tin này tạo bởi Canh Vân Tử</p>
         </footer>
     </div>
 
     <script>
-        // Xử lý chọn công cụ AI
-        const toolButtons = document.querySelectorAll('.ai-tool-btn');
-        let selectedTool = 'deepseek'; // Mặc định
+        // Thiết lập tháng và năm hiện tại
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+            const currentYear = now.getFullYear();
 
-        toolButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                // Xóa lớp selected từ tất cả các nút
-                toolButtons.forEach(btn => btn.classList.remove('selected'));
-
-                // Thêm lớp selected cho nút được chọn
-                this.classList.add('selected');
-
-                // Cập nhật công cụ được chọn
-                selectedTool = this.getAttribute('data-tool');
-            });
+            // Đặt tháng và năm hiện tại làm mặc định
+            document.getElementById('month-select').value = currentMonth;
+            document.getElementById('year-select').value = currentYear;
         });
 
         // Xử lý sự kiện khi nhấn nút "Xem báo cáo"
         document.getElementById('view-report-btn').addEventListener('click', function() {
             const selectedYear = document.getElementById('year-select').value;
             const selectedMonth = document.getElementById('month-select').value;
+            const selectedTool = document.getElementById('ai-tool-select').value;
 
             // Điều hướng đến trang báo cáo tương ứng
             window.location.href = `./reports/report_${selectedMonth}${selectedYear}_${selectedTool}.html`;
@@ -358,14 +335,14 @@
         const macroChart = new Chart(macroCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Protein (17%)', 'Carbohydrate (53%)', 'Chất béo (30%)'],
+                labels: ['Protein (20%)', 'Carbohydrate (45%)', 'Chất béo (35%)'],
                 datasets: [{
                     label: 'Phân bổ Năng lượng',
-                    data: [17, 53, 30],
+                    data: [20, 45, 35],
                     backgroundColor: [
-                        '#005BC5',
-                        '#338DFF',
-                        '#66A9FF',
+                        '#9A031E',
+                        '#ffc107',
+                        '#10b981',
                     ],
                     borderColor: '#FFFFFF',
                     borderWidth: 2
@@ -388,8 +365,8 @@
                     label: 'Mục tiêu Hàng ngày',
                     data: [3000, 1500, 1100, 50],
                     backgroundColor: [
-                        '#005BC5',
-                        '#0072F0',
+                        '#ffc107',
+                        '#E36414',
                         '#338DFF',
                         '#66A9FF'
                     ],
