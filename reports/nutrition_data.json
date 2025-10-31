@@ -1,0 +1,512 @@
+{
+    "patient_info": {
+        "age": 28,
+        "gender": "male",
+        "weight_kg": 45,
+        "height_cm": 165,
+        "target_kcal": 1700,
+        "target_protein_g": 75,
+        "target_fat_g": 65,
+        "target_carb_g": 190,
+        "target_fiber_g": 25,
+        "target_ratio_carb": 0.45,
+        "target_ratio_fat": 0.35,
+        "target_ratio_protein": 0.2
+    },
+    "overall_assessment": {
+        "ideal_weight_kg": 65,
+        "bmi": 16.53,
+        "bmi_assessment": "Gầy độ II (Suy dinh dưỡng vừa)",
+        "weight_deviation_kg": -20
+    },
+    "macronutrient_summary": {
+        "average_intake": {
+            "Kcal": 1865.9,
+            "Protein": 88.2,
+            "Fat": 84.7,
+            "Carb": 203.8,
+            "Fiber": 29.8
+        },
+        "deviation_from_target": {
+            "Kcal": 165.9,
+            "Protein": 13.2,
+            "Fat": 19.7,
+            "Carb": 13.8,
+            "Fiber": 4.8
+        },
+        "average_ratio": {
+            "Protein": 0.189,
+            "Carb": 0.437,
+            "Fat": 0.408
+        },
+        "target_ratio": {
+            "Protein": 0.2,
+            "Carb": 0.45,
+            "Fat": 0.35
+        },
+        "ratio_deviation": {
+            "Protein": -0.011,
+            "Carb": -0.013,
+            "Fat": 0.058
+        }
+    },
+    "strong_weak_days": {
+        "Kcal": {
+            "strong": [
+                "04/10",
+                "11/10",
+                "12/10"
+            ],
+            "weak": [
+                "02/10",
+                "14/10",
+                "18/10",
+                "19/10",
+                "25/10"
+            ]
+        },
+        "Protein": {
+            "strong": [
+                "04/10",
+                "06/10",
+                "11/10",
+                "15/10",
+                "17/10",
+                "21/10"
+            ],
+            "weak": [
+                "02/10",
+                "20/10",
+                "23/10"
+            ]
+        },
+        "Fat": {
+            "strong": [
+                "11/10",
+                "12/10",
+                "20/10",
+                "23/10"
+            ],
+            "weak": [
+                "01/10",
+                "02/10",
+                "18/10",
+                "19/10"
+            ]
+        },
+        "Carb": {
+            "strong": [
+                "04/10",
+                "09/10",
+                "10/10",
+                "12/10",
+                "18/10"
+            ],
+            "weak": [
+                "05/10",
+                "15/10",
+                "17/10",
+                "20/10",
+                "25/10",
+                "29/10"
+            ]
+        }
+    },
+    "micronutrient_summary": {
+        "average_intake": {
+            "VitA_ug": 1181.5,
+            "VitC_mg": 195.9,
+            "VitD_IU": 416.3,
+            "VitE_mg": 16.1,
+            "VitK_ug": 325.9,
+            "Calcium_mg": 1221.9,
+            "Copper_mg": 2.3,
+            "Iron_mg": 15.6,
+            "Magnesium_mg": 441.2,
+            "Manganese_mg": 4.1,
+            "Phosphorus_mg": 1541.8,
+            "Potassium_mg": 3925.9,
+            "Selenium_ug": 78.1,
+            "Sodium_mg": 1473.0,
+            "Zinc_mg": 13.0
+        },
+        "fat_types": {
+            "SaturatedFat": 34.0,
+            "MonoFat": 33.3,
+            "PolyFat": 17.4
+        },
+        "carb_types": {
+            "Starch": 62.4,
+            "Sugar": 48.4
+        }
+    },
+    "time_series_data": [
+        {
+            "Day": 1,
+            "Kcal": 1849.6,
+            "Protein": 94.9,
+            "Fat": 76.4,
+            "Carb": 209.1,
+            "Fiber": 29.7,
+            "Ratio_Protein": 0.20523356401384085,
+            "Ratio_Carb": 0.4522058823529412,
+            "Ratio_Fat": 0.37175605536332185
+        },
+        {
+            "Day": 2,
+            "Kcal": 1742.9,
+            "Protein": 71.7,
+            "Fat": 78.1,
+            "Carb": 200.7,
+            "Fiber": 26.5,
+            "Ratio_Protein": 0.16455333065580355,
+            "Ratio_Carb": 0.46061162430432034,
+            "Ratio_Fat": 0.4032933616386482
+        },
+        {
+            "Day": 3,
+            "Kcal": 1855.8,
+            "Protein": 82.5,
+            "Fat": 82.1,
+            "Carb": 206.7,
+            "Fiber": 24.0,
+            "Ratio_Protein": 0.17782088587132233,
+            "Ratio_Carb": 0.4455221467830585,
+            "Ratio_Fat": 0.39815712900096994
+        },
+        {
+            "Day": 4,
+            "Kcal": 1980.3,
+            "Protein": 96.7,
+            "Fat": 84.9,
+            "Carb": 222.7,
+            "Fiber": 32.6,
+            "Ratio_Protein": 0.19532394081704793,
+            "Ratio_Carb": 0.44983083371206384,
+            "Ratio_Fat": 0.3858506286926224
+        },
+        {
+            "Day": 5,
+            "Kcal": 1819.4,
+            "Protein": 81.7,
+            "Fat": 87.4,
+            "Carb": 189.3,
+            "Fiber": 27.3,
+            "Ratio_Protein": 0.17961965483126305,
+            "Ratio_Carb": 0.4161811586237221,
+            "Ratio_Fat": 0.43234033197757504
+        },
+        {
+            "Day": 6,
+            "Kcal": 1896.0,
+            "Protein": 95.9,
+            "Fat": 84.3,
+            "Carb": 201.1,
+            "Fiber": 28.6,
+            "Ratio_Protein": 0.20232067510548524,
+            "Ratio_Carb": 0.42426160337552743,
+            "Ratio_Fat": 0.40015822784810123
+        },
+        {
+            "Day": 7,
+            "Kcal": 1860.5,
+            "Protein": 82.9,
+            "Fat": 82.1,
+            "Carb": 213.5,
+            "Fiber": 27.1,
+            "Ratio_Protein": 0.17823165815640957,
+            "Ratio_Carb": 0.45901639344262296,
+            "Ratio_Fat": 0.397151303413061
+        },
+        {
+            "Day": 8,
+            "Kcal": 1856.8,
+            "Protein": 94.7,
+            "Fat": 82.4,
+            "Carb": 198.5,
+            "Fiber": 28.3,
+            "Ratio_Protein": 0.20400689358035332,
+            "Ratio_Carb": 0.4276174062903921,
+            "Ratio_Fat": 0.39939681171908664
+        },
+        {
+            "Day": 9,
+            "Kcal": 1906.1,
+            "Protein": 82.7,
+            "Fat": 82.7,
+            "Carb": 227.3,
+            "Fiber": 32.6,
+            "Ratio_Protein": 0.17354808247206338,
+            "Ratio_Carb": 0.4769949110749699,
+            "Ratio_Fat": 0.3904831855621427
+        },
+        {
+            "Day": 10,
+            "Kcal": 1894.7,
+            "Protein": 81.6,
+            "Fat": 86.3,
+            "Carb": 216.1,
+            "Fiber": 30.2,
+            "Ratio_Protein": 0.17227001636142925,
+            "Ratio_Carb": 0.4562199820552066,
+            "Ratio_Fat": 0.4099329709188789
+        },
+        {
+            "Day": 11,
+            "Kcal": 2005.0,
+            "Protein": 100.8,
+            "Fat": 92.7,
+            "Carb": 205.5,
+            "Fiber": 27.0,
+            "Ratio_Protein": 0.20109725685785534,
+            "Ratio_Carb": 0.40997506234413966,
+            "Ratio_Fat": 0.4161097256857856
+        },
+        {
+            "Day": 12,
+            "Kcal": 1964.2,
+            "Protein": 85.5,
+            "Fat": 90.7,
+            "Carb": 218.5,
+            "Fiber": 25.9,
+            "Ratio_Protein": 0.1741166887282354,
+            "Ratio_Carb": 0.4449648711943794,
+            "Ratio_Fat": 0.4155890438855514
+        },
+        {
+            "Day": 13,
+            "Kcal": 1904.6,
+            "Protein": 95.2,
+            "Fat": 87.1,
+            "Carb": 198.6,
+            "Fiber": 29.3,
+            "Ratio_Protein": 0.1999369946445448,
+            "Ratio_Carb": 0.41709545311351465,
+            "Ratio_Fat": 0.41158248451118346
+        },
+        {
+            "Day": 14,
+            "Kcal": 1799.7,
+            "Protein": 84.1,
+            "Fat": 84.3,
+            "Carb": 194.6,
+            "Fiber": 26.7,
+            "Ratio_Protein": 0.18692004222926042,
+            "Ratio_Carb": 0.43251653053286654,
+            "Ratio_Fat": 0.421570261710285
+        },
+        {
+            "Day": 15,
+            "Kcal": 1853.6,
+            "Protein": 96.9,
+            "Fat": 84.4,
+            "Carb": 191.1,
+            "Fiber": 25.9,
+            "Ratio_Protein": 0.20910660336642212,
+            "Ratio_Carb": 0.4123867069486405,
+            "Ratio_Fat": 0.4097971514889944
+        },
+        {
+            "Day": 16,
+            "Kcal": 1854.0,
+            "Protein": 87.0,
+            "Fat": 84.7,
+            "Carb": 203.9,
+            "Fiber": 29.3,
+            "Ratio_Protein": 0.18770226537216828,
+            "Ratio_Carb": 0.4399137001078749,
+            "Ratio_Fat": 0.41116504854368935
+        },
+        {
+            "Day": 17,
+            "Kcal": 1867.1,
+            "Protein": 98.2,
+            "Fat": 85.0,
+            "Carb": 192.0,
+            "Fiber": 26.4,
+            "Ratio_Protein": 0.21037973327620377,
+            "Ratio_Carb": 0.4113330833913556,
+            "Ratio_Fat": 0.4097263135343581
+        },
+        {
+            "Day": 18,
+            "Kcal": 1776.4,
+            "Protein": 83.5,
+            "Fat": 71.7,
+            "Carb": 215.7,
+            "Fiber": 28.9,
+            "Ratio_Protein": 0.18802071605494258,
+            "Ratio_Carb": 0.4857014185994145,
+            "Ratio_Fat": 0.36326277865345646
+        },
+        {
+            "Day": 19,
+            "Kcal": 1779.7,
+            "Protein": 82.2,
+            "Fat": 71.8,
+            "Carb": 213.4,
+            "Fiber": 31.5,
+            "Ratio_Protein": 0.18475023880429287,
+            "Ratio_Carb": 0.47963139855031744,
+            "Ratio_Fat": 0.3630949036354441
+        },
+        {
+            "Day": 20,
+            "Kcal": 1834.9,
+            "Protein": 76.7,
+            "Fat": 92.5,
+            "Carb": 190.1,
+            "Fiber": 29.1,
+            "Ratio_Protein": 0.16720257234726688,
+            "Ratio_Carb": 0.4144095046051556,
+            "Ratio_Fat": 0.45370319908441875
+        },
+        {
+            "Day": 21,
+            "Kcal": 1898.7,
+            "Protein": 97.7,
+            "Fat": 81.7,
+            "Carb": 208.9,
+            "Fiber": 33.9,
+            "Ratio_Protein": 0.20582503818402065,
+            "Ratio_Carb": 0.440090588297256,
+            "Ratio_Fat": 0.38726497076947386
+        },
+        {
+            "Day": 22,
+            "Kcal": 1894.0,
+            "Protein": 82.6,
+            "Fat": 89.0,
+            "Carb": 205.0,
+            "Fiber": 30.4,
+            "Ratio_Protein": 0.1744456177402323,
+            "Ratio_Carb": 0.43294614572333684,
+            "Ratio_Fat": 0.4229144667370644
+        },
+        {
+            "Day": 23,
+            "Kcal": 1892.6,
+            "Protein": 75.5,
+            "Fat": 92.5,
+            "Carb": 211.1,
+            "Fiber": 35.7,
+            "Ratio_Protein": 0.15956884708866112,
+            "Ratio_Carb": 0.4461587234492233,
+            "Ratio_Fat": 0.43987107682553106
+        },
+        {
+            "Day": 24,
+            "Kcal": 1919.2,
+            "Protein": 94.6,
+            "Fat": 87.0,
+            "Carb": 205.6,
+            "Fiber": 31.5,
+            "Ratio_Protein": 0.1971654856190079,
+            "Ratio_Carb": 0.42851187994997914,
+            "Ratio_Fat": 0.40798249270529385
+        },
+        {
+            "Day": 25,
+            "Kcal": 1768.6,
+            "Protein": 82.9,
+            "Fat": 86.0,
+            "Carb": 182.3,
+            "Fiber": 28.7,
+            "Ratio_Protein": 0.18749293226280675,
+            "Ratio_Carb": 0.4123035169060274,
+            "Ratio_Fat": 0.43763428700667195
+        },
+        {
+            "Day": 26,
+            "Kcal": 1849.6,
+            "Protein": 86.7,
+            "Fat": 86.2,
+            "Carb": 202.2,
+            "Fiber": 33.3,
+            "Ratio_Protein": 0.18750000000000003,
+            "Ratio_Carb": 0.43728373702422146,
+            "Ratio_Fat": 0.4194420415224914
+        },
+        {
+            "Day": 27,
+            "Kcal": 1895.8,
+            "Protein": 93.6,
+            "Fat": 89.1,
+            "Carb": 198.9,
+            "Fiber": 31.7,
+            "Ratio_Protein": 0.1974891866230615,
+            "Ratio_Carb": 0.41966452157400574,
+            "Ratio_Fat": 0.42298765692583606
+        },
+        {
+            "Day": 28,
+            "Kcal": 1872.9,
+            "Protein": 87.8,
+            "Fat": 86.0,
+            "Carb": 206.7,
+            "Fiber": 32.9,
+            "Ratio_Protein": 0.18751668535426344,
+            "Ratio_Carb": 0.44145442896043563,
+            "Ratio_Fat": 0.41326285439692456
+        },
+        {
+            "Day": 29,
+            "Kcal": 1868.6,
+            "Protein": 91.9,
+            "Fat": 89.4,
+            "Carb": 193.1,
+            "Fiber": 32.4,
+            "Ratio_Protein": 0.19672482072139572,
+            "Ratio_Carb": 0.41335759392058224,
+            "Ratio_Fat": 0.4305897463341539
+        },
+        {
+            "Day": 30,
+            "Kcal": 1840.2,
+            "Protein": 90.8,
+            "Fat": 82.3,
+            "Carb": 199.6,
+            "Fiber": 33.3,
+            "Ratio_Protein": 0.19736985110314095,
+            "Ratio_Carb": 0.4338658841430279,
+            "Ratio_Fat": 0.40251059667427447
+        },
+        {
+            "Day": 31,
+            "Kcal": 1842.4,
+            "Protein": 93.7,
+            "Fat": 84.9,
+            "Carb": 195.8,
+            "Fiber": 31.6,
+            "Ratio_Protein": 0.20343030829353018,
+            "Ratio_Carb": 0.42509769865392966,
+            "Ratio_Fat": 0.41473078593139384
+        }
+    ],
+    "correlation_matrix": {
+        "Kcal": {
+            "Kcal": 1.0,
+            "Protein": 0.5251263238353778,
+            "Fat": 0.5670830061908658,
+            "Carb": 0.42590666828115203
+        },
+        "Protein": {
+            "Kcal": 0.5251263238353778,
+            "Protein": 1.0,
+            "Fat": 0.07752747287675285,
+            "Carb": -0.1011642229964678
+        },
+        "Fat": {
+            "Kcal": 0.5670830061908658,
+            "Protein": 0.07752747287675285,
+            "Fat": 1.0,
+            "Carb": -0.2708120801723157
+        },
+        "Carb": {
+            "Kcal": 0.42590666828115203,
+            "Protein": -0.1011642229964678,
+            "Fat": -0.2708120801723157,
+            "Carb": 1.0
+        }
+    }
+}
