@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard Dinh dưỡng – Tháng 10/2025</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body{background:#f9fafb}
+  .card{background:#fff;border-radius:1rem;box-shadow:0 10px 20px -10px rgba(0,0,0,.08)}
+  .kpi{font-variant-numeric:tabular-nums}
+  .tiny{font-size:.8rem;color:#6b7280}
+  canvas{max-height:420px}
+  .btn{padding:.5rem 1rem;border-radius:.75rem;background:#111827;color:#fff}
+  .btn-ghost{padding:.5rem 1rem;border-radius:.75rem;background:#e5e7eb}
+  a{color:#2563eb}
+</style>
+</head>
+<body>
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold">Dashboard Dinh dưỡng – Tháng 10/2025</h1>
+    <p class="text-gray-600 mt-1">Nam 28 tuổi • ăn qua sond dạ dày PEG + uống đồ lỏng • 6 bữa/ngày (3 súp xay, 2 sữa 230 kcal, 1 nước trái cây 200 ml, 1 sinh tố)</p>
+    <div class="mt-3 text-sm text-gray-600 flex flex-wrap gap-2">
+      <span class="inline-flex items-center rounded-full px-3 py-1 bg-gray-100">Mục tiêu năng lượng: <b class="ml-1">1,700 kcal</b></span>
+      <span class="inline-flex items-center rounded-full px-3 py-1 bg-gray-100">Carb: <b class="ml-1">190 g</b> (45%)</span>
+      <span class="inline-flex items-center rounded-full px-3 py-1 bg-gray-100">Béo: <b class="ml-1">65 g</b> (35%)</span>
+      <span class="inline-flex items-center rounded-full px-3 py-1 bg-gray-100">Đạm: <b class="ml-1">75 g</b> (20%)</span>
+      <button id="btnCsv" class="btn-ghost ml-auto">Xuất CSV</button>
+    </div>
+  </header>
+
+  <section class="grid md:grid-cols-3 gap-6">
+    <div class="card p-6">
+      <div class="tiny">Trung bình/ngày</div>
+      <div class="text-3xl kpi mt-1"><span id="avgKcal">—</span> kcal</div>
+      <div class="text-gray-600 mt-1">CV: <span id="cvKcal">—</span>%</div>
+      <div class="text-gray-600 mt-1">Tỷ lệ: <span id="pctLine">—</span></div>
+      <div class="text-gray-600 mt-1">Ngày mạnh: <span id="strongDays">—</span></div>
+    </div>
+    <div class="card p-6">
+      <div class="tiny">Nhận xét nhanh</div>
+      <ul id="bullet" class="list-disc pl-5 text-sm mt-2 space-y-1"></ul>
+    </div>
+    <div class="card p-6">
+      <div class="tiny">Trung bình (g/ngày)</div>
+      <div class="grid grid-cols-3 gap-3 mt-2 text-center">
+        <div><div class="text-2xl kpi" id="fatg">—</div><div class="tiny">Béo</div></div>
+        <div><div class="text-2xl kpi" id="carbg">—</div><div class="tiny">Carb</div></div>
+        <div><div class="text-2xl kpi" id="prog">—</div><div class="tiny">Đạm</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid md:grid-cols-2 gap-6 mt-6">
+    <div class="card p-6">
+      <h2 class="font-semibold mb-3">Tổng kcal theo ngày & mục tiêu</h2>
+      <canvas id="calLine"></canvas>
+    </div>
+    <div class="card p-6">
+      <h2 class="font-semibold mb-3">Kcal theo nhóm (cột xếp chồng)</h2>
+      <canvas id="stackKcal"></canvas>
+    </div>
+  </section>
+
+  <section class="grid md:grid-cols-2 gap-6 mt-6">
+    <div class="card p-6">
+      <h2 class="font-semibold mb-3">Phân bố trung bình vs mục tiêu</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div><canvas id="avgPct"></canvas></div>
+        <div><canvas id="targetPct"></canvas></div>
+      </div>
+    </div>
+    <div class="card p-6">
+      <h2 class="font-semibold mb-3">Xu hướng trung bình theo tuần</h2>
+      <canvas id="weeklyLine"></canvas>
+    </div>
+  </section>
+
+  <section class="card p-6 mt-6">
+    <h2 class="font-semibold mb-3">Ngày mạnh/yếu</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-left text-gray-500">
+            <th class="py-2 pr-3">Ngày</th><th class="py-2 pr-3">Ghi chú</th>
+            <th class="py-2 pr-3">Calo</th><th class="py-2 pr-3">Béo (g)</th>
+            <th class="py-2 pr-3">Carb (g)</th><th class="py-2 pr-3">Đạm (g)</th>
+          </tr>
+        </thead>
+        <tbody id="weakBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card p-6 mt-6">
+    <h2 class="font-semibold mb-3">Gợi ý tinh chỉnh</h2>
+    <ul id="suggestions" class="list-disc pl-6 space-y-2 text-gray-800"></ul>
+  </section>
+
+  <footer class="text-center text-xs text-gray-500 mt-10">Tạo tự động bằng ChatGPT • 10/2025</footer>
+</div>
+
+<script>
+/* =============== DỮ LIỆU THÔ (kcal) =============== */
+const RAW = [
+ ["01/10/2025",670.24,802.72,376.37],["02/10/2025",685.42,778.42,278.83],["03/10/2025",718.25,821.03,316.81],
+ ["04/10/2025",740.75,857.58,381.47],["05/10/2025",764.63,741.97,312.70],["06/10/2025",735.38,780.52,379.06],
+ ["07/10/2025",716.86,830.10,313.62],["08/10/2025",719.13,764.65,372.24],["09/10/2025",721.04,876.30,308.55],
+ ["10/10/2025",754.04,832.22,308.45],["11/10/2025",809.78,798.46,396.21],["12/10/2025",792.38,849.04,322.59],
+ ["13/10/2025",761.64,767.69,375.04],["14/10/2025",733.58,752.37,314.06],["15/10/2025",734.83,738.46,380.30],
+ ["16/10/2025",737.51,790.19,326.64],["17/10/2025",740.26,742.00,384.81],["18/10/2025",628.88,834.94,312.99],
+ ["19/10/2025",629.56,832.38,318.11],["20/10/2025",809.51,738.39,286.77],["21/10/2025",713.41,802.70,382.24],
+ ["22/10/2025",776.31,806.20,311.65],["23/10/2025",827.88,838.39,302.38],["24/10/2025",757.51,788.99,372.46],
+ ["25/10/2025",749.54,710.37,308.83],["26/10/2025",749.31,778.81,321.25],["27/10/2025",777.48,766.81,351.75],
+ ["28/10/2025",747.63,797.60,327.75],["29/10/2025",780.13,743.78,344.87],["30/10/2025",716.44,770.15,353.89],
+ ["31/10/2025",739.13,752.66,350.65]
+];
+const TARGET = {kcal:1700, g:{fat:65, carb:190, pro:75}, pct:{carb:45, fat:35, pro:20}};
+const CAL_STRONG=0.05, MACRO_STRONG=0.10, CAL_FLAG=0.10, MACRO_FLAG=0.15;
+
+/* ======== TÍNH TOÁN ======== */
+const dates = RAW.map(r=>r[0]);
+const fk = RAW.map(r=>r[1]), ck = RAW.map(r=>r[2]), pk = RAW.map(r=>r[3]);
+const total = fk.map((v,i)=>v+ck[i]+pk[i]);
+const fatg = fk.map(v=>v/9), carbg = ck.map(v=>v/4), prog = pk.map(v=>v/4);
+const pf = fk.map((v,i)=>100*v/total[i]), pc = ck.map((v,i)=>100*v/total[i]), pp = pk.map((v,i)=>100*v/total[i]);
+
+function mean(a){return a.reduce((x,y)=>x+y,0)/a.length}
+function stdev(a){const m=mean(a); return Math.sqrt(mean(a.map(v=>(v-m)*(v-m))))}
+function pct(n,d){return d?100*n/d:0}
+
+const avg_total = mean(total);
+const cv_total = pct(stdev(total), avg_total);
+const avg_fat_g = mean(fatg), avg_carb_g = mean(carbg), avg_pro_g = mean(prog);
+const avg_pf = mean(pf), avg_pc = mean(pc), avg_pp = mean(pp);
+
+const strong_days = total.filter((v,i)=> Math.abs(v-TARGET.kcal)<=TARGET.kcal*CAL_STRONG
+  && Math.abs(fatg[i]-TARGET.g.fat)<=TARGET.g.fat*MACRO_STRONG
+  && Math.abs(carbg[i]-TARGET.g.carb)<=TARGET.g.carb*MACRO_STRONG
+  && Math.abs(prog[i]-TARGET.g.pro)<=TARGET.g.pro*MACRO_STRONG).length;
+
+const high_days = total.filter(v=>v>TARGET.kcal*(1+CAL_FLAG)).length;
+const low_days  = total.filter(v=>v<TARGET.kcal*(1-CAL_FLAG)).length;
+
+const weak_rows = dates.map((d,i)=>{
+  const flags=[];
+  if(total[i]>TARGET.kcal*(1+CAL_FLAG)) flags.push('Calo cao');
+  else if(total[i]<TARGET.kcal*(1-CAL_FLAG)) flags.push('Calo thấp');
+  if(fatg[i]>TARGET.g.fat*(1+MACRO_FLAG)) flags.push('Béo cao');
+  else if(fatg[i]<TARGET.g.fat*(1-MACRO_FLAG)) flags.push('Béo thấp');
+  if(carbg[i]>TARGET.g.carb*(1+MACRO_FLAG)) flags.push('Carb cao');
+  else if(carbg[i]<TARGET.g.carb*(1-MACRO_FLAG)) flags.push('Carb thấp');
+  if(prog[i]>TARGET.g.pro*(1+MACRO_FLAG)) flags.push('Đạm cao');
+  else if(prog[i]<TARGET.g.pro*(1-MACRO_FLAG)) flags.push('Đạm thấp');
+  return flags.length? {DateTime:d, Flags:flags.join(', '), Total_kcal:Math.round(total[i]), Fat_g:fatg[i].toFixed(1), Carbs_g:carbg[i].toFixed(1), Protein_g:prog[i].toFixed(1)} : null;
+}).filter(Boolean);
+
+/* Xu hướng tuần: nhóm 7 ngày đơn giản */
+const weekly_labels=[], weekly_total=[];
+for(let i=0;i<dates.length;i+=7){
+  weekly_labels.push(`Tuần ${Math.floor(i/7)+1}`);
+  weekly_total.push(mean(total.slice(i,i+7)));
+}
+
+/* ======== KPI & BULLETS ======== */
+function setKPIs(){
+  document.getElementById('avgKcal').textContent = Math.round(avg_total);
+  document.getElementById('cvKcal').textContent = cv_total.toFixed(1);
+  document.getElementById('pctLine').textContent = `Carb ${avg_pc.toFixed(1)}% • Béo ${avg_pf.toFixed(1)}% • Đạm ${avg_pp.toFixed(1)}%`;
+  document.getElementById('strongDays').textContent = strong_days;
+  document.getElementById('fatg').textContent = Math.round(avg_fat_g);
+  document.getElementById('carbg').textContent = Math.round(avg_carb_g);
+  document.getElementById('prog').textContent  = Math.round(avg_pro_g);
+
+  const bullets = [
+    `TB/ngày: <b>${Math.round(avg_total)}</b> kcal (CV <b>${cv_total.toFixed(1)}%</b>)`,
+    `TB gram: Béo <b>${avg_fat_g.toFixed(1)}</b> g • Carb <b>${avg_carb_g.toFixed(1)}</b> g • Đạm <b>${avg_pro_g.toFixed(1)}</b> g`,
+    `Tỷ lệ TB: Carb <b>${avg_pc.toFixed(1)}%</b> • Béo <b>${avg_pf.toFixed(1)}%</b> • Đạm <b>${avg_pp.toFixed(1)}%</b>`,
+    `Ngày mạnh: <b>${strong_days}</b> • Calo cao: <b>${high_days}</b> • Calo thấp: <b>${low_days}</b>`
+  ];
+  document.getElementById('bullet').innerHTML = bullets.map(x=>`<li>${x}</li>`).join("");
+}
+
+/* ======== Bảng ngày yếu/mạnh ======== */
+function setWeak(){
+  const tb=document.getElementById('weakBody'); tb.innerHTML='';
+  weak_rows.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td class="py-1 pr-3">${r.DateTime}</td>
+                    <td class="py-1 pr-3">${r.Flags}</td>
+                    <td class="py-1 pr-3">${r.Total_kcal}</td>
+                    <td class="py-1 pr-3">${r.Fat_g}</td>
+                    <td class="py-1 pr-3">${r.Carbs_g}</td>
+                    <td class="py-1 pr-3">${r.Protein_g}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+/* ======== Suggestion logic ======== */
+const suggestions=[];
+if(avg_pro_g < TARGET.g.pro*0.95){ suggestions.push("Tăng đạm 10–20 g whey/casein vào sữa/sinh tố; chia đều 6 bữa."); }
+if(avg_carb_g > TARGET.g.carb*1.10){ suggestions.push("Giảm Carb: trái cây ít đường, pha loãng nước trái cây; thêm xơ hoà tan (yến mạch/psyllium)."); }
+if(avg_fat_g  > TARGET.g.fat*1.10){ suggestions.push("Giảm béo: hạn chế dầu thêm, ưu tiên sữa ít béo; theo dõi dung nạp qua PEG."); }
+if(cv_total > 6){ suggestions.push("Ổn định năng lượng: mỗi bữa ~280–290 kcal; nếu lệch >±80 kcal thì điều chỉnh thể tích/công thức."); }
+if(!suggestions.length){ suggestions.push("Duy trì hiện tại; hướng tới xơ ~25 g/ngày và theo dõi dung nạp, phân, cân nặng."); }
+document.getElementById('suggestions').innerHTML = suggestions.map(t=>`<li>${t}</li>`).join("");
+
+/* ======== Biểu đồ ======== */
+new Chart(document.getElementById('calLine'), {
+  type:'line',
+  data:{labels:dates, datasets:[
+    {label:'Tổng kcal (10/2025)', data:total, borderWidth:2, fill:false, tension:.2},
+    {label:'Mục tiêu 1,700', data:dates.map(_=>TARGET.kcal), borderDash:[6,6], borderWidth:1, fill:false}
+  ]},
+  options:{plugins:{legend:{position:'top'}}, scales:{y:{beginAtZero:false}}}
+});
+
+new Chart(document.getElementById('stackKcal'), {
+  type:'bar',
+  data:{labels:dates, datasets:[
+    {label:'Béo (kcal)', data:fk, stack:'k'},
+    {label:'Carb (kcal)', data:ck, stack:'k'},
+    {label:'Đạm (kcal)', data:pk, stack:'k'}
+  ]},
+  options:{plugins:{legend:{position:'top'}}, scales:{x:{stacked:true},y:{stacked:true}}}
+});
+
+new Chart(document.getElementById('avgPct'), {
+  type:'doughnut',
+  data:{labels:['Carb %','Béo %','Đạm %'], datasets:[{data:[avg_pc, avg_pf, avg_pp]}]},
+  options:{plugins:{legend:{position:'bottom'}}}
+});
+new Chart(document.getElementById('targetPct'), {
+  type:'doughnut',
+  data:{labels:['Carb %','Béo %','Đạm %'], datasets:[{data:[TARGET.pct.carb, TARGET.pct.fat, TARGET.pct.pro]}]},
+  options:{plugins:{legend:{position:'bottom'}}}
+});
+
+new Chart(document.getElementById('weeklyLine'), {
+  type:'line',
+  data:{labels:weekly_labels, datasets:[
+    {label:'TB tuần (10/2025)', data:weekly_total, borderWidth:2, fill:false, tension:.2},
+    {label:'Mục tiêu 1,700', data:weekly_labels.map(_=>TARGET.kcal), borderDash:[6,6], borderWidth:1, fill:false}
+  ]},
+  options:{plugins:{legend:{position:'top'}}}
+});
+
+/* ======== Export CSV ======== */
+document.getElementById('btnCsv').onclick = ()=>{
+  const header = ["Ngày","Tổng kcal","Béo (g)","Carb (g)","Đạm (g)","Béo (%)","Carb (%)","Đạm (%)"];
+  const rows = dates.map((d,i)=>[
+    d, Math.round(total[i]),
+    (fatg[i]).toFixed(1), (carbg[i]).toFixed(1), (prog[i]).toFixed(1),
+    (pf[i]).toFixed(1), (pc[i]).toFixed(1), (pp[i]).toFixed(1)
+  ]);
+  const csv = [header].concat(rows).map(r=>r.join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href=url; a.download="oct_2025_daily.csv"; a.click();
+  URL.revokeObjectURL(url);
+};
+
+setKPIs();
+setWeak();
+</script>
+</body>
+</html>

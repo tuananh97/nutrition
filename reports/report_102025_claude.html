@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Phân Tích Dinh Dưỡng - BN Nam 28T PEG</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            background: rgba(0,0,0,0.2);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .stat-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-unit {
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+
+        .chart-wrapper {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .chart-wrapper h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            text-align: center;
+        }
+
+        .small-chart-container {
+            position: relative;
+            height: 300px;
+            margin: 0 auto;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .analysis-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .analysis-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+            border-left: 5px solid #667eea;
+            padding-left: 15px;
+        }
+
+        .analysis-section h3 {
+            color: #764ba2;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+        }
+
+        .analysis-section p {
+            margin-bottom: 12px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .finding-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 5px;
+        }
+
+        .finding-box.warning {
+            border-left-color: #ffc107;
+            background: #fff8e1;
+        }
+
+        .finding-box.success {
+            border-left-color: #28a745;
+            background: #e8f5e9;
+        }
+
+        .finding-box.danger {
+            border-left-color: #dc3545;
+            background: #ffebee;
+        }
+
+        .finding-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .finding-box li {
+            margin-bottom: 8px;
+        }
+
+        .recommendation-box {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .recommendation-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-box ul {
+            margin-left: 20px;
+            color: #555;
+        }
+
+        .recommendation-box li {
+            margin-bottom: 10px;
+            line-height: 1.7;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .highlight-box h3 {
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .highlight-box ul {
+            margin-left: 20px;
+        }
+
+        .highlight-box li {
+            margin-bottom: 10px;
+        }
+
+        .nutrient-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .nutrient-table th {
+            background-color: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .nutrient-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nutrient-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-good {
+            background-color: #28a745;
+        }
+
+        .status-warning {
+            background-color: #ffc107;
+        }
+
+        .status-poor {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 DASHBOARD PHÂN TÍCH DINH DƯỠNG</h1>
+            <p>Bệnh nhân nam 28 tuổi, 45kg, 165cm - Ăn qua sond PEG</p>
+            <p>Thời kỳ: 01/10/2025 - 31/10/2025 (31 ngày)</p>
+        </header>
+
+        <!-- Patient Overview -->
+        <div class="grid-container">
+            <div class="card">
+                <h3>👤 Thông Tin Bệnh Nhân</h3>
+                <div class="stat-item">
+                    <div class="stat-label">Tuổi</div>
+                    <div class="stat-value">28 <span class="stat-unit">tuổi</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Cân nặng</div>
+                    <div class="stat-value">45 <span class="stat-unit">kg</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Chiều cao</div>
+                    <div class="stat-value">165 <span class="stat-unit">cm</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Chỉ số BMI</div>
+                    <div class="stat-value" style="color: #ffc107;">16.53 <span class="stat-unit">kg/m²</span></div>
+                    <div style="color: #ffc107; font-size: 0.95em; margin-top: 5px;">⚠️ Thiếu cân nặng</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🎯 Mục Tiêu Hàng Ngày</h3>
+                <div class="stat-item">
+                    <div class="stat-label">Tổng Năng Lượng</div>
+                    <div class="stat-value">1700 <span class="stat-unit">kcal</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Protein</div>
+                    <div class="stat-value">75 <span class="stat-unit">g</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Chất Béo</div>
+                    <div class="stat-value">65 <span class="stat-unit">g</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Carbohydrate</div>
+                    <div class="stat-value">190 <span class="stat-unit">g</span></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 Thực Tế Tháng 10</h3>
+                <div class="stat-item">
+                    <div class="stat-label">Trung Bình Năng Lượng</div>
+                    <div class="stat-value" style="color: #dc3545;">1865.9 <span class="stat-unit">kcal</span></div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">+165.9 kcal (+9.8%)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Trung Bình Protein</div>
+                    <div class="stat-value" style="color: #28a745;">88.2 <span class="stat-unit">g</span></div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">+13.2 g (+17.6%)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Biến Động Năng Lượng</div>
+                    <div class="stat-value">262.1 <span class="stat-unit">kcal</span></div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">Min: 1742.9 - Max: 2005.0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Charts -->
+        <div class="chart-wrapper">
+            <h2>📉 Năng Lượng Hàng Ngày vs Mục Tiêu</h2>
+            <div class="chart-container">
+                <canvas id="energyChart"></canvas>
+            </div>
+        </div>
+
+        <div class="two-column">
+            <div class="chart-wrapper">
+                <h2>🥗 Tỷ Lệ Dinh Dưỡng (Thực Tế)</h2>
+                <div class="small-chart-container">
+                    <canvas id="macroChartActual"></canvas>
+                </div>
+            </div>
+            <div class="chart-wrapper">
+                <h2>🎯 Tỷ Lệ Dinh Dưỡng (Mục Tiêu)</h2>
+                <div class="small-chart-container">
+                    <canvas id="macroChartGoal"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="two-column">
+            <div class="chart-wrapper">
+                <h2>💪 Protein Hàng Ngày</h2>
+                <div class="chart-container">
+                    <canvas id="proteinChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-wrapper">
+                <h2>🧈 Chất Béo Hàng Ngày</h2>
+                <div class="chart-container">
+                    <canvas id="fatChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-wrapper">
+            <h2>🌾 Carbohydrate & Chất Xơ</h2>
+            <div class="chart-container">
+                <canvas id="carbsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Quality Days Analysis -->
+        <div class="grid-container">
+            <div class="card">
+                <h3>📊 Phân Loại Các Ngày</h3>
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span class="status-indicator status-good"></span>
+                        Các ngày bình thường (±10%)
+                    </div>
+                    <div class="stat-value" style="color: #28a745;">18 ngày</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span class="status-indicator status-warning"></span>
+                        Các ngày vượt mục tiêu (>110%)
+                    </div>
+                    <div class="stat-value" style="color: #ffc107;">13 ngày</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span class="status-indicator status-poor"></span>
+                        Các ngày thấp hơn (<90%)
+                    </div>
+                    <div class="stat-value" style="color: #dc3545;">0 ngày</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⭐ Ngày Tốt Nhất & Tệ Nhất</h3>
+                <div class="stat-item" style="background: #e8f5e9; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                    <div class="stat-label">✅ Ngày Tốt Nhất</div>
+                    <div class="stat-value" style="color: #28a745; font-size: 1.3em;">11/10</div>
+                    <div style="font-size: 0.9em; color: #555; margin-top: 8px;">
+                        Năng lượng: <strong>2005.0 kcal</strong>
+                    </div>
+                </div>
+                <div class="stat-item" style="background: #ffebee; padding: 10px; border-radius: 5px;">
+                    <div class="stat-label">⚠️ Ngày Tệ Nhất</div>
+                    <div class="stat-value" style="color: #dc3545; font-size: 1.3em;">02/10</div>
+                    <div style="font-size: 0.9em; color: #555; margin-top: 8px;">
+                        Năng lượng: <strong>1742.9 kcal</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📊 Chất Xơ Hàng Ngày</h3>
+                <div class="stat-item">
+                    <div class="stat-label">Lượng Trung Bình</div>
+                    <div class="stat-value">29.8 <span class="stat-unit">g</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Mục Tiêu</div>
+                    <div class="stat-value">25 <span class="stat-unit">g</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Chênh Lệch</div>
+                    <div class="stat-value" style="color: #28a745;">+4.8 <span class="stat-unit">g</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Analysis -->
+        <div class="analysis-section">
+            <h2>📋 1. ĐÁNH GIÁ TỔNG HỢP TÌNH TRẠNG DINH DƯỠNG</h2>
+
+            <h3>Cân Nặng & Chỉ Số BMI</h3>
+            <div class="finding-box warning">
+                <strong>⚠️ Tình Trạng THIẾU CÂN NẶNG</strong><br>
+                BMI hiện tại: 16.53 kg/m² (< 18.5 = Thiếu cân)<br>
+                Cân nặng hiện tại: 45 kg<br>
+                Cân nặng lý tưởng theo chiều cao 165cm: 49.5 - 59.4 kg<br>
+                <strong>➜ Thiếu: 4.5 - 14.4 kg</strong>
+            </div>
+
+            <h3>Mức Độ Suy Dinh Dưỡng</h3>
+            <p>
+                Bệnh nhân ở <strong>mức suy dinh dưỡng nhẹ đến trung bình</strong>. Mặc dù lượng calo hàng ngày vượt mục tiêu 
+                (+9.8%), nhưng cân nặng thực tế vẫn thấp hơn chuẩn. Nguyên nhân có thể là:
+            </p>
+            <ul style="margin-left: 20px; margin-bottom: 15px;">
+                <li>Tổn thất năng lượng qua đường sond PEG</li>
+                <li>Quá trình hấp thụ không hoàn toàn qua đường dạ dày</li>
+                <li>Nhu cầu năng lượng cơ bản cao hơn dự kiến</li>
+                <li>Thời gian theo dõi còn ngắn (1 tháng)</li>
+            </ul>
+
+            <h3>Nguy Cơ Ngắn Hạn</h3>
+            <div class="finding-box danger">
+                <strong>Nguy Cơ Cao:</strong><br>
+                ✓ <strong>Mệt Mỏi & Suy Nhược</strong>: Suy dinh dưỡng gây giảm năng lượng, suy kiệt cơ bắp<br>
+                ✓ <strong>Hệ Miễn Dịch Suy Yếu</strong>: Thiếu protein (mục tiêu 75g, thực tế 88.2g là tốt nhưng vẫn cần duy trì)<br>
+                ✓ <strong>Táo Bón</strong>: Mặc dù xơ tốt (29.8g > 25g), nhưng tính chất xơ có thể không phù hợp cho PEG
+            </div>
+
+            <h3>Nguy Cơ Dài Hạn</h3>
+            <div class="finding-box danger">
+                <strong>Nếu không can thiệp:</strong><br>
+                ✓ <strong>Loãng Xương</strong>: Suy dinh dưỡng + Thiếu Calcium (1203.8 mg, gần chuẩn)<br>
+                ✓ <strong>Thiếu Máu</strong>: Iron trung bình 15.6 mg (gần chuẩn 15mg), nhưng Vitamin B12, folate cần kiểm tra<br>
+                ✓ <strong>Sút Cân Thêm</strong>: Nếu protein không đủ hoặc calo tiếp tục thấp hơn dự kiến
+            </div>
+
+            <h2>📊 2. PHÂN TÍCH TỶ LỆ CÁC NHÓM DINH DƯỠNG</h2>
+
+            <h3>So Sánh Tỷ Lệ vs Mục Tiêu</h3>
+            <table class="nutrient-table">
+                <thead>
+                    <tr>
+                        <th>Chỉ Tiêu</th>
+                        <th>Mục Tiêu</th>
+                        <th>Thực Tế</th>
+                        <th>Chênh Lệch</th>
+                        <th>Đánh Giá</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Protein %</strong></td>
+                        <td>18.2%</td>
+                        <td>18.9%</td>
+                        <td>+0.7%</td>
+                        <td>✅ Rất Tốt</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Chất Béo %</strong></td>
+                        <td>35.6%</td>
+                        <td>40.8%</td>
+                        <td>+5.2%</td>
+                        <td>⚠️ Cao hơn</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Carbs %</strong></td>
+                        <td>46.2%</td>
+                        <td>43.7%</td>
+                        <td>-2.5%</td>
+                        <td>✅ Tốt</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Phân Tích Chi Tiết</h3>
+            <div class="finding-box success">
+                <strong>✅ Tỷ Lệ Protein Hoàn Hảo</strong><br>
+                Thực tế 18.9% ≈ Mục tiêu 18.2%. Bệnh nhân đang nhận đủ protein để duy trì và tái tạo các mô cơ.
+            </div>
+
+            <div class="finding-box warning">
+                <strong>⚠️ Chất Béo Cao Hơn Dự Kiến</strong><br>
+                Thực tế 40.8% > Mục tiêu 35.6% (+5.2%)<br>
+                <strong>Nguyên nhân:</strong> Có thể từ sữa 230kcal, sinh tố với dầu/béo, chất béo bão hòa cần kiểm soát
+            </div>
+
+            <div class="finding-box success">
+                <strong>✅ Carbohydrate Cân Bằng</strong><br>
+                Thực tế 43.7% ≈ Mục tiêu 46.2%. Hạ 2.5% là hợp lý, giúp kiểm soát calo từ đường đơn.
+            </div>
+
+            <h2>🌤️ 3. PHÂN TÍCH CÁC NGÀY MẠNH/YẾU</h2>
+
+            <div class="finding-box">
+                <strong>📊 Phân Bố Chất Lượng Các Ngày (31 ngày)</strong><br>
+                ✅ Ngày Bình Thường (90-110%): <span style="color: #28a745; font-weight: bold;">18 ngày (58%)</span><br>
+                ⚠️ Ngày Cao (>110%): <span style="color: #ffc107; font-weight: bold;">13 ngày (42%)</span><br>
+                ❌ Ngày Thấp (<90%): <span style="color: #dc3545; font-weight: bold;">0 ngày (0%)</span>
+            </div>
+
+            <h3>Phân Tích Xu Hướng</h3>
+            <p>
+                <strong>Điểm Tích Cực:</strong> Không có ngày nào calo quá thấp, ổn định cao, năng lượng dao động từ 1742.9 - 2005.0 kcal (biến động vừa phải)<br>
+                <strong>Cơ Hội Cải Thiện:</strong> Duy trì các ngày bình thường nhiều hơn, giảm số ngày vượt mục tiêu từ 42% xuống ~20-30%
+            </p>
+
+            <h2>💊 4. THEO DÕI VI CHẤT DINH DƯỠNG</h2>
+
+            <h3>A. Protein (Đạm)</h3>
+            <div class="finding-box success">
+                <strong>✅ Protein: 88.2g/ngày (Thực Tế) vs 75g (Mục Tiêu)</strong><br>
+                Vượt mục tiêu +13.2g (+17.6%) - TỰ VỮA! Đủ để duy trì và tái tạo cơ bắp.
+            </div>
+
+            <h3>B. Chất Xơ (Fiber)</h3>
+            <div class="finding-box success">
+                <strong>✅ Xơ: 29.8g/ngày (Thực Tế) vs 25g (Mục Tiêu)</strong><br>
+                Vượt mục tiêu +4.8g (+19%). Tốt cho tiêu hóa, nhưng với PEG cần xác bản là xơ được xay nhuyễn.
+            </div>
+
+            <h3>C. Carbohydrate (Gluxit)</h3>
+            <div class="finding-box success">
+                <strong>✅ Carbs: 203.8g/ngày (Thực Tế) vs 190g (Mục Tiêu)</strong><br>
+                Vượt mục tiêu +13.8g (+7.3%). Cân bằng tốt giữa đường đơn (48.3g/ngày) và tinh bột (63.2g/ngày).
+            </div>
+
+            <h3>D. Chất Béo (Lipid)</h3>
+            <div class="finding-box warning">
+                <strong>⚠️ Chất Béo: 84.7g/ngày (Thực Tế) vs 65g (Mục Tiêu)</strong><br>
+                Vượt mục tiêu +19.7g (+30.3%) - VẤN ĐỀ! Chất béo bão hòa ước tính ~29.6g/ngày (>10% calo)<br>
+                <strong>Khuyến Cáo:</strong> Giảm chất béo bão hòa, ưu tiên dầu thực vật và cá. Duy trì Omega-3 (hiện 3.8g/ngày - tốt)
+            </div>
+
+            <h3>E. Vitamin & Khoáng Chất - Tổng Hợp</h3>
+            <table class="nutrient-table">
+                <thead>
+                    <tr>
+                        <th>Chất Dinh Dưỡng</th>
+                        <th>Thực Tế</th>
+                        <th>Đơn Vị</th>
+                        <th>Mục Tiêu</th>
+                        <th>Đánh Giá</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vitamin A</strong></td>
+                        <td>1184.3</td>
+                        <td>µg</td>
+                        <td>900 (nam)</td>
+                        <td>✅ Tốt</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vitamin C</strong></td>
+                        <td>192.0</td>
+                        <td>mg</td>
+                        <td>90</td>
+                        <td>✅ Rất Tốt</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vitamin D</strong></td>
+                        <td>422.8</td>
+                        <td>IU</td>
+                        <td>600-800</td>
+                        <td>⚠️ Hơi Thấp</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vitamin E</strong></td>
+                        <td>16.0</td>
+                        <td>mg</td>
+                        <td>15</td>
+                        <td>✅ Tốt</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vitamin K</strong></td>
+                        <td>421.2</td>
+                        <td>µg</td>
+                        <td>120</td>
+                        <td>✅ Rất Tốt</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Calcium</strong></td>
+                        <td>1203.8</td>
+                        <td>mg</td>
+                        <td>1200</td>
+                        <td>✅ Gần Đủ</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Iron</strong></td>
+                        <td>15.6</td>
+                        <td>mg</td>
+                        <td>15 (nam)</td>
+                        <td>✅ Tốt</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Zinc</strong></td>
+                        <td>12.8</td>
+                        <td>mg</td>
+                        <td>11</td>
+                        <td>✅ Tốt</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Magnesium</strong></td>
+                        <td>445.3</td>
+                        <td>mg</td>
+                        <td>400</td>
+                        <td>✅ Tốt</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Potassium</strong></td>
+                        <td>3938.9</td>
+                        <td>mg</td>
+                        <td>3400-4700</td>
+                        <td>✅ Tốt</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sodium</strong></td>
+                        <td>1491.1</td>
+                        <td>mg</td>
+                        <td><1500</td>
+                        <td>⚠️ Sát Ngưỡng</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>💡 5. KHUYẾN NGHỊ DINH DƯỠNG CHI TIẾT</h2>
+
+            <h3>A. Điều Chỉnh Năng Lượng</h3>
+            <div style="background: #f0f4ff; padding: 20px; border-radius: 10px; margin: 15px 0; border-left: 4px solid #667eea;">
+                <p><strong>✓ GIỮ LẠI Mức Calo Hiện Tại (1865.9 kcal/ngày)</strong></p>
+                <p style="margin-top: 10px;">Lý do: Bệnh nhân thiếu cân (BMI 16.53), mục tiêu tăng cân 4.5-14.4kg. Thêm 165.9 kcal/ngày = tăng ~0.8-1 kg/tháng (hợp lý)</p>
+            </div>
+
+            <h3>B. Điều Chỉnh Protein, Chất Béo, Carbs</h3>
+
+            <div style="background: #e8f5e9; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h4 style="color: #28a745; margin-bottom: 15px;">✅ PROTEIN: GIỮ LẠI MỨC HIỆN TẠI (85-95g/ngày)</h4>
+                <p>Đủ để tái tạo cơ bắp, tăng cường miễn dịch, giảm mệt mỏi.</p>
+                <p><strong>Nguồn Protein Phù Hợp cho PEG:</strong> Sữa, súp thịt gà/cá xay nhuyễn, trứng, sinh tố đậu phộng</p>
+            </div>
+
+            <div style="background: #fff3e0; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h4 style="color: #f57c00; margin-bottom: 15px;">⚠️ CHẤT BÉO: GIẢM XUỐNG (70-75g/ngày)</h4>
+                <p><strong>Cách Giảm Chất Béo Bão Hòa:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>❌ Giảm sữa nguyên kem → ✅ Dùng sữa 1-2% béo</li>
+                    <li>❌ Giảm dầu mỡ động vật → ✅ Dùng dầu thực vật</li>
+                    <li>✅ Duy trì Omega-3 (cá béo, hạt lanh)</li>
+                </ul>
+            </div>
+
+            <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h4 style="color: #1976d2; margin-bottom: 15px;">✅ CARBOHYDRATE: GIỮ LẠI (190-210g/ngày)</h4>
+                <p>Cung cấp năng lượng cho não, hỗ trợ tiêu hóa. Tỷ lệ đường đơn vừa phải (11% calo ≈ khuyến cáo <12%)</p>
+            </div>
+
+            <h3>C. Phân Chia Bữa Ăn (6 Bữa/Ngày)</h3>
+            <div style="background: #f5f5f5; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #667eea;">
+                <table style="width: 100%; margin-top: 15px;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 12px; text-align: left;">Bữa</th>
+                            <th style="padding: 12px; text-align: left;">Thời Gian</th>
+                            <th style="padding: 12px; text-align: left;">Gợi Ý</th>
+                            <th style="padding: 12px; text-align: center;">Kcal</th>
+                            <th style="padding: 12px; text-align: center;">Protein (g)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 12px;"><strong>1. Sáng</strong> (7-8h)</td>
+                            <td style="padding: 12px;">PEG</td>
+                            <td style="padding: 12px;">Súp gà xay mịn</td>
+                            <td style="padding: 12px; text-align: center;">300</td>
+                            <td style="padding: 12px; text-align: center;">15</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 12px;"><strong>2. Trưa sớm</strong> (10h)</td>
+                            <td style="padding: 12px;">Uống miệng</td>
+                            <td style="padding: 12px;">Sinh tố (sữa + chuối + bơ đậu phộng)</td>
+                            <td style="padding: 12px; text-align: center;">280</td>
+                            <td style="padding: 12px; text-align: center;">12</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 12px;"><strong>3. Trưa</strong> (12h)</td>
+                            <td style="padding: 12px;">PEG</td>
+                            <td style="padding: 12px;">Súp cá xay nhuyễn + rau cải</td>
+                            <td style="padding: 12px; text-align: center;">320</td>
+                            <td style="padding: 12px; text-align: center;">18</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 12px;"><strong>4. Chiều</strong> (14-15h)</td>
+                            <td style="padding: 12px;">Uống miệng</td>
+                            <td style="padding: 12px;">Sữa (230 kcal)</td>
+                            <td style="padding: 12px; text-align: center;">230</td>
+                            <td style="padding: 12px; text-align: center;">8</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 12px;"><strong>5. Tối</strong> (17-18h)</td>
+                            <td style="padding: 12px;">Uống miệng</td>
+                            <td style="padding: 12px;">Nước trái cây pha loãng (200ml)</td>
+                            <td style="padding: 12px; text-align: center;">100</td>
+                            <td style="padding: 12px; text-align: center;">0</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px;"><strong>6. Tối muộn</strong> (19-20h)</td>
+                            <td style="padding: 12px;">PEG</td>
+                            <td style="padding: 12px;">Súp cơm gà xay + trứng nấu mềm</td>
+                            <td style="padding: 12px; text-align: center;">350</td>
+                            <td style="padding: 12px; text-align: center;">20</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h2>📝 KẾT LUẬN & KHUYẾN CÁO CHÍNH</h2>
+
+            <div class="highlight-box">
+                <h3>✅ Những Điểm Tích Cực</h3>
+                <ul style="margin-left: 20px;">
+                    <li>Chế độ ăn ổn định, không biến động quá lớn</li>
+                    <li>Protein đủ, Vitamin C & K rất tốt</li>
+                    <li>Xơ tốt, hỗ trợ tiêu hóa</li>
+                    <li>Không có ngày nào calo quá thấp</li>
+                </ul>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); color: #333; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3 style="color: #e65100; margin-bottom: 15px;">⚠️ Những Điểm Cần Cải Thiện</h3>
+                <ul style="margin-left: 20px;">
+                    <li><strong>Giảm Chất Béo:</strong> Từ 84.7g → 70-75g/ngày (giảm chất béo bão hòa)</li>
+                    <li><strong>Tăng Vitamin D:</strong> Từ 422.8 IU → 600-800 IU/ngày</li>
+                    <li><strong>Kiểm Soát Sodium:</strong> Duy trì ≤ 1500 mg/ngày</li>
+                    <li><strong>Kiểm Tra B12 & Folate:</strong> Bệnh nhân PEG dễ thiếu</li>
+                </ul>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); color: #333; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3 style="color: #2e7d32; margin-bottom: 15px;">🎯 Hành Động Ngay</h3>
+                <ul style="margin-left: 20px;">
+                    <li><strong>Ngay Lập Tức:</strong> Thay sữa nguyên kem bằng sữa 1-2% béo, giảm dầu mỡ, tăng cá</li>
+                    <li><strong>Tuần Tới:</strong> Xét nghiệm Vitamin B12, Folate, Vitamin D</li>
+                    <li><strong>Hàng Tháng:</strong> Kiểm tra cân, điều chỉnh thực phẩm</li>
+                    <li><strong>Hàng 2-3 Tháng:</strong> Tái đánh giá chế độ ăn</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Dashboard Phân Tích Dinh Dưỡng - Tháng 10/2025</p>
+            <p>© Báo Cáo Dành Cho Bệnh Nhân Nam 28 Tuổi - Ăn Qua Sond PEG</p>
+        </footer>
+    </div>
+
+    <script>
+        // Chart Colors
+        const colors = {
+            primary: '#667eea',
+            secondary: '#764ba2',
+            success: '#28a745',
+            warning: '#ffc107',
+            danger: '#dc3545',
+            light: '#e9ecef',
+            grid: '#f0f0f0'
+        };
+
+        // Data
+        const daily_dates = ["01/10", "02/10", "03/10", "04/10", "05/10", "06/10", "07/10", "08/10", "09/10", "10/10", "11/10", "12/10", "13/10", "14/10", "15/10", "16/10", "17/10", "18/10", "19/10", "20/10", "21/10", "22/10", "23/10", "24/10", "25/10", "26/10", "27/10", "28/10", "29/10", "30/10", "31/10"];
+        const daily_energy = [1849.6, 1742.9, 1855.8, 1980.3, 1819.4, 1896.0, 1860.5, 1856.8, 1906.1, 1894.7, 2005.0, 1964.2, 1904.6, 1799.7, 1853.6, 1854.0, 1867.1, 1776.4, 1779.7, 1834.9, 1898.7, 1894.0, 1892.6, 1919.2, 1768.6, 1849.6, 1895.8, 1872.9, 1868.6, 1840.2, 1842.4];
+        const daily_protein = [94.9, 71.7, 82.5, 96.7, 81.7, 95.9, 82.9, 94.7, 82.7, 81.6, 100.8, 85.5, 95.2, 84.1, 96.9, 87.0, 98.2, 83.5, 82.2, 76.7, 97.7, 82.6, 75.5, 94.6, 82.9, 86.7, 93.6, 87.8, 91.9, 90.8, 93.7];
+        const daily_fat = [76.4, 78.1, 82.1, 84.9, 87.4, 84.3, 82.1, 82.4, 82.7, 86.3, 92.7, 90.7, 87.1, 84.3, 84.4, 84.7, 85.0, 71.7, 71.8, 92.5, 81.7, 89.0, 92.5, 87.0, 86.0, 86.2, 89.1, 86.0, 89.4, 82.3, 84.9];
+        const daily_carbs = [209.1, 200.7, 206.7, 222.7, 189.3, 201.1, 213.5, 198.5, 227.3, 216.1, 205.5, 218.5, 198.6, 194.6, 191.1, 203.9, 192.0, 215.7, 213.4, 190.1, 208.9, 205.0, 211.1, 205.6, 182.3, 202.2, 198.9, 206.7, 193.1, 199.6, 195.8];
+        const daily_fiber = [29.7, 26.5, 24.0, 32.6, 27.3, 28.6, 27.1, 28.3, 32.6, 30.2, 27.0, 25.9, 29.3, 26.7, 25.9, 29.3, 26.4, 28.9, 31.5, 29.1, 33.9, 30.4, 35.7, 31.5, 28.7, 33.3, 31.7, 32.9, 32.4, 33.3, 31.6];
+
+        // Chart 1: Daily Energy
+        const energyCtx = document.getElementById('energyChart').getContext('2d');
+        new Chart(energyCtx, {
+            type: 'line',
+            data: {
+                labels: daily_dates,
+                datasets: [
+                    {
+                        label: 'Năng Lượng Thực Tế (kcal)',
+                        data: daily_energy,
+                        borderColor: colors.primary,
+                        backgroundColor: colors.primary + '15',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 3,
+                        pointBackgroundColor: colors.primary,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'Mục Tiêu (kcal)',
+                        data: Array(31).fill(1700),
+                        borderColor: colors.danger,
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0,
+                        pointHoverRadius: 5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {font: {size: 12, weight: 'bold'}}
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 1600,
+                        max: 2100,
+                        grid: {color: colors.grid},
+                        ticks: {callback: v => v + ' kcal'}
+                    },
+                    x: {grid: {display: false}}
+                }
+            }
+        });
+
+        // Chart 2: Macro Pie - Actual
+        const macroPieActualCtx = document.getElementById('macroChartActual').getContext('2d');
+        new Chart(macroPieActualCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Protein 18.9%', 'Chất Béo 40.8%', 'Carbs 43.7%'],
+                datasets: [{
+                    data: [18.9, 40.8, 43.7],
+                    backgroundColor: [colors.primary, colors.secondary, colors.warning],
+                    borderColor: 'white',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {font: {size: 12}, padding: 20}
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Macro Pie - Goal
+        const macroPieGoalCtx = document.getElementById('macroChartGoal').getContext('2d');
+        new Chart(macroPieGoalCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Protein 18.2%', 'Chất Béo 35.6%', 'Carbs 46.2%'],
+                datasets: [{
+                    data: [18.2, 35.6, 46.2],
+                    backgroundColor: [colors.primary, colors.secondary, colors.warning],
+                    borderColor: 'white',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {font: {size: 12}, padding: 20}
+                    }
+                }
+            }
+        });
+
+        // Chart 4: Protein
+        const proteinCtx = document.getElementById('proteinChart').getContext('2d');
+        new Chart(proteinCtx, {
+            type: 'bar',
+            data: {
+                labels: daily_dates,
+                datasets: [
+                    {
+                        label: 'Thực Tế',
+                        data: daily_protein,
+                        backgroundColor: colors.primary,
+                        borderRadius: 5
+                    },
+                    {
+                        label: 'Mục Tiêu',
+                        data: Array(31).fill(75),
+                        backgroundColor: colors.light,
+                        borderColor: colors.danger,
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {legend: {position: 'top', labels: {font: {size: 12, weight: 'bold'}}}},
+                scales: {y: {beginAtZero: true, ticks: {callback: v => v + 'g'}}}
+            }
+        });
+
+        // Chart 5: Fat
+        const fatCtx = document.getElementById('fatChart').getContext('2d');
+        new Chart(fatCtx, {
+            type: 'bar',
+            data: {
+                labels: daily_dates,
+                datasets: [
+                    {
+                        label: 'Thực Tế',
+                        data: daily_fat,
+                        backgroundColor: colors.secondary,
+                        borderRadius: 5
+                    },
+                    {
+                        label: 'Mục Tiêu',
+                        data: Array(31).fill(65),
+                        backgroundColor: colors.light,
+                        borderColor: colors.danger,
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {legend: {position: 'top', labels: {font: {size: 12, weight: 'bold'}}}},
+                scales: {y: {beginAtZero: true, ticks: {callback: v => v + 'g'}}}
+            }
+        });
+
+        // Chart 6: Carbs & Fiber
+        const carbsCtx = document.getElementById('carbsChart').getContext('2d');
+        new Chart(carbsCtx, {
+            type: 'line',
+            data: {
+                labels: daily_dates,
+                datasets: [
+                    {
+                        label: 'Carbohydrate (g)',
+                        data: daily_carbs,
+                        borderColor: colors.warning,
+                        backgroundColor: colors.warning + '15',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 3,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Chất Xơ (g)',
+                        data: daily_fiber,
+                        borderColor: colors.success,
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 3,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {legend: {position: 'top', labels: {font: {size: 12, weight: 'bold'}}}},
+                scales: {
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        title: {display: true, text: 'Carbohydrate (g)'},
+                        beginAtZero: true
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        title: {display: true, text: 'Chất Xơ (g)'},
+                        beginAtZero: true,
+                        grid: {drawOnChartArea: false}
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

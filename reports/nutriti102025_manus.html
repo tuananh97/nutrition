@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Phân Tích Dinh Dưỡng Cá Nhân</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+        
+        :root {
+            --primary-color: #4080FF;
+            --secondary-color: #57A9FB;
+            --tertiary-color: #37D4CF;
+            --success-color: #23C343;
+            --warning-color: #FF9A2E;
+            --neutral-color: #A9AEB8;
+            --background-color: #f4f7f9;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --header-color: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: var(--card-background);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        header h1 {
+            color: var(--header-color);
+            margin: 0 0 5px 0;
+            font-weight: 700;
+        }
+
+        header p {
+            margin: 0;
+            color: var(--neutral-color);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .card-content {
+            font-size: 0.95em;
+        }
+
+        .summary-box {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .summary-item {
+            padding: 10px;
+            border-radius: 6px;
+            background-color: #f9f9f9;
+            flex-basis: 30%;
+        }
+
+        .summary-item .value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        .summary-item .label {
+            font-size: 0.8em;
+            color: var(--neutral-color);
+        }
+
+        .alert-danger {
+            color: #d9534f;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .analysis-section {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+        
+        .recommendation {
+            background-color: #fff3e0;
+            border-left: 5px solid var(--warning-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .recommendation h3 {
+            color: var(--warning-color);
+            margin-top: 0;
+        }
+        
+        .correlation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .correlation-table th, .correlation-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .correlation-table th {
+            background-color: #f2f2f2;
+            color: var(--header-color);
+        }
+        .positive-corr {
+            background-color: #e6ffe6;
+            color: var(--success-color);
+        }
+        .negative-corr {
+            background-color: #ffe6e6;
+            color: #d9534f;
+        }
+        
+        .micronutrient-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .micro-item {
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .micro-item .value {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .micro-item .label {
+            font-size: 0.75em;
+            color: var(--neutral-color);
+        }
+        
+        .fat-carb-ratio {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+        
+        .fat-carb-item {
+            flex-basis: 45%;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        
+        .fat-carb-item h4 {
+            margin-top: 0;
+            color: var(--secondary-color);
+            font-size: 1em;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Báo Cáo Phân Tích Dinh Dưỡng Cá Nhân</h1>
+            <p>Bệnh nhân: Nam, 28 tuổi | Cân nặng: 45kg | Chiều cao: 165cm | Mục tiêu Năng lượng: 1700 kcal</p>
+        </header>
+
+        <div class="dashboard-grid">
+            
+            <!-- 1. Đánh giá tổng hợp tình trạng dinh dưỡng -->
+            <div class="card" id="overall-assessment">
+                <h2>1. Đánh giá Tổng hợp</h2>
+                <div class="card-content">
+                    <div class="summary-box">
+                        <div class="summary-item">
+                            <div class="value" id="bmi-value"></div>
+                            <div class="label">Chỉ số BMI</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="value" id="ideal-weight-value"></div>
+                            <div class="label">Cân nặng Lý tưởng (kg)</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="value" id="weight-dev-value"></div>
+                            <div class="label">Lệch Cân nặng (kg)</div>
+                        </div>
+                    </div>
+                    <p><strong>Phân loại BMI:</strong> <span id="bmi-assessment-text"></span></p>
+                    <p><strong>Nguy cơ dinh dưỡng:</strong></p>
+                    <ul id="risk-assessment"></ul>
+                </div>
+            </div>
+
+            <!-- 2. Phân tích tỷ lệ các nhóm dinh dưỡng -->
+            <div class="card">
+                <h2>2. Tỷ lệ Dinh dưỡng Đa lượng (Macro Ratio)</h2>
+                <div class="card-content">
+                    <canvas id="macroRatioChart"></canvas>
+                    <p style="margin-top: 10px;"><strong>Mục tiêu:</strong> Carb 45%, Fat 35%, Protein 20%</p>
+                    <p><strong>Đánh giá:</strong> Tỷ lệ chất béo <span id="fat-ratio-status"></span> so với mục tiêu. Cần <span id="ratio-recommendation"></span></p>
+                </div>
+            </div>
+
+            <!-- 3. Phân tích Các Ngày Mạnh/Yếu -->
+            <div class="card">
+                <h2>3. Phân Tích Ngày Mạnh/Yếu</h2>
+                <div class="card-content">
+                    <p><strong>Năng lượng (Kcal):</strong> Ngày mạnh (<span class="alert-success" id="kcal-strong"></span>), Ngày yếu (<span class="alert-danger" id="kcal-weak"></span>)</p>
+                    <p><strong>Đạm (Protein):</strong> Ngày mạnh (<span class="alert-success" id="protein-strong"></span>), Ngày yếu (<span class="alert-danger" id="protein-weak"></span>)</p>
+                    <p><strong>Béo (Fat):</strong> Ngày mạnh (<span class="alert-success" id="fat-strong"></span>), Ngày yếu (<span class="alert-danger" id="fat-weak"></span>)</p>
+                    <p><strong>Carb:</strong> Ngày mạnh (<span class="alert-success" id="carb-strong"></span>), Ngày yếu (<span class="alert-danger" id="carb-weak"></span>)</p>
+                </div>
+            </div>
+
+            <!-- 4. Theo Dõi Chất Đạm, Xơ, Gluxit, Chất béo -->
+            <div class="card">
+                <h2>4. Tổng quan Dinh dưỡng Đa lượng</h2>
+                <div class="card-content">
+                    <canvas id="macroIntakeChart"></canvas>
+                    <p style="margin-top: 10px;"><strong>Chất xơ:</strong> Trung bình <span id="fiber-avg"></span>g/ngày (Mục tiêu: 25g). <span id="fiber-status"></span></p>
+                </div>
+            </div>
+
+            <!-- 5. Phân Tích Theo Thời Gian (Kcal) -->
+            <div class="card analysis-section">
+                <h2>5. Xu hướng Năng lượng và Dinh dưỡng theo Ngày</h2>
+                <div class="card-content">
+                    <canvas id="kcalTimeSeriesChart"></canvas>
+                    <p style="margin-top: 10px;"><strong>Đánh giá:</strong> Lượng calo tiêu thụ hàng ngày <span id="kcal-trend-status"></span> mục tiêu <span class="alert-success">1700 kcal</span>.</p>
+                </div>
+            </div>
+            
+            <!-- 6. Mối Quan Hệ Giữa Các Nhóm Dinh Dưỡng -->
+            <div class="card analysis-section">
+                <h2>6. Mối Quan Hệ Giữa Các Nhóm Dinh Dưỡng (Tương quan)</h2>
+                <div class="card-content">
+                    <table class="correlation-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Kcal</th>
+                                <th>Protein</th>
+                                <th>Fat</th>
+                                <th>Carb</th>
+                            </tr>
+                        </thead>
+                        <tbody id="correlation-body">
+                            <!-- Dữ liệu sẽ được chèn bằng JS -->
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 10px;"><strong>Phân tích:</strong> <span id="correlation-analysis"></span></p>
+                </div>
+            </div>
+            
+            <!-- 4. Chi tiết Chất béo và Carbohydrate -->
+            <div class="card analysis-section">
+                <h2>4. Chi tiết Lipid và Carbohydrate</h2>
+                <div class="card-content">
+                    <div class="fat-carb-ratio">
+                        <div class="fat-carb-item">
+                            <h4>Tỷ lệ Chất béo</h4>
+                            <canvas id="fatRatioChart"></canvas>
+                            <p style="font-size: 0.8em; margin-top: 5px;">*Bão hòa nên < 10% tổng Kcal (khoảng < 19g)</p>
+                        </div>
+                        <div class="fat-carb-item">
+                            <h4>Tỷ lệ Carbohydrate</h4>
+                            <canvas id="carbRatioChart"></canvas>
+                            <p style="font-size: 0.8em; margin-top: 5px;">*Đường đơn (Sugar) nên < 10% tổng Kcal (khoảng < 42.5g)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 4. Vi chất dinh dưỡng -->
+            <div class="card analysis-section">
+                <h2>4. Vi Chất Dinh Dưỡng (Trung bình hàng ngày)</h2>
+                <div class="card-content">
+                    <p><strong>Lưu ý:</strong> Cần so sánh với nhu cầu khuyến nghị (RDA) theo từng vi chất. Dưới đây là lượng trung bình tiêu thụ.</p>
+                    <div class="micronutrient-grid" id="micronutrient-grid">
+                        <!-- Dữ liệu sẽ được chèn bằng JS -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 7 & 8. Khuyến nghị và Tối ưu hóa -->
+            <div class="card analysis-section recommendation">
+                <h3>7 & 8. Khuyến Nghị Dinh Dưỡng và Tối Ưu Hóa Chế Độ Ăn</h3>
+                <div class="card-content">
+                    <p>Dựa trên phân tích, bệnh nhân đang ở tình trạng <strong><span id="final-bmi-status"></span></strong> và cần một chế độ ăn giàu năng lượng, giàu đạm để tăng cân. Chế độ ăn hiện tại đã <span id="final-kcal-status"></span> mục tiêu 1700 kcal nhưng tỷ lệ dinh dưỡng cần điều chỉnh.</p>
+                    
+                    <h4>Chiến lược Điều chỉnh:</h4>
+                    <ol>
+                        <li><strong>Điều chỉnh Năng lượng:</strong> Cần tăng thêm <span id="kcal-adjustment"></span> kcal/ngày so với mức trung bình hiện tại để đạt mục tiêu tăng cân (Duy trì mức trung bình hiện tại <span class="alert-success" id="avg-kcal-val"></span> kcal/ngày).</li>
+                        <li><strong>Protein (Đạm):</strong> Lượng đạm trung bình <span id="protein-adjustment"></span>g/ngày (Mục tiêu 75g). Cần duy trì hoặc tăng nhẹ. Nguồn: Sữa cao năng lượng, thịt xay nhuyễn, trứng.</li>
+                        <li><strong>Fat (Chất béo):</strong> Tỷ lệ chất béo <span id="fat-ratio-adjustment"></span> (Mục tiêu 35%). Cần <span id="fat-adjustment"></span>. Ưu tiên chất béo không bão hòa (MonoFat, Omega-3) từ dầu ô liu, hạt xay, bơ.</li>
+                        <li><strong>Carbohydrate (Carb):</strong> Tỷ lệ Carb <span id="carb-ratio-adjustment"></span> (Mục tiêu 45%). Cần <span id="carb-adjustment"></span>. Ưu tiên tinh bột phức hợp (Starch) từ khoai, gạo xay.</li>
+                        <li><strong>Chất xơ:</strong> Lượng xơ <span id="fiber-adjustment"></span> (Mục tiêu 25g). Cần duy trì. Nguồn: Rau củ quả xay nhuyễn, ngũ cốc mịn.</li>
+                        <li><strong>Tối ưu hóa Bữa ăn:</strong> Gợi ý chia 6 bữa/ngày: 3 bữa chính (súp xay) và 3 bữa phụ (sữa, nước trái cây, sinh tố). Tăng dần lượng calo trong các bữa chính.</li>
+                    </ol>
+                    
+                    <h4>Bổ sung Vi chất (Cần tham vấn bác sĩ):</h4>
+                    <p id="micronutrient-recommendation"></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="nutrition_script.js"></script>
+</body>
+</html>

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo dinh dưỡng - Bệnh nhân nam 28 tuổi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            padding-top: 20px;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary), var(--info));
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            border: none;
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        
+        .metric-card {
+            text-align: center;
+            padding: 20px 10px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .good {
+            color: var(--secondary);
+        }
+        
+        .warning {
+            color: var(--warning);
+        }
+        
+        .danger {
+            color: var(--danger);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        .recommendation-box {
+            background-color: #e8f4fc;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .nutrition-table {
+            font-size: 14px;
+        }
+        
+        .nutrition-table th {
+            background-color: #f8f9fa;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-good {
+            background-color: var(--secondary);
+        }
+        
+        .status-warning {
+            background-color: var(--warning);
+        }
+        
+        .status-danger {
+            background-color: var(--danger);
+        }
+        
+        footer {
+            margin-top: 40px;
+            padding: 20px 0;
+            border-top: 1px solid #eee;
+            color: #6c757d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1>Báo cáo phân tích dinh dưỡng</h1>
+                    <p class="mb-0">Bệnh nhân nam 28 tuổi, 45kg, 165cm - Theo dõi dinh dưỡng qua ống thông dạ dày PEG</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <p class="mb-1"><strong>Mục tiêu năng lượng:</strong> 1700 kcal/ngày</p>
+                    <p class="mb-1"><strong>Tỷ lệ dinh dưỡng:</strong> 45% Carb, 35% Fat, 20% Protein</p>
+                    <p class="mb-0"><strong>Thời gian:</strong> Tháng 10/2025</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tổng quan tình trạng -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="metric-label">Cân nặng lý tưởng</div>
+                    <div class="metric-value">58.5 kg</div>
+                    <div class="metric-label danger">Thiếu 13.5 kg</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="metric-label">Chỉ số BMI</div>
+                    <div class="metric-value">16.5</div>
+                    <div class="metric-label danger">Suy dinh dưỡng độ II</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="metric-label">Năng lượng trung bình</div>
+                    <div class="metric-value">1860 kcal</div>
+                    <div class="metric-label warning">+160 kcal so với mục tiêu</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="metric-label">Protein trung bình</div>
+                    <div class="metric-value">88.2 g</div>
+                    <div class="metric-label good">+13.2 g so với mục tiêu</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ chính -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">Xu hướng năng lượng và dinh dưỡng đa lượng</div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">Tỷ lệ dinh dưỡng trung bình</div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="ratioChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phân tích chi tiết -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Phân tích tỷ lệ dinh dưỡng</div>
+                    <div class="card-body">
+                        <table class="table table-sm nutrition-table">
+                            <thead>
+                                <tr>
+                                    <th>Chất dinh dưỡng</th>
+                                    <th>Thực tế</th>
+                                    <th>Mục tiêu</th>
+                                    <th>Đánh giá</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Carbohydrate</td>
+                                    <td>204.6g (44.1%)</td>
+                                    <td>190g (45%)</td>
+                                    <td><span class="status-indicator status-good"></span> Gần đạt</td>
+                                </tr>
+                                <tr>
+                                    <td>Chất béo</td>
+                                    <td>83.6g (40.5%)</td>
+                                    <td>65g (35%)</td>
+                                    <td><span class="status-indicator status-warning"></span> Cao hơn mục tiêu</td>
+                                </tr>
+                                <tr>
+                                    <td>Protein</td>
+                                    <td>88.2g (19.0%)</td>
+                                    <td>75g (20%)</td>
+                                    <td><span class="status-indicator status-good"></span> Đạt</td>
+                                </tr>
+                                <tr>
+                                    <td>Chất xơ</td>
+                                    <td>29.6g</td>
+                                    <td>25g</td>
+                                    <td><span class="status-indicator status-good"></span> Đạt</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="recommendation-box">
+                            <h6>Khuyến nghị điều chỉnh:</h6>
+                            <ul class="mb-0">
+                                <li>Giảm lượng chất béo khoảng 18g/ngày để đạt mục tiêu 65g</li>
+                                <li>Duy trì lượng protein và chất xơ ở mức hiện tại</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Đánh giá vitamin & khoáng chất</div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="vitaminChart"></canvas>
+                        </div>
+                        
+                        <div class="recommendation-box">
+                            <h6>Nhận xét:</h6>
+                            <ul class="mb-0">
+                                <li>Vitamin D ở mức thấp, cần bổ sung thêm</li>
+                                <li>Hầu hết vitamin và khoáng chất khác đạt hoặc vượt nhu cầu</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phân tích chất béo và carbohydrate -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Phân tích chất béo</div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="fatChart"></canvas>
+                        </div>
+                        
+                        <div class="recommendation-box">
+                            <h6>Nhận xét:</h6>
+                            <ul class="mb-0">
+                                <li>Tỷ lệ chất béo không bão hòa chiếm ưu thế, đây là dấu hiệu tốt</li>
+                                <li>Cần giảm tổng lượng chất béo để phù hợp với mục tiêu</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Phân tích carbohydrate</div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="carbChart"></canvas>
+                        </div>
+                        
+                        <div class="recommendation-box">
+                            <h6>Nhận xét:</h6>
+                            <ul class="mb-0">
+                                <li>Tỷ lệ tinh bột và đường khá cân đối</li>
+                                <li>Lượng chất xơ đạt mục tiêu, tốt cho tiêu hóa</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ngày mạnh/yếu -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">Phân tích các ngày mạnh/yếu</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>5 ngày có dinh dưỡng tốt nhất:</h6>
+                                <ul>
+                                    <li>04/10/2025: Năng lượng 1980 kcal, Protein 96.7g, Chất xơ 32.6g</li>
+                                    <li>11/10/2025: Năng lượng 2005 kcal, Protein 100.8g, Chất xơ 27.0g</li>
+                                    <li>12/10/2025: Năng lượng 1964 kcal, Vitamin C 259.5mg, Kali 4034mg</li>
+                                    <li>06/10/2025: Năng lượng 1896 kcal, Protein 95.9g, Cân bằng dinh dưỡng</li>
+                                    <li>27/10/2025: Năng lượng 1896 kcal, Protein 93.6g, Sắt 17.6mg</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>5 ngày cần cải thiện:</h6>
+                                <ul>
+                                    <li>02/10/2025: Năng lượng 1743 kcal, Protein 71.7g (thấp)</li>
+                                    <li>18/10/2025: Năng lượng 1776 kcal, Chất béo 71.7g (thấp)</li>
+                                    <li>19/10/2025: Năng lượng 1780 kcal, Kẽm 10.4mg (thấp)</li>
+                                    <li>15/10/2025: Năng lượng 1854 kcal, Vitamin K 110.7µg (thấp)</li>
+                                    <li>23/10/2025: Năng lượng 1893 kcal, Selen 45.3µg (thấp)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Khuyến nghị tổng thể -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">Khuyến nghị dinh dưỡng</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Điều chỉnh chế độ ăn:</h6>
+                                <ul>
+                                    <li>Giảm lượng chất béo khoảng 18g/ngày bằng cách điều chỉnh tỷ lệ dầu trong súp xay</li>
+                                    <li>Duy trì lượng protein hiện tại (khoảng 88g/ngày) để hỗ trợ phục hồi cơ</li>
+                                    <li>Bổ sung thêm vitamin D qua thực phẩm bổ sung hoặc thuốc theo chỉ định</li>
+                                    <li>Tiếp tục chế độ 6 bữa/ngày để đảm bảo hấp thu tốt</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Thực phẩm bổ sung đề xuất:</h6>
+                                <ul>
+                                    <li>Sữa công thức giàu protein, ít chất béo</li>
+                                    <li>Bổ sung vitamin D3 (400-800 IU/ngày)</li>
+                                    <li>Bột protein whey hoặc casein (nếu cần tăng protein)</li>
+                                    <li>Thực phẩm bổ sung kẽm và selen nếu tiếp tục thiếu hụt</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="recommendation-box mt-3">
+                            <h6>Lưu ý quan trọng:</h6>
+                            <p class="mb-0">Bệnh nhân đang trong tình trạng suy dinh dưỡng độ II, cần theo dõi chặt chẽ cân nặng và các chỉ số sinh hóa. Mục tiêu tăng cân 0.5-1kg/tuần là hợp lý. Cần đánh giá lại sau 2 tuần điều chỉnh chế độ ăn.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center">
+            <p>Báo cáo được tạo dựa trên dữ liệu dinh dưỡng tháng 10/2025 | Bệnh nhân nam 28 tuổi, 45kg, 165cm</p>
+        </footer>
+    </div>
+
+    <script>
+        // Dữ liệu từ CSV
+        const nutritionData = [
+            { date: '01/10/2025', energy: 1849.6, carbs: 209.1, fiber: 29.7, starch: 49.1, sugars: 63.3, fat: 76.4, monounsat: 30.8, omega3: 2.1, omega6: 10.3, protein: 94.9, vitA: 1088.5, vitC: 241.2, vitD: 412.0, vitE: 16.1, vitK: 1054.2, calcium: 1324.1, copper: 2.1, iron: 16.4, magnesium: 403.0, manganese: 3.9, phosphorus: 1480.3, potassium: 3768.3, selenium: 76.6, sodium: 1294.5, zinc: 12.1 },
+            { date: '02/10/2025', energy: 1742.9, carbs: 200.7, fiber: 26.5, starch: 61.4, sugars: 53.8, fat: 78.1, monounsat: 30.7, omega3: 2.0, omega6: 9.8, protein: 71.7, vitA: 978.2, vitC: 119.4, vitD: 453.2, vitE: 15.1, vitK: 85.9, calcium: 1294.6, copper: 1.8, iron: 12.4, magnesium: 378.8, manganese: 3.5, phosphorus: 1260.0, potassium: 3520.5, selenium: 58.4, sodium: 2014.4, zinc: 10.2 },
+            { date: '03/10/2025', energy: 1855.8, carbs: 206.7, fiber: 24.0, starch: 61.7, sugars: 51.2, fat: 82.1, monounsat: 34.8, omega3: 2.1, omega6: 10.8, protein: 82.5, vitA: 923.7, vitC: 142.4, vitD: 410.5, vitE: 16.0, vitK: 252.1, calcium: 1277.2, copper: 2.0, iron: 15.4, magnesium: 403.6, manganese: 3.4, phosphorus: 1464.9, potassium: 3885.5, selenium: 94.1, sodium: 1458.1, zinc: 12.8 },
+            { date: '04/10/2025', energy: 1980.3, carbs: 222.7, fiber: 32.6, starch: 64.3, sugars: 67.2, fat: 84.9, monounsat: 35.1, omega3: 3.4, omega6: 11.8, protein: 96.7, vitA: 1325.9, vitC: 172.3, vitD: 412.0, vitE: 17.1, vitK: 321.8, calcium: 1407.3, copper: 2.4, iron: 16.1, magnesium: 487.3, manganese: 4.3, phosphorus: 1676.1, potassium: 4204.4, selenium: 82.9, sodium: 1478.3, zinc: 13.5 },
+            { date: '05/10/2025', energy: 1819.4, carbs: 189.3, fiber: 27.3, starch: 64.1, sugars: 40.6, fat: 87.4, monounsat: 37.2, omega3: 3.2, omega6: 10.6, protein: 81.7, vitA: 1154.4, vitC: 136.3, vitD: 464.0, vitE: 15.3, vitK: 1004.5, calcium: 1351.2, copper: 2.1, iron: 15.1, magnesium: 422.2, manganese: 3.9, phosphorus: 1576.1, potassium: 3679.5, selenium: 62.5, sodium: 1416.3, zinc: 13.2 },
+            { date: '06/10/2025', energy: 1896.0, carbs: 201.1, fiber: 28.6, starch: 64.2, sugars: 52.7, fat: 84.3, monounsat: 34.9, omega3: 3.4, omega6: 11.7, protein: 95.9, vitA: 945.7, vitC: 157.7, vitD: 412.0, vitE: 15.1, vitK: 893.4, calcium: 1321.3, copper: 2.4, iron: 16.2, magnesium: 465.8, manganese: 4.3, phosphorus: 1633.3, potassium: 4008.1, selenium: 82.6, sodium: 1330.9, zinc: 13.3 },
+            { date: '07/10/2025', energy: 1860.5, carbs: 213.5, fiber: 27.1, starch: 72.2, sugars: 51.7, fat: 82.1, monounsat: 35.2, omega3: 2.1, omega6: 10.9, protein: 82.9, vitA: 1561.5, vitC: 187.0, vitD: 410.5, vitE: 17.3, vitK: 860.1, calcium: 1281.0, copper: 2.2, iron: 15.5, magnesium: 430.4, manganese: 3.8, phosphorus: 1595.8, potassium: 4050.0, selenium: 96.2, sodium: 1388.9, zinc: 14.0 },
+            { date: '08/10/2025', energy: 1856.8, carbs: 198.5, fiber: 28.3, starch: 51.9, sugars: 52.4, fat: 82.4, monounsat: 35.4, omega3: 2.1, omega6: 11.6, protein: 94.7, vitA: 835.7, vitC: 156.1, vitD: 384.5, vitE: 14.7, vitK: 151.6, calcium: 1107.4, copper: 2.4, iron: 16.3, magnesium: 429.0, manganese: 3.5, phosphorus: 1478.0, potassium: 3401.3, selenium: 77.6, sodium: 1329.3, zinc: 12.6 },
+            { date: '09/10/2025', energy: 1906.1, carbs: 227.3, fiber: 32.6, starch: 59.1, sugars: 63.4, fat: 82.7, monounsat: 36.2, omega3: 2.1, omega6: 11.5, protein: 82.7, vitA: 1522.0, vitC: 223.3, vitD: 383.0, vitE: 16.2, vitK: 170.1, calcium: 1152.5, copper: 2.6, iron: 17.1, magnesium: 450.3, manganese: 3.9, phosphorus: 1485.3, potassium: 3910.8, selenium: 94.8, sodium: 1405.9, zinc: 13.8 },
+            { date: '10/10/2025', energy: 1894.7, carbs: 216.1, fiber: 30.2, starch: 58.6, sugars: 61.5, fat: 86.3, monounsat: 37.8, omega3: 3.2, omega6: 10.7, protein: 81.6, vitA: 1291.5, vitC: 226.0, vitD: 436.5, vitE: 15.2, vitK: 78.1, calcium: 1153.1, copper: 2.6, iron: 17.5, magnesium: 457.1, manganese: 3.7, phosphorus: 1535.4, potassium: 3875.8, selenium: 60.2, sodium: 1351.6, zinc: 13.3 },
+            { date: '11/10/2025', energy: 2005.0, carbs: 205.5, fiber: 27.0, starch: 63.8, sugars: 49.2, fat: 92.7, monounsat: 37.9, omega3: 2.3, omega6: 11.6, protein: 100.8, vitA: 1010.3, vitC: 227.6, vitD: 422.2, vitE: 16.6, vitK: 148.8, calcium: 1324.0, copper: 2.5, iron: 16.6, magnesium: 487.2, manganese: 3.8, phosphorus: 1752.8, potassium: 4064.1, selenium: 84.6, sodium: 1704.3, zinc: 14.0 },
+            { date: '12/10/2025', energy: 1964.2, carbs: 218.5, fiber: 25.9, starch: 69.5, sugars: 60.1, fat: 90.7, monounsat: 37.3, omega3: 2.2, omega6: 11.1, protein: 85.5, vitA: 1355.4, vitC: 259.5, vitD: 420.7, vitE: 16.9, vitK: 140.4, calcium: 1299.8, copper: 2.2, iron: 14.1, magnesium: 436.4, manganese: 3.6, phosphorus: 1680.7, potassium: 4034.3, selenium: 98.5, sodium: 1585.1, zinc: 14.5 },
+            { date: '13/10/2025', energy: 1904.6, carbs: 198.6, fiber: 29.3, starch: 65.9, sugars: 41.1, fat: 87.1, monounsat: 35.9, omega3: 2.3, omega6: 11.3, protein: 95.2, vitA: 1401.6, vitC: 242.5, vitD: 405.6, vitE: 17.2, vitK: 952.9, calcium: 1246.9, copper: 2.2, iron: 15.1, magnesium: 426.5, manganese: 3.8, phosphorus: 1611.9, potassium: 3821.1, selenium: 78.8, sodium: 1557.3, zinc: 13.5 },
+            { date: '14/10/2025', energy: 1799.7, carbs: 194.6, fiber: 26.7, starch: 70.3, sugars: 40.2, fat: 84.3, monounsat: 36.5, omega3: 2.2, omega6: 12.7, protein: 84.1, vitA: 1245.5, vitC: 212.1, vitD: 401.0, vitE: 16.8, vitK: 149.0, calcium: 1138.3, copper: 2.5, iron: 14.2, magnesium: 452.6, manganese: 3.8, phosphorus: 1541.4, potassium: 3892.8, selenium: 94.0, sodium: 1397.1, zinc: 14.0 },
+            { date: '15/10/2025', energy: 1853.6, carbs: 191.1, fiber: 25.9, starch: 67.4, sugars: 41.4, fat: 84.4, monounsat: 35.8, omega3: 2.3, omega6: 12.9, protein: 96.9, vitA: 1288.9, vitC: 188.6, vitD: 402.5, vitE: 15.8, vitK: 110.7, calcium: 1122.0, copper: 2.4, iron: 14.0, magnesium: 455.9, manganese: 3.7, phosphorus: 1553.7, potassium: 3756.1, selenium: 76.7, sodium: 1418.7, zinc: 12.8 },
+            { date: '16/10/2025', energy: 1854.0, carbs: 203.9, fiber: 29.3, starch: 66.2, sugars: 37.8, fat: 84.7, monounsat: 36.5, omega3: 2.3, omega6: 12.9, protein: 87.0, vitA: 969.7, vitC: 212.4, vitD: 401.0, vitE: 16.0, vitK: 898.7, calcium: 1202.7, copper: 2.6, iron: 17.2, magnesium: 463.0, manganese: 4.4, phosphorus: 1578.4, potassium: 4182.4, selenium: 93.3, sodium: 1394.6, zinc: 14.6 },
+            { date: '17/10/2025', energy: 1867.1, carbs: 192.0, fiber: 26.4, starch: 67.5, sugars: 41.6, fat: 85.0, monounsat: 35.9, omega3: 2.4, omega6: 13.2, protein: 98.2, vitA: 1289.2, vitC: 188.8, vitD: 402.5, vitE: 15.8, vitK: 111.8, calcium: 1126.2, copper: 2.4, iron: 14.1, magnesium: 462.7, manganese: 3.8, phosphorus: 1573.2, potassium: 3797.0, selenium: 77.2, sodium: 1434.6, zinc: 13.0 },
+            { date: '18/10/2025', energy: 1776.4, carbs: 215.7, fiber: 28.9, starch: 72.6, sugars: 42.4, fat: 71.7, monounsat: 29.2, omega3: 2.3, omega6: 9.7, protein: 83.5, vitA: 830.9, vitC: 124.3, vitD: 401.0, vitE: 13.6, vitK: 96.2, calcium: 1145.3, copper: 2.4, iron: 16.3, magnesium: 418.7, manganese: 3.9, phosphorus: 1482.4, potassium: 4145.4, selenium: 89.7, sodium: 1472.4, zinc: 13.3 },
+            { date: '19/10/2025', energy: 1779.7, carbs: 213.4, fiber: 31.5, starch: 67.5, sugars: 43.4, fat: 71.8, monounsat: 24.1, omega3: 3.4, omega6: 12.6, protein: 82.2, vitA: 2060.9, vitC: 247.7, vitD: 396.5, vitE: 17.2, vitK: 155.5, calcium: 1199.0, copper: 1.9, iron: 14.5, magnesium: 422.5, manganese: 4.1, phosphorus: 1435.8, potassium: 4177.7, selenium: 70.7, sodium: 1542.9, zinc: 10.4 },
+            { date: '20/10/2025', energy: 1834.9, carbs: 190.1, fiber: 29.1, starch: 60.2, sugars: 35.6, fat: 92.5, monounsat: 33.8, omega3: 6.1, omega6: 18.7, protein: 76.7, vitA: 959.2, vitC: 239.2, vitD: 447.5, vitE: 17.8, vitK: 160.0, calcium: 1235.4, copper: 2.2, iron: 16.5, magnesium: 426.8, manganese: 4.4, phosphorus: 1453.3, potassium: 4094.9, selenium: 55.7, sodium: 1513.8, zinc: 11.8 },
+            { date: '21/10/2025', energy: 1898.7, carbs: 208.9, fiber: 33.9, starch: 61.9, sugars: 50.0, fat: 81.7, monounsat: 29.2, omega3: 3.7, omega6: 16.6, protein: 97.7, vitA: 1277.7, vitC: 239.1, vitD: 402.5, vitE: 17.2, vitK: 179.7, calcium: 1152.2, copper: 2.1, iron: 13.8, magnesium: 425.6, manganese: 4.2, phosphorus: 1518.3, potassium: 3866.2, selenium: 75.3, sodium: 1350.8, zinc: 12.0 },
+            { date: '22/10/2025', energy: 1894.0, carbs: 205.0, fiber: 30.4, starch: 57.4, sugars: 47.5, fat: 89.0, monounsat: 30.6, omega3: 5.6, omega6: 18.9, protein: 82.6, vitA: 986.4, vitC: 241.8, vitD: 448.7, vitE: 16.9, vitK: 173.1, calcium: 1286.5, copper: 1.9, iron: 16.1, magnesium: 388.9, manganese: 4.2, phosphorus: 1537.5, potassium: 3853.8, selenium: 58.6, sodium: 1356.4, zinc: 12.2 },
+            { date: '23/10/2025', energy: 1892.6, carbs: 211.1, fiber: 35.7, starch: 65.9, sugars: 50.8, fat: 92.5, monounsat: 35.3, omega3: 3.5, omega6: 20.3, protein: 75.5, vitA: 864.9, vitC: 138.3, vitD: 395.0, vitE: 18.3, vitK: 138.8, calcium: 1215.2, copper: 2.3, iron: 13.2, magnesium: 467.0, manganese: 4.9, phosphorus: 1340.5, potassium: 3715.1, selenium: 45.3, sodium: 1783.6, zinc: 11.4 },
+            { date: '24/10/2025', energy: 1919.2, carbs: 205.6, fiber: 31.5, starch: 50.4, sugars: 56.5, fat: 87.0, monounsat: 29.8, omega3: 4.5, omega6: 19.4, protein: 94.6, vitA: 1313.4, vitC: 215.3, vitD: 403.1, vitE: 14.8, vitK: 119.2, calcium: 1178.1, copper: 2.2, iron: 14.6, magnesium: 413.2, manganese: 4.5, phosphorus: 1462.5, potassium: 3706.6, selenium: 73.4, sodium: 1357.0, zinc: 11.8 },
+            { date: '25/10/2025', energy: 1768.6, carbs: 182.3, fiber: 28.7, starch: 66.3, sugars: 31.1, fat: 86.0, monounsat: 30.4, omega3: 5.2, omega6: 17.5, protein: 82.9, vitA: 1084.3, vitC: 171.8, vitD: 447.5, vitE: 16.3, vitK: 306.5, calcium: 1228.3, copper: 2.3, iron: 17.0, magnesium: 502.4, manganese: 4.9, phosphorus: 1575.5, potassium: 4230.8, selenium: 60.4, sodium: 1584.7, zinc: 12.8 },
+            { date: '26/10/2025', energy: 1849.6, carbs: 202.2, fiber: 33.3, starch: 63.3, sugars: 44.2, fat: 86.2, monounsat: 31.2, omega3: 4.3, omega6: 18.2, protein: 86.7, vitA: 1093.6, vitC: 250.0, vitD: 401.0, vitE: 17.6, vitK: 443.6, calcium: 1171.6, copper: 2.3, iron: 15.8, magnesium: 473.0, manganese: 4.8, phosphorus: 1546.2, potassium: 4171.6, selenium: 93.9, sodium: 1481.4, zinc: 13.6 },
+            { date: '27/10/2025', energy: 1895.8, carbs: 198.9, fiber: 31.7, starch: 59.5, sugars: 45.1, fat: 89.1, monounsat: 31.7, omega3: 5.5, omega6: 17.9, protein: 93.6, vitA: 1444.9, vitC: 183.1, vitD: 465.0, vitE: 15.8, vitK: 312.8, calcium: 1224.3, copper: 2.4, iron: 17.6, magnesium: 487.4, manganese: 4.8, phosphorus: 1654.0, potassium: 4187.3, selenium: 65.0, sodium: 1456.2, zinc: 13.9 },
+            { date: '28/10/2025', energy: 1872.9, carbs: 206.7, fiber: 32.9, starch: 66.0, sugars: 43.5, fat: 86.0, monounsat: 31.2, omega3: 4.2, omega6: 18.2, protein: 87.8, vitA: 895.8, vitC: 225.1, vitD: 401.0, vitE: 16.2, vitK: 133.1, calcium: 1135.7, copper: 2.3, iron: 16.0, magnesium: 425.9, manganese: 4.6, phosphorus: 1556.7, potassium: 4014.9, selenium: 94.0, sodium: 1412.1, zinc: 14.0 },
+            { date: '29/10/2025', energy: 1868.6, carbs: 193.1, fiber: 32.4, starch: 55.8, sugars: 44.7, fat: 89.4, monounsat: 31.9, omega3: 5.4, omega6: 18.1, protein: 91.9, vitA: 965.8, vitC: 141.8, vitD: 465.0, vitE: 15.4, vitK: 249.7, calcium: 1274.8, copper: 2.5, iron: 17.9, magnesium: 459.7, manganese: 4.9, phosphorus: 1636.7, potassium: 4008.5, selenium: 66.1, sodium: 1438.1, zinc: 13.7 },
+            { date: '30/10/2025', energy: 1840.2, carbs: 199.6, fiber: 33.3, starch: 55.2, sugars: 51.9, fat: 82.3, monounsat: 28.2, omega3: 4.1, omega6: 17.4, protein: 90.8, vitA: 1705.8, vitC: 127.8, vitD: 396.7, vitE: 14.3, vitK: 108.0, calcium: 1140.5, copper: 2.0, iron: 12.8, magnesium: 429.3, manganese: 4.4, phosphorus: 1540.9, potassium: 3722.1, selenium: 78.8, sodium: 1504.0, zinc: 11.7 },
+            { date: '31/10/2025', energy: 1842.4, carbs: 195.8, fiber: 31.6, starch: 55.3, sugars: 43.5, fat: 84.9, monounsat: 30.4, omega3: 4.2, omega6: 17.9, protein: 93.7, vitA: 956.6, vitC: 235.1, vitD: 402.2, vitE: 15.1, vitK: 142.9, calcium: 1161.3, copper: 2.3, iron: 16.8, magnesium: 425.7, manganese: 4.5, phosphorus: 1579.7, potassium: 3956.1, selenium: 104.2, sodium: 1449.4, zinc: 14.4 }
+        ];
+
+        // Tính toán các giá trị trung bình
+        const avgEnergy = nutritionData.reduce((sum, day) => sum + day.energy, 0) / nutritionData.length;
+        const avgCarbs = nutritionData.reduce((sum, day) => sum + day.carbs, 0) / nutritionData.length;
+        const avgFat = nutritionData.reduce((sum, day) => sum + day.fat, 0) / nutritionData.length;
+        const avgProtein = nutritionData.reduce((sum, day) => sum + day.protein, 0) / nutritionData.length;
+        const avgFiber = nutritionData.reduce((sum, day) => sum + day.fiber, 0) / nutritionData.length;
+        
+        // Tính tỷ lệ phần trăm từng chất
+        const carbPercentage = (avgCarbs * 4 / avgEnergy * 100).toFixed(1);
+        const fatPercentage = (avgFat * 9 / avgEnergy * 100).toFixed(1);
+        const proteinPercentage = (avgProtein * 4 / avgEnergy * 100).toFixed(1);
+
+        // Biểu đồ xu hướng
+        const dates = nutritionData.map(day => day.date.substring(0, 5));
+        const energyData = nutritionData.map(day => day.energy);
+        const carbsData = nutritionData.map(day => day.carbs * 4); // Chuyển đổi gam thành kcal
+        const fatData = nutritionData.map(day => day.fat * 9); // Chuyển đổi gam thành kcal
+        const proteinData = nutritionData.map(day => day.protein * 4); // Chuyển đổi gam thành kcal
+
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'Năng lượng (kcal)',
+                        data: energyData,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Carbohydrate (kcal)',
+                        data: carbsData,
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'transparent',
+                        borderDash: [5, 5],
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Chất béo (kcal)',
+                        data: fatData,
+                        borderColor: '#f39c12',
+                        backgroundColor: 'transparent',
+                        borderDash: [5, 5],
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Protein (kcal)',
+                        data: proteinData,
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'transparent',
+                        borderDash: [5, 5],
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Xu hướng năng lượng và dinh dưỡng đa lượng'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Ngày'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Kcal'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Biểu đồ tỷ lệ dinh dưỡng
+        const ratioCtx = document.getElementById('ratioChart').getContext('2d');
+        new Chart(ratioCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Carbohydrate', 'Chất béo', 'Protein'],
+                datasets: [{
+                    data: [carbPercentage, fatPercentage, proteinPercentage],
+                    backgroundColor: [
+                        '#2ecc71',
+                        '#f39c12',
+                        '#e74c3c'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.raw + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Biểu đồ vitamin và khoáng chất
+        const vitaminCtx = document.getElementById('vitaminChart').getContext('2d');
+        new Chart(vitaminCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Vitamin A', 'Vitamin C', 'Vitamin D', 'Vitamin E', 'Vitamin K', 'Calcium', 'Iron', 'Zinc'],
+                datasets: [{
+                    label: 'Trung bình thực tế',
+                    data: [
+                        nutritionData.reduce((sum, day) => sum + day.vitA, 0) / nutritionData.length,
+                        nutritionData.reduce((sum, day) => sum + day.vitC, 0) / nutritionData.length,
+                        nutritionData.reduce((sum, day) => sum + day.vitD, 0) / nutritionData.length,
+                        nutritionData.reduce((sum, day) => sum + day.vitE, 0) / nutritionData.length,
+                        nutritionData.reduce((sum, day) => sum + day.vitK, 0) / nutritionData.length,
+                        nutritionData.reduce((sum, day) => sum + day.calcium, 0) / nutritionData.length,
+                        nutritionData.reduce((sum, day) => sum + day.iron, 0) / nutritionData.length,
+                        nutritionData.reduce((sum, day) => sum + day.zinc, 0) / nutritionData.length
+                    ],
+                    backgroundColor: '#3498db'
+                }, {
+                    label: 'Nhu cầu khuyến nghị',
+                    data: [900, 90, 600, 15, 120, 1000, 8, 11],
+                    backgroundColor: '#2ecc71'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Biểu đồ chất béo
+        const avgMonounsat = nutritionData.reduce((sum, day) => sum + day.monounsat, 0) / nutritionData.length;
+        const avgOmega3 = nutritionData.reduce((sum, day) => sum + day.omega3, 0) / nutritionData.length;
+        const avgOmega6 = nutritionData.reduce((sum, day) => sum + day.omega6, 0) / nutritionData.length;
+        const saturatedFat = avgFat - (avgMonounsat + avgOmega3 + avgOmega6);
+
+        const fatCtx = document.getElementById('fatChart').getContext('2d');
+        new Chart(fatCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Chất béo bão hòa', 'Chất béo không bão hòa đơn', 'Omega-3', 'Omega-6'],
+                datasets: [{
+                    data: [saturatedFat, avgMonounsat, avgOmega3, avgOmega6],
+                    backgroundColor: [
+                        '#e74c3c',
+                        '#3498db',
+                        '#2ecc71',
+                        '#f39c12'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Biểu đồ carbohydrate
+        const avgStarch = nutritionData.reduce((sum, day) => sum + day.starch, 0) / nutritionData.length;
+        const avgSugars = nutritionData.reduce((sum, day) => sum + day.sugars, 0) / nutritionData.length;
+        const otherCarbs = avgCarbs - (avgStarch + avgSugars + avgFiber);
+
+        const carbCtx = document.getElementById('carbChart').getContext('2d');
+        new Chart(carbCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Tinh bột', 'Đường', 'Chất xơ', 'Carbohydrate khác'],
+                datasets: [{
+                    data: [avgStarch, avgSugars, avgFiber, otherCarbs],
+                    backgroundColor: [
+                        '#3498db',
+                        '#e74c3c',
+                        '#2ecc71',
+                        '#f39c12'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
