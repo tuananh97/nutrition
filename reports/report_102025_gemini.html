@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Phân Tích Dinh Dưỡng Toàn Diện (Đã sửa)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #0056b3;
+            margin-bottom: 0.5em;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* --- STYLES CHO KPI CARDS (TỪ report_102025_gemini.html) --- */
+        .kpi-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .kpi-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 20px;
+            flex-basis: 200px;
+            text-align: center;
+            border-top: 5px solid #007bff;
+        }
+        .kpi-card h3 {
+            margin: 0 0 10px 0;
+            color: #555;
+            font-size: 1.1em;
+        }
+        .kpi-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #0056b3;
+        }
+        .kpi-unit {
+            font-size: 1em;
+            color: #777;
+            margin-left: 5px;
+        }
+        .kpi-goal {
+            font-size: 0.9em;
+            color: #888;
+            margin-top: 10px;
+        }
+        .kpi-card.protein { border-color: #28a745; }
+        .kpi-card.protein .kpi-value { color: #28a745; }
+        .kpi-card.fat { border-color: #ffc107; }
+        .kpi-card.fat .kpi-value { color: #fd7e14; }
+        .kpi-card.carbs { border-color: #dc3545; }
+        .kpi-card.carbs .kpi-value { color: #dc3545; }
+        .kpi-card.fiber { border-color: #663399; }
+        .kpi-card.fiber .kpi-value { color: #663399; }
+        /* --- KẾT THÚC STYLES KPI --- */
+
+        /* --- STYLES CHO DASHBOARD GRID (TỪ gemini.html) --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 25px;
+            transition: all 0.3s ease;
+            display: flex; /* Thêm flex để kiểm soát chiều cao */
+            flex-direction: column; /* Sắp xếp nội dung theo chiều dọc */
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+        }
+        .card-full-width {
+            grid-column: 1 / -1;
+        }
+        .patient-info ul { list-style-type: none; padding-left: 0; }
+        .patient-info li {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .patient-info li span:first-child { font-weight: 600; color: #555; }
+        .patient-info li span:last-child { font-weight: 600; color: #0056b3; }
+
+        .bmi-status {
+            font-size: 1.2em;
+            font-weight: 700;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #fbecec;
+            color: #dc3545;
+            border: 1px solid #f5c6cb;
+        }
+        .status-good { color: #28a745; font-weight: 700; }
+        .status-high { color: #fd7e14; font-weight: 700; }
+        .status-low { color: #dc3545; font-weight: 700; }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        .comparison-table th { background-color: #f2f2f2; color: #333; }
+
+        .recommendations ul { list-style-type: '✅'; padding-left: 20px; }
+        .recommendations li { margin-bottom: 10px; line-height: 1.5; }
+
+        /* Style để chứa biểu đồ */
+        .chart-container {
+            position: relative;
+            height: 300px; /* Chiều cao mặc định cho chart */
+            width: 100%;
+            flex-grow: 1; /* Cho phép chart lấp đầy card */
+        }
+        .chart-container-pie {
+            position: relative;
+            height: 250px; /* Chiều cao nhỏ hơn cho pie */
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        /* Lưới 2 cột cho biểu đồ tròn */
+        .pie-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            align-items: center;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Dashboard Phân Tích Dinh Dưỡng (Tháng 10/2025)</h1>
+
+    <div class="kpi-container">
+        <div class="kpi-card energy">
+            <h3>Năng lượng</h3>
+            <span id="kpi-energy" class="kpi-value">0</span><span class="kpi-unit">kcal</span>
+            <div id="kpi-energy-goal" class="kpi-goal">Mục tiêu: 1700 kcal</div>
+        </div>
+        <div class="kpi-card protein">
+            <h3>Protein</h3>
+            <span id="kpi-protein" class="kpi-value">0</span><span class="kpi-unit">g</span>
+            <div id="kpi-protein-goal" class="kpi-goal">Mục tiêu: 75 g</div>
+        </div>
+        <div class="kpi-card fat">
+            <h3>Chất béo</h3>
+            <span id="kpi-fat" class="kpi-value">0</span><span class="kpi-unit">g</span>
+            <div id="kpi-fat-goal" class="kpi-goal">Mục tiêu: 65 g</div>
+        </div>
+        <div class="kpi-card carbs">
+            <h3>Carbohydrate</h3>
+            <span id="kpi-carbs" class="kpi-value">0</span><span class="kpi-unit">g</span>
+            <div id="kpi-carbs-goal" class="kpi-goal">Mục tiêu: 190 g</div>
+        </div>
+        <div class="kpi-card fiber">
+            <h3>Chất xơ</h3>
+            <span id="kpi-fiber" class="kpi-value">0</span><span class="kpi-unit">g</span>
+            <div id="kpi-fiber-goal" class="kpi-goal">Mục tiêu: 25 g</div>
+        </div>
+    </div>
+    <div class="dashboard-grid">
+
+        <div class="card patient-info">
+            <h3>1. Đánh Giá Tổng Hợp Tình Trạng</h3>
+            <ul>
+                <li><span>Bệnh nhân:</span> <span>Nam, 28 tuổi</span></li>
+                <li><span>Chiều cao:</span> <span>165 cm</span></li>
+                <li><span>Cân nặng:</span> <span>45 kg</span></li>
+                <li><span>Cân nặng lý tưởng (BMI 22):</span> <span>~60 kg</span></li>
+                <li><span>Chỉ số BMI:</span> <span>16.53 kg/m²</span></li>
+            </ul>
+            <div class="bmi-status">
+                TÌNH TRẠNG: SUY DINH DƯỠNG NẶNG (ĐỘ II)
+            </div>
+            <h3 style="margin-top: 20px;">Nguy cơ tiềm ẩn:</h3>
+            <p>Mệt mỏi, giảm miễn dịch, táo bón, loãng xương, thiếu máu, teo cơ.</p>
+        </div>
+
+        <div class="card">
+            <h3>8. Tổng Quan & Tối Ưu Hóa (Trung bình 31 ngày)</h3>
+            <p>So sánh lượng tiêu thụ trung bình hàng ngày với mục tiêu đã đề ra.</p>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Chỉ số</th>
+                        <th>Mục tiêu</th>
+                        <th>Thực tế (Trung bình)</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Năng lượng</td>
+                        <td>1700 kcal</td>
+                        <td><strong>1868.9 kcal</strong></td>
+                        <td class="status-good">TỐT (Vượt 169 kcal)</td>
+                    </tr>
+                    <tr>
+                        <td>Đạm (Protein)</td>
+                        <td>75 g</td>
+                        <td><strong>88.1 g</strong></td>
+                        <td class="status-good">TỐT (Vượt 13.1 g)</td>
+                    </tr>
+                    <tr>
+                        <td>Béo (Fat)</td>
+                        <td>65 g</td>
+                        <td><strong>84.5 g</strong></td>
+                        <td class="status-high">HƠI CAO (Vượt 19.5 g)</td>
+                    </tr>
+                    <tr>
+                        <td>Carb (Gluxit)</td>
+                        <td>190 g</td>
+                        <td><strong>205.1 g</strong></td>
+                        <td class="status-good">TỐT (Vượt 15.1 g)</td>
+                    </tr>
+                    <tr>
+                        <td>Chất xơ (Fiber)</td>
+                        <td>25 g</td>
+                        <td><strong>29.5 g</strong></td>
+                        <td class="status-good">TỐT (Vượt 4.5 g)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>2. Phân Tích Tỷ Lệ Đa Lượng (P-L-C)</h3>
+            <p>Tỷ lệ năng lượng trung bình. Mục tiêu là <strong>P:20% - L:35% - C:45%</strong>.</p>
+
+            <div class="pie-grid">
+                <div class="chart-container-pie">
+                    <canvas id="macroRatioChart"></canvas>
+                </div>
+                <div class="chart-container-pie">
+                    <canvas id="chartMacrosPctGoal"></canvas>
+                </div>
+            </div>
+
+            <div class="analysis-text" style="margin-top: 15px;">
+                <p><strong>Phân tích:</strong></p>
+                <ul>
+                    <li><strong>Đạm (18.2%):</strong> <span class="status-low">Hơi thấp</span> so với mục tiêu 20%.</li>
+                    <li><strong>Béo (39.3%):</strong> <span class="status-high">Hơi cao</span> so với mục tiêu 35%.</li>
+                    <li><strong>Carb (42.4%):</strong> <span class="status-low">Hơi thấp</span> so với mục tiêu 45%.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>4. Theo Dõi Chất Xơ & Vi Khoáng Chất</h3>
+            <p>Phân tích các chất quan trọng so với mức khuyến nghị (RDA/Mục tiêu).</p>
+            <div class="chart-container">
+                <canvas id="microNutrientChart"></canvas>
+            </div>
+            <div class="analysis-text" style="margin-top: 15px;">
+                <p><strong>Phân tích:</strong></p>
+                <ul>
+                    <li><strong>Chất xơ (TB: 29.5g):</strong> <span class="status-good">Rất tốt</span>, vượt mục tiêu 25g.</li>
+                    <li><strong>Canxi (TB: 1241.7mg):</strong> <span class="status-good">Rất tốt</span> (Mục tiêu ~1000mg).</li>
+                    <li><strong>Sắt (TB: 15.5mg):</strong> <span class="status-good">Rất tốt</span> (Mục tiêu 8-11mg).</li>
+                    <li><strong>Kẽm (TB: 13.0mg):</strong> <span class="status-good">Rất tốt</span> (Mục tiêu ~11mg).</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card card-full-width">
+            <h3>5. Phân Tích Theo Thời Gian (Xu hướng Năng lượng)</h3>
+            <p>Biểu đồ thể hiện sự biến động calo tiêu thụ hàng ngày trong tháng 10 so với mục tiêu 1700 kcal.</p>
+            <div class="chart-container">
+                <canvas id="energyTrendChart"></canvas>
+            </div>
+            <div class="analysis-text" style="margin-top: 15px;">
+                <p><strong>Phân tích:</strong> Chế độ ăn cực kỳ ổn định. Lượng calo hàng ngày luôn duy trì trên mức mục tiêu 1700 kcal. Không có sự sụt giảm đột ngột. Điều này là lý tưởng cho bệnh nhân cần tăng cân.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>3 & 6. Phân Tích Ngày Mạnh/Yếu & Mối Quan Hệ</h3>
+            <p><strong>Phân tích ngày:</strong> Do chế độ ăn rất nhất quán, sự khác biệt là không đáng kể:</p>
+            <ul>
+                <li><strong>Ngày năng lượng thấp nhất:</strong> 02/10 (1742.9 kcal) - Vẫn đạt mục tiêu.</li>
+                <li><strong>Ngày năng lượng cao nhất:</strong> 11/10 (2005.0 kcal).</li>
+                <li><strong>Ngày đạm thấp nhất:</strong> 02/10 (71.7 g) - Duy nhất 1 ngày dưới mục tiêu 75g.</li>
+                <li><strong>Ngày xơ thấp nhất:</strong> 03/10 (24.0 g) - Rất gần mục tiêu 25g.</li>
+            </ul>
+        </div>
+
+        <div class="card recommendations">
+            <h3>7. Khuyến Nghị Dinh Dưỡng</h3>
+            <p>Chế độ ăn hiện tại rất tốt. Các khuyến nghị sau nhằm tinh chỉnh để tối ưu hơn:</p>
+            <ul>
+                <li><strong>Tối ưu tỷ lệ P-L-C:</strong> Cân nhắc giảm nhẹ lượng chất béo (đang vượt 19.5g) và tăng nhẹ lượng đạm/carb để đạt tỷ lệ mục tiêu P:20-L:35-C:45.</li>
+                <li><strong>Duy trì năng lượng:</strong> Mức năng lượng trung bình ~1870 kcal là RẤT TỐT để tăng cân. Nên duy trì mức này và theo dõi cân nặng hàng tuần.</li>
+                <li><strong>Duy trì chất xơ:</strong> Mức xơ 29.5g là tuyệt vời. Tiếp tục duy trì rau củ, trái cây xay.</li>
+                <li><strong>Phân chia bữa ăn:</strong> Tiếp tục duy trì 6 bữa/ngày là chiến lược hoàn hảo.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Trung bình (gam) so với Mục tiêu</h3>
+            <p>So sánh lượng gram đa lượng trung bình thực tế so với mục tiêu.</p>
+            <div class="chart-container">
+                <canvas id="chartMacrosGram"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Phân tích Carb Trung bình (Tinh bột vs. Đường)</h3>
+            <p>Tỷ lệ giữa tinh bột và đường trong tổng lượng carbohydrate.</p>
+            <div class="chart-container-pie" style="height: 300px;">
+                <canvas id="chartCarbBreakdown"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Theo dõi Chất xơ Hàng ngày</h3>
+            <p>Biến động lượng chất xơ tiêu thụ hàng ngày so với mục tiêu 25g.</p>
+            <div class="chart-container">
+                <canvas id="chartFiber"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Theo dõi Protein Hàng ngày</h3>
+            <p>Biến động lượng protein tiêu thụ hàng ngày so với mục tiêu 75g.</p>
+            <div class="chart-container">
+                <canvas id="chartProtein"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ===============================================
+        // DỮ LIỆU TỪ FILE 1 (gemini.html)
+        // ===============================================
+        const dates = ['01/10', '02/10', '03/10', '04/10', '05/10', '06/10', '07/10', '08/10', '09/10', '10/10', '11/10', '12/10', '13/10', '14/10', '15/10', '16/10', '17/10', '18/10', '19/10', '20/10', '21/10', '22/10', '23/10', '24/10', '25/10', '26/10', '27/10', '28/10', '29/10', '30/10', '31/10'];
+        const energyData = [1849.6, 1742.9, 1855.8, 1980.3, 1819.4, 1896.0, 1860.5, 1856.8, 1906.1, 1894.7, 2005.0, 1964.2, 1904.6, 1799.7, 1853.6, 1854.0, 1867.1, 1776.4, 1779.7, 1834.9, 1898.7, 1894.0, 1892.6, 1919.2, 1768.6, 1849.6, 1895.8, 1872.9, 1868.6, 1840.2, 1842.4];
+        const energyTarget = Array(31).fill(1700);
+
+        // Dữ liệu trung bình tính toán (File 1)
+        const avgEnergy = 1868.9;
+        const avgProtein = 88.1;
+        const avgFat = 84.5;
+        const avgCarbs = 205.1;
+        const avgFiber = 29.5;
+        const avgCalcium = 1241.7;
+        const avgIron = 15.5;
+        const avgZinc = 13.0;
+
+        // Tính toán % P-L-C (File 1)
+        const totalKcalCalculated = (avgProtein * 4) + (avgFat * 9) + (avgCarbs * 4);
+        const percentProtein = (avgProtein * 4 / totalKcalCalculated) * 100;
+        // ===================================
+        // ===== SỬA LỖI TẠI ĐÂY =====
+        // ===================================
+        const percentFat = (avgFat * 9 / totalKcalCalculated) * 100; // Đã sửa 'totalKcalCalculATED' thành 'totalKcalCalculated'
+        // ===================================
+        const percentCarbs = (avgCarbs * 4 / totalKcalCalculated) * 100;
+
+        // ===============================================
+        // DỮ LIỆU BỔ SUNG TỪ FILE 2 (report_102025_gemini.html)
+        // ===============================================
+        const daily_protein = [
+            94.9, 71.7, 82.5, 96.7, 81.7, 95.9, 82.9, 94.7, 82.7, 81.6, 100.8, 85.5, 95.2, 84.1, 96.9,
+            87.0, 98.2, 83.5, 82.2, 76.7, 97.7, 82.6, 75.5, 94.6, 82.9, 86.7, 93.6, 87.8, 91.9, 90.8, 93.7
+        ];
+        const daily_fiber = [
+            29.7, 26.5, 24.0, 32.6, 27.3, 28.6, 27.1, 28.3, 32.6, 30.2, 27.0, 25.9, 29.3, 26.7, 25.9,
+            29.3, 26.4, 28.9, 31.5, 29.1, 33.9, 30.4, 35.7, 31.5, 28.7, 33.3, 31.7, 32.9, 32.4, 33.3, 31.6
+        ];
+
+        // Sử dụng dữ liệu trung bình TỪ FILE 1 cho chartMacrosGram để nhất quán
+        const goals_g = {
+            Protein: 75,
+            Fat: 65,
+            Carbs: 190,
+            Fiber: 25
+        };
+
+        // Dữ liệu mới cho các chart mới
+        const avg_carb_breakdown = {
+            Starch: 62.4, // Dữ liệu từ file 2
+            Sugars: 48.3  // Dữ liệu từ file 2
+        };
+        const goals_pct = {
+            Protein: 0.2,
+            Fat: 0.35,
+            Carbs: 0.45
+        };
+
+
+        // Hàm chạy khi trang được tải
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 1. CẬP NHẬT KPI CARDS (DÙNG DATA TỪ FILE 1) ---
+            document.getElementById('kpi-energy').innerText = avgEnergy.toFixed(0);
+            document.getElementById('kpi-protein').innerText = avgProtein.toFixed(1);
+            document.getElementById('kpi-fat').innerText = avgFat.toFixed(1);
+            document.getElementById('kpi-carbs').innerText = avgCarbs.toFixed(1);
+            document.getElementById('kpi-fiber').innerText = avgFiber.toFixed(1);
+
+
+            // --- 2. VẼ BIỂU ĐỒ TỪ FILE 1 ---
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            };
+
+            // Biểu đồ 2 (File 1): Tỷ lệ P-L-C thực tế
+            new Chart(document.getElementById('macroRatioChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: [
+                        `Đạm (Protein): ${percentProtein.toFixed(1)}%`,
+                        `Béo (Fat): ${percentFat.toFixed(1)}%`,
+                        `Carb (Gluxit): ${percentCarbs.toFixed(1)}%`
+                    ],
+                    datasets: [{
+                        data: [percentProtein, percentFat, percentCarbs],
+                        backgroundColor: ['#007bff', '#fd7e14', '#28a745'],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        ...chartOptions.plugins,
+                        title: { display: true, text: 'Tỷ lệ Năng lượng Thực tế' },
+                        legend: { position: 'right', labels: { boxWidth: 12 } },
+                        tooltip: { callbacks: { label: (context) => context.label } }
+                    }
+                }
+            });
+
+            // Biểu đồ 4 (File 1): Vi chất
+            new Chart(document.getElementById('microNutrientChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Chất xơ (g)', 'Canxi (mg)', 'Sắt (mg)', 'Kẽm (mg)'],
+                    datasets: [
+                        {
+                            label: 'Thực tế (Trung bình)',
+                            data: [avgFiber, avgCalcium, avgIron, avgZinc],
+                            backgroundColor: '#007bff',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Mục tiêu / Khuyến nghị',
+                            data: [25, 1000, 11, 11], // Target 25g, RDA 1000mg, 11mg, 11mg
+                            backgroundColor: '#ced4da',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    indexAxis: 'y',
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+
+            // Biểu đồ 5 (File 1): Xu hướng năng lượng
+            new Chart(document.getElementById('energyTrendChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Năng lượng tiêu thụ (kcal)',
+                            data: energyData,
+                            borderColor: '#007bff',
+                            backgroundColor: 'rgba(0,123,255,0.1)',
+                            fill: true,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Mục tiêu (1700 kcal)',
+                            data: energyTarget,
+                            borderColor: '#dc3545',
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: { ...chartOptions.plugins, legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: false, suggestedMin: 1500 } }
+                }
+            });
+
+            // --- 3. VẼ CÁC BIỂU ĐỒ MỚI TỪ FILE 2 ---
+
+            // Biểu đồ 9 (MỚI): So sánh Trung bình (gam) vs Mục tiêu (Bar)
+            new Chart(document.getElementById('chartMacrosGram'), {
+                type: 'bar',
+                data: {
+                    labels: ['Protein (g)', 'Chất béo (g)', 'Carbs (g)'],
+                    datasets: [
+                        {
+                            label: 'Trung bình Thực tế',
+                            data: [
+                                avgProtein, // Dùng data file 1
+                                avgFat,     // Dùng data file 1
+                                avgCarbs    // Dùng data file 1
+                            ],
+                            backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+                        },
+                        {
+                            label: 'Mục tiêu',
+                            data: [
+                                goals_g.Protein,
+                                goals_g.Fat,
+                                goals_g.Carbs
+                            ],
+                            backgroundColor: ['#b2dfdb', '#ffecb3', '#f8bbd0']
+                        }
+                    ]
+                },
+                options: chartOptions
+            });
+
+            // Biểu đồ 3 (MỚI): Tỷ lệ % Mục tiêu (Doughnut)
+            new Chart(document.getElementById('chartMacrosPctGoal'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Protein (%)', 'Chất béo (%)', 'Carbs (%)'],
+                    datasets: [{
+                        data: [
+                            goals_pct.Protein * 100,
+                            goals_pct.Fat * 100,
+                            goals_pct.Carbs * 100
+                        ],
+                        backgroundColor: ['#b2dfdb', '#ffecb3', '#f8bbd0']
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        ...chartOptions.plugins,
+                        title: { display: true, text: 'Tỷ lệ Năng lượng Mục tiêu' },
+                        legend: { position: 'right', labels: { boxWidth: 12 } },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.label}: ${context.raw.toFixed(1)}%`
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Biểu đồ 10 (MỚI): Phân tích Carb (Pie)
+            new Chart(document.getElementById('chartCarbBreakdown'), {
+                type: 'pie',
+                data: {
+                    labels: ['Tinh bột (g)', 'Đường (g)'],
+                    datasets: [{
+                        data: [
+                            avg_carb_breakdown.Starch,
+                            avg_carb_breakdown.Sugars
+                        ],
+                        backgroundColor: ['#6f42c1', '#fd7e14']
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        ...chartOptions.plugins,
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.label}: ${context.raw.toFixed(1)}g`
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Biểu đồ 11 (MỚI): Theo dõi Chất xơ (Line)
+            new Chart(document.getElementById('chartFiber'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Chất xơ (g)',
+                            data: daily_fiber,
+                            borderColor: '#663399',
+                            backgroundColor: 'rgba(102, 51, 153, 0.1)',
+                            fill: true,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Mục tiêu (g)',
+                            data: Array(dates.length).fill(goals_g.Fiber),
+                            borderColor: 'rgb(220, 53, 69)',
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: { ...chartOptions.plugins, legend: { position: 'top' } }
+                }
+            });
+
+            // Biểu đồ 12 (MỚI): Theo dõi Protein (Line)
+            new Chart(document.getElementById('chartProtein'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Protein (g)',
+                            data: daily_protein,
+                            borderColor: '#28a745',
+                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                            fill: true,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Mục tiêu (g)',
+                            data: Array(dates.length).fill(goals_g.Protein),
+                            borderColor: 'rgb(220, 53, 69)',
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: { ...chartOptions.plugins, legend: { position: 'top' } }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
