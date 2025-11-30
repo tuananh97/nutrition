@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Phân Tích Dinh Dưỡng</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a5f4a;
+            --primary-light: #2d8a6e;
+            --bg-dark: #0a1f1a;
+            --bg-card: #112b24;
+            --bg-card-hover: #163930;
+            --text-primary: #ecf0f1;
+            --text-secondary: #95a5a6;
+            --text-muted: #7f8c8d;
+            --border: rgba(255,255,255,0.08);
+            --gradient-1: linear-gradient(135deg, #1a5f4a 0%, #2d8a6e 100%);
+            --gradient-2: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
+            --gradient-3: linear-gradient(135deg, #3498db 0%, #5dade2 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 3rem 2rem;
+            background: var(--bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--gradient-1);
+            border-radius: 24px 24px 0 0;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .patient-info {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(26,95,74,0.2);
+            border-radius: 50px;
+            border: 1px solid rgba(45,138,110,0.3);
+        }
+
+        .info-icon {
+            width: 36px; height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-1);
+            border-radius: 50%;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .info-value { font-weight: 600; }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px; height: 32px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+        }
+
+        .section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px; height: 32px;
+            background: var(--gradient-1);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-right: 0.5rem;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            background: var(--bg-card-hover);
+        }
+
+        .kpi-icon {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-card.calories .kpi-icon { background: var(--gradient-2); }
+        .kpi-card.protein .kpi-icon { background: var(--gradient-3); }
+        .kpi-card.fat .kpi-icon { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); }
+        .kpi-card.carbs .kpi-icon { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-value small { font-size: 0.9rem; font-weight: 400; }
+        .kpi-target { font-size: 0.85rem; color: var(--text-secondary); }
+
+        .kpi-status {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .kpi-status.over { background: rgba(231,76,60,0.2); color: #e74c3c; }
+        .kpi-status.under { background: rgba(241,196,15,0.2); color: #f1c40f; }
+        .kpi-status.optimal { background: rgba(39,174,96,0.2); color: #27ae60; }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .progress-fill.over { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+        .progress-fill.under { background: linear-gradient(90deg, #f1c40f, #f39c12); }
+        .progress-fill.optimal { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+
+        .charts-section { margin-bottom: 3rem; }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .chart-grid { grid-template-columns: 1fr; }
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .chart-card.full-width { grid-column: 1 / -1; }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chart-title-icon {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-1);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 320px;
+        }
+
+        .chart-wrapper.tall { height: 420px; }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .analysis-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .analysis-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .analysis-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .analysis-icon.best { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .analysis-icon.worst { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .analysis-icon.trend { background: var(--gradient-3); }
+
+        .analysis-title { font-weight: 600; font-size: 1.1rem; }
+
+        .analysis-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .analysis-item:last-child { border-bottom: none; }
+        .analysis-item-label { color: var(--text-secondary); }
+        .analysis-item-value { font-weight: 600; }
+        .analysis-item-value.positive { color: #27ae60; }
+        .analysis-item-value.negative { color: #e74c3c; }
+        .analysis-item-value.warning { color: #f1c40f; }
+
+        .recommendations {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            margin-bottom: 3rem;
+        }
+
+        .recommendation-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1.25rem;
+            background: rgba(26,95,74,0.1);
+            border-radius: 16px;
+            border: 1px solid rgba(45,138,110,0.2);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation-item:hover {
+            background: rgba(26,95,74,0.2);
+            transform: translateX(8px);
+        }
+
+        .recommendation-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .recommendation-icon.priority-high { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .recommendation-icon.priority-medium { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .recommendation-icon.priority-low { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+
+        .recommendation-content h4 { font-weight: 600; margin-bottom: 0.25rem; }
+        .recommendation-content p { color: var(--text-secondary); font-size: 0.9rem; }
+
+        .stats-table { width: 100%; border-collapse: collapse; }
+
+        .stats-table th, .stats-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stats-table th {
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+
+        .correlation-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+        }
+
+        .correlation-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .correlation-badge.strong { background: rgba(39,174,96,0.2); color: #27ae60; }
+        .correlation-badge.moderate { background: rgba(241,196,15,0.2); color: #f1c40f; }
+        .correlation-badge.weak { background: rgba(231,76,60,0.2); color: #e74c3c; }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .note-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 12px;
+            border-left: 4px solid #3498db;
+        }
+
+        .note-box p { color: var(--text-secondary); font-size: 0.9rem; }
+
+        .tip-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(39, 174, 96, 0.1);
+            border-radius: 12px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .tip-box p { color: var(--text-secondary); font-size: 0.9rem; }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header h1 { font-size: 2rem; }
+            .patient-info { gap: 1rem; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .chart-wrapper { height: 280px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🍽️ Báo Cáo Phân Tích Dinh Dưỡng</h1>
+            <p class="subtitle">Theo dõi và đánh giá chế độ dinh dưỡng qua ống thông dạ dày PEG</p>
+            <div class="patient-info">
+                <div class="info-item">
+                    <div class="info-icon">👤</div>
+                    <div>
+                        <div class="info-label">Bệnh nhân</div>
+                        <div class="info-value">Nam, 28 tuổi</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">🏥</div>
+                    <div>
+                        <div class="info-label">Phương thức</div>
+                        <div class="info-value">Sond PEG + Uống</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">📅</div>
+                    <div>
+                        <div class="info-label">Thời gian</div>
+                        <div class="info-value">01/11 - 23/11/2025</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">🍴</div>
+                    <div>
+                        <div class="info-label">Số bữa/ngày</div>
+                        <div class="info-value">6 bữa</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="charts-section">
+            <h2 class="section-title"><span class="section-number">1</span>So Sánh Với Mục Tiêu Dinh Dưỡng</h2>
+            <div class="kpi-grid" id="kpiGrid"></div>
+        </section>
+
+        <section class="charts-section">
+            <h2 class="section-title"><span class="section-number">2</span>Đánh Giá Độ Cân Đối Dinh Dưỡng</h2>
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title"><span class="chart-title-icon">📊</span>Tỷ Lệ Dinh Dưỡng Thực Tế vs Mục Tiêu</h3>
+                    <div class="chart-wrapper"><canvas id="ratioChart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title"><span class="chart-title-icon">🥧</span>Phân Bố Năng Lượng Trung Bình</h3>
+                    <div class="chart-wrapper"><canvas id="pieChart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="charts-section">
+            <h2 class="section-title"><span class="section-number">3</span>Phân Tích Các Ngày Mạnh / Yếu</h2>
+            <div class="analysis-grid" id="dayAnalysis"></div>
+        </section>
+
+        <section class="charts-section">
+            <h2 class="section-title"><span class="section-number">4</span>Phân Tích Xu Hướng Theo Thời Gian</h2>
+            <div class="chart-grid">
+                <div class="chart-card full-width">
+                    <h3 class="chart-title"><span class="chart-title-icon">📈</span>Biến Động Năng Lượng Theo Ngày</h3>
+                    <div class="chart-wrapper tall"><canvas id="lineChart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title"><span class="chart-title-icon">📉</span>So Sánh Với Mục Tiêu Hàng Ngày</h3>
+                    <div class="chart-wrapper"><canvas id="barChart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title"><span class="chart-title-icon">🎯</span>Độ Lệch So Với Mục Tiêu (%)</h3>
+                    <div class="chart-wrapper"><canvas id="deviationChart"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="charts-section">
+            <h2 class="section-title"><span class="section-number">5</span>Mối Quan Hệ Giữa Các Nhóm Dinh Dưỡng</h2>
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title"><span class="chart-title-icon">🔗</span>Tương Quan Chất Béo - Carbs</h3>
+                    <div class="chart-wrapper"><canvas id="scatterChart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title"><span class="chart-title-icon">📐</span>Phân Tích Tương Quan</h3>
+                    <div id="correlationAnalysis"></div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-title"><span class="section-number">6</span>Chiến Lược Cải Thiện Chế Độ Ăn</h2>
+            <div class="recommendations" id="recommendations"></div>
+        </section>
+
+        <section>
+            <h2 class="section-title"><span class="section-number">7</span>Tối Ưu Hóa & Kết Luận</h2>
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title"><span class="chart-title-icon">📋</span>Thống Kê Tổng Hợp</h3>
+                    <table class="stats-table" id="summaryTable"></table>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title"><span class="chart-title-icon">⚡</span>Đề Xuất Điều Chỉnh Bữa Ăn</h3>
+                    <div id="mealAdjustments"></div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>Báo cáo được tạo tự động • Dữ liệu từ 01/11/2025 - 23/11/2025</p>
+            <p>© 2025 Hệ Thống Theo Dõi Dinh Dưỡng</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        // DATA
+        const rawData = [
+            { date: '01/11', fat: 733.78, carbs: 754.69, protein: 358.44 },
+            { date: '02/11', fat: 689.99, carbs: 708.17, protein: 351.59 },
+            { date: '03/11', fat: 710.93, carbs: 766.68, protein: 342.00 },
+            { date: '04/11', fat: 715.15, carbs: 798.95, protein: 351.08 },
+            { date: '05/11', fat: 789.05, carbs: 775.06, protein: 363.17 },
+            { date: '06/11', fat: 627.38, carbs: 749.21, protein: 349.15 },
+            { date: '07/11', fat: 712.34, carbs: 777.11, protein: 332.54 },
+            { date: '08/11', fat: 721.66, carbs: 780.10, protein: 395.54 },
+            { date: '09/11', fat: 792.56, carbs: 775.47, protein: 369.78 },
+            { date: '10/11', fat: 736.22, carbs: 772.81, protein: 399.39 },
+            { date: '11/11', fat: 727.46, carbs: 802.57, protein: 366.58 },
+            { date: '12/11', fat: 733.34, carbs: 809.80, protein: 381.00 },
+            { date: '13/11', fat: 728.80, carbs: 803.34, protein: 382.16 },
+            { date: '14/11', fat: 740.11, carbs: 823.38, protein: 392.21 },
+            { date: '15/11', fat: 728.30, carbs: 789.89, protein: 380.85 },
+            { date: '16/11', fat: 735.46, carbs: 752.22, protein: 397.14 },
+            { date: '17/11', fat: 665.80, carbs: 742.93, protein: 380.79 },
+            { date: '18/11', fat: 701.57, carbs: 823.75, protein: 392.82 },
+            { date: '19/11', fat: 657.49, carbs: 777.82, protein: 379.48 },
+            { date: '20/11', fat: 700.55, carbs: 782.85, protein: 383.91 },
+            { date: '21/11', fat: 752.32, carbs: 781.64, protein: 399.73 },
+            { date: '22/11', fat: 814.58, carbs: 783.87, protein: 397.99 },
+            { date: '23/11', fat: 753.84, carbs: 821.43, protein: 388.96 }
+        ];
+
+        const targets = {
+            totalCalories: 1700,
+            protein: { kcal: 340, percent: 20 },
+            fat: { kcal: 595, percent: 35 },
+            carbs: { kcal: 765, percent: 45 }
+        };
+
+        // Calculate stats
+        let avgFat = 0, avgCarbs = 0, avgProtein = 0, avgTotal = 0;
+        let minTotal = Infinity, maxTotal = -Infinity, worstDay = '', bestDay = '';
+        const dailyTotals = [];
+
+        rawData.forEach(d => {
+            const total = d.fat + d.carbs + d.protein;
+            avgFat += d.fat;
+            avgCarbs += d.carbs;
+            avgProtein += d.protein;
+            avgTotal += total;
+            dailyTotals.push({ ...d, total });
+            if (total < minTotal) { minTotal = total; worstDay = d.date; }
+            if (total > maxTotal) { maxTotal = total; bestDay = d.date; }
+        });
+
+        const n = rawData.length;
+        avgFat /= n; avgCarbs /= n; avgProtein /= n; avgTotal /= n;
+
+        const fatPercent = (avgFat / avgTotal) * 100;
+        const carbsPercent = (avgCarbs / avgTotal) * 100;
+        const proteinPercent = (avgProtein / avgTotal) * 100;
+
+        let sumSq = 0;
+        dailyTotals.forEach(d => sumSq += Math.pow(d.total - avgTotal, 2));
+        const stdDev = Math.sqrt(sumSq / n);
+
+        function calcCorr(x, y) {
+            const sx = x.reduce((a,b)=>a+b,0), sy = y.reduce((a,b)=>a+b,0);
+            const sxy = x.reduce((t,xi,i)=>t+xi*y[i],0);
+            const sx2 = x.reduce((a,b)=>a+b*b,0), sy2 = y.reduce((a,b)=>a+b*b,0);
+            const num = n*sxy - sx*sy;
+            const den = Math.sqrt((n*sx2-sx*sx)*(n*sy2-sy*sy));
+            return den === 0 ? 0 : num/den;
+        }
+
+        const fatCarbsCorr = calcCorr(rawData.map(d=>d.fat), rawData.map(d=>d.carbs));
+        const fatProtCorr = calcCorr(rawData.map(d=>d.fat), rawData.map(d=>d.protein));
+        const carbsProtCorr = calcCorr(rawData.map(d=>d.carbs), rawData.map(d=>d.protein));
+
+        // KPI Cards
+        const kpiGrid = document.getElementById('kpiGrid');
+        const kpis = [
+            { type: 'calories', icon: '🔥', label: 'Tổng Năng Lượng TB', value: Math.round(avgTotal), unit: 'kcal', target: targets.totalCalories, targetLabel: 'Mục tiêu: 1700 kcal' },
+            { type: 'protein', icon: '🥩', label: 'Protein TB', value: Math.round(avgProtein), unit: 'kcal', target: targets.protein.kcal, targetLabel: 'Mục tiêu: 340 kcal (20%)' },
+            { type: 'fat', icon: '🥑', label: 'Chất Béo TB', value: Math.round(avgFat), unit: 'kcal', target: targets.fat.kcal, targetLabel: 'Mục tiêu: 595 kcal (35%)' },
+            { type: 'carbs', icon: '🍚', label: 'Carbohydrate TB', value: Math.round(avgCarbs), unit: 'kcal', target: targets.carbs.kcal, targetLabel: 'Mục tiêu: 765 kcal (45%)' }
+        ];
+
+        kpis.forEach(kpi => {
+            const pct = (kpi.value / kpi.target) * 100;
+            let status, cls;
+            if (pct > 110) { status = 'Vượt ' + Math.round(pct-100) + '%'; cls = 'over'; }
+            else if (pct < 90) { status = 'Thiếu ' + Math.round(100-pct) + '%'; cls = 'under'; }
+            else { status = 'Đạt mục tiêu'; cls = 'optimal'; }
+
+            kpiGrid.innerHTML += `
+                <div class="kpi-card ${kpi.type}">
+                    <span class="kpi-status ${cls}">${status}</span>
+                    <div class="kpi-icon">${kpi.icon}</div>
+                    <div class="kpi-label">${kpi.label}</div>
+                    <div class="kpi-value">${kpi.value} <small>${kpi.unit}</small></div>
+                    <div class="kpi-target">${kpi.targetLabel}</div>
+                    <div class="progress-bar"><div class="progress-fill ${cls}" style="width:${Math.min(pct,100)}%"></div></div>
+                </div>`;
+        });
+
+        // Day Analysis
+        const sortedDev = [...dailyTotals].sort((a,b) => Math.abs(a.total - targets.totalCalories) - Math.abs(b.total - targets.totalCalories));
+        const bestDays = sortedDev.slice(0,3);
+        const worstDays = sortedDev.slice(-3).reverse();
+
+        document.getElementById('dayAnalysis').innerHTML = `
+            <div class="analysis-card">
+                <div class="analysis-header"><div class="analysis-icon best">✓</div><div class="analysis-title">Ngày Đạt Mục Tiêu Tốt Nhất</div></div>
+                <div>${bestDays.map(d=>`<div class="analysis-item"><span class="analysis-item-label">${d.date}</span><span class="analysis-item-value positive">${Math.round(d.total)} kcal</span></div>`).join('')}</div>
+            </div>
+            <div class="analysis-card">
+                <div class="analysis-header"><div class="analysis-icon worst">⚠</div><div class="analysis-title">Ngày Lệch Xa Mục Tiêu</div></div>
+                <div>${worstDays.map(d=>`<div class="analysis-item"><span class="analysis-item-label">${d.date}</span><span class="analysis-item-value negative">${Math.round(d.total)} kcal (${d.total>targets.totalCalories?'+':''}${Math.round(d.total-targets.totalCalories)})</span></div>`).join('')}</div>
+            </div>
+            <div class="analysis-card">
+                <div class="analysis-header"><div class="analysis-icon trend">📊</div><div class="analysis-title">Thống Kê Biến Động</div></div>
+                <div>
+                    <div class="analysis-item"><span class="analysis-item-label">Trung bình</span><span class="analysis-item-value">${Math.round(avgTotal)} kcal</span></div>
+                    <div class="analysis-item"><span class="analysis-item-label">Độ lệch chuẩn</span><span class="analysis-item-value warning">±${Math.round(stdDev)} kcal</span></div>
+                    <div class="analysis-item"><span class="analysis-item-label">Biên độ</span><span class="analysis-item-value">${Math.round(minTotal)} - ${Math.round(maxTotal)} kcal</span></div>
+                </div>
+            </div>`;
+
+        // Correlation Analysis
+        function corrLevel(r) {
+            const abs = Math.abs(r);
+            if (abs > 0.7) return { l: 'Mạnh', c: 'strong' };
+            if (abs > 0.4) return { l: 'Trung bình', c: 'moderate' };
+            return { l: 'Yếu', c: 'weak' };
+        }
+
+        const corrs = [
+            { label: 'Chất Béo ↔ Carbs', val: fatCarbsCorr },
+            { label: 'Chất Béo ↔ Protein', val: fatProtCorr },
+            { label: 'Carbs ↔ Protein', val: carbsProtCorr }
+        ];
+
+        document.getElementById('correlationAnalysis').innerHTML = corrs.map(c => {
+            const lv = corrLevel(c.val);
+            const dir = c.val > 0 ? 'Thuận' : 'Nghịch';
+            return `<div class="correlation-item"><span>${c.label}</span><div><span class="correlation-badge ${lv.c}">${lv.l} (${dir})</span> <span style="color:#7f8c8d">r=${c.val.toFixed(3)}</span></div></div>`;
+        }).join('') + `<div class="note-box"><p><strong>Phân tích:</strong> Khi tăng chất béo, lượng carbohydrate ${fatCarbsCorr > 0 ? 'có xu hướng tăng theo' : 'có xu hướng giảm'} (r = ${fatCarbsCorr.toFixed(3)}). Điều này cho thấy ${Math.abs(fatCarbsCorr) > 0.5 ? 'mối liên hệ rõ ràng' : 'không có mối liên hệ mạnh'} giữa hai nhóm dinh dưỡng.</p></div>`;
+
+        // Recommendations
+        const recs = [];
+        const fatDiff = avgFat - targets.fat.kcal;
+        if (fatDiff > 50) recs.push({ p: 'high', i: '🥑', t: 'Giảm Lượng Chất Béo', d: `Lượng chất béo (${Math.round(avgFat)} kcal) vượt mục tiêu ${Math.round(fatDiff)} kcal (~${Math.round(fatDiff/9)}g). Giảm dầu/mỡ trong súp hoặc chọn sữa ít béo.` });
+        const protDiff = avgProtein - targets.protein.kcal;
+        if (protDiff > 30) recs.push({ p: 'medium', i: '🥩', t: 'Protein Cao Hơn Mục Tiêu', d: `Protein (${Math.round(avgProtein)} kcal) cao hơn ${Math.round(protDiff)} kcal. Tích cực cho phục hồi cơ, nhưng cần theo dõi thận.` });
+        const carbDiff = avgCarbs - targets.carbs.kcal;
+        if (carbDiff > 30) recs.push({ p: 'medium', i: '🍚', t: 'Điều Chỉnh Carbohydrate', d: `Carbs (${Math.round(avgCarbs)} kcal) cao hơn ${Math.round(carbDiff)} kcal. Giảm tinh bột hoặc chọn trái cây ít đường.` });
+        const totalDiff = avgTotal - targets.totalCalories;
+        if (Math.abs(totalDiff) > 100) recs.push({ p: totalDiff > 0 ? 'high' : 'medium', i: '🔥', t: totalDiff > 0 ? 'Giảm Tổng Năng Lượng' : 'Tăng Tổng Năng Lượng', d: `Năng lượng ${totalDiff > 0 ? 'vượt' : 'thiếu'} ${Math.round(Math.abs(totalDiff))} kcal. ${totalDiff > 0 ? 'Giảm phần ăn hoặc chọn thực phẩm ít calo.' : 'Tăng phần ăn hoặc thêm thực phẩm giàu năng lượng.'}` });
+        if (stdDev > 80) recs.push({ p: 'medium', i: '📊', t: 'Ổn Định Chế Độ Ăn', d: `Biến động cao (±${Math.round(stdDev)} kcal). Duy trì bữa ăn đều đặn hơn.` });
+        recs.push({ p: 'low', i: '✅', t: 'Điểm Tích Cực', d: 'Chế độ 6 bữa/ngày phù hợp cho PEG. Đa dạng nguồn (súp, sữa, trái cây, sinh tố) đảm bảo vi chất.' });
+
+        document.getElementById('recommendations').innerHTML = recs.map(r => `
+            <div class="recommendation-item">
+                <div class="recommendation-icon priority-${r.p}">${r.i}</div>
+                <div class="recommendation-content"><h4>${r.t}</h4><p>${r.d}</p></div>
+            </div>`).join('');
+
+        // Summary Table
+        const rows = [
+            ['Số ngày theo dõi', n + ' ngày', '-'],
+            ['Tổng năng lượng TB', Math.round(avgTotal) + ' kcal', '1700 kcal'],
+            ['Protein TB', Math.round(avgProtein) + ' kcal (' + proteinPercent.toFixed(1) + '%)', '340 kcal (20%)'],
+            ['Chất béo TB', Math.round(avgFat) + ' kcal (' + fatPercent.toFixed(1) + '%)', '595 kcal (35%)'],
+            ['Carbohydrate TB', Math.round(avgCarbs) + ' kcal (' + carbsPercent.toFixed(1) + '%)', '765 kcal (45%)'],
+            ['Ngày cao nhất', bestDay + ' (' + Math.round(maxTotal) + ' kcal)', '-'],
+            ['Ngày thấp nhất', worstDay + ' (' + Math.round(minTotal) + ' kcal)', '-'],
+            ['Độ lệch chuẩn', '±' + Math.round(stdDev) + ' kcal', '-']
+        ];
+        document.getElementById('summaryTable').innerHTML = '<thead><tr><th>Chỉ Số</th><th>Giá Trị</th><th>Mục Tiêu</th></tr></thead><tbody>' + rows.map(r => `<tr><td>${r[0]}</td><td><strong>${r[1]}</strong></td><td>${r[2]}</td></tr>`).join('') + '</tbody>';
+
+        // Meal Adjustments
+        const fatEx = Math.round((avgFat - targets.fat.kcal) / 9);
+        const protEx = Math.round((avgProtein - targets.protein.kcal) / 4);
+        const carbEx = Math.round((avgCarbs - targets.carbs.kcal) / 4);
+
+        document.getElementById('mealAdjustments').innerHTML = `
+            <div style="margin-bottom:1.5rem"><h4>Điều Chỉnh Đề Xuất</h4><p style="color:var(--text-secondary);font-size:0.9rem">Dựa trên phân tích 23 ngày</p></div>
+            <div class="analysis-item"><span class="analysis-item-label">🥑 Chất béo</span><span class="analysis-item-value ${fatEx>0?'negative':'positive'}">${fatEx>0?'Giảm ~'+fatEx+'g/ngày':fatEx<-5?'Tăng ~'+Math.abs(fatEx)+'g/ngày':'Đạt chuẩn ✓'}</span></div>
+            <div class="analysis-item"><span class="analysis-item-label">🥩 Protein</span><span class="analysis-item-value ${protEx<-5?'negative':'positive'}">${protEx>5?'Cao hơn '+protEx+'g (OK)':protEx<-5?'Thiếu ~'+Math.abs(protEx)+'g/ngày':'Đạt chuẩn ✓'}</span></div>
+            <div class="analysis-item"><span class="analysis-item-label">🍚 Carbohydrate</span><span class="analysis-item-value ${carbEx>10?'warning':'positive'}">${carbEx>10?'Giảm ~'+carbEx+'g/ngày':carbEx<-10?'Tăng ~'+Math.abs(carbEx)+'g/ngày':'Đạt chuẩn ✓'}</span></div>
+            <div class="tip-box"><p><strong>💡 Gợi ý thực đơn:</strong><br>• <strong>Súp xay:</strong> Giảm 1 thìa dầu/bữa để giảm ~5g béo<br>• <strong>Sữa:</strong> Chọn loại ít béo/giàu protein<br>• <strong>Sinh tố:</strong> Thêm 1 thìa bột protein whey nếu thiếu đạm</p></div>`;
+
+        // CHARTS
+        Chart.defaults.color = '#95a5a6';
+        Chart.defaults.borderColor = 'rgba(255,255,255,0.08)';
+
+        // Ratio Bar Chart
+        new Chart(document.getElementById('ratioChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Protein', 'Chất Béo', 'Carbs'],
+                datasets: [{
+                    label: 'Thực tế (%)',
+                    data: [proteinPercent.toFixed(1), fatPercent.toFixed(1), carbsPercent.toFixed(1)],
+                    backgroundColor: ['rgba(52,152,219,0.8)', 'rgba(155,89,182,0.8)', 'rgba(39,174,96,0.8)'],
+                    borderRadius: 8
+                }, {
+                    label: 'Mục tiêu (%)',
+                    data: [20, 35, 45],
+                    backgroundColor: ['rgba(52,152,219,0.3)', 'rgba(155,89,182,0.3)', 'rgba(39,174,96,0.3)'],
+                    borderColor: ['rgba(52,152,219,1)', 'rgba(155,89,182,1)', 'rgba(39,174,96,1)'],
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
+                scales: { y: { beginAtZero: true, max: 50, ticks: { callback: v => v + '%' } } }
+            }
+        });
+
+        // Pie Chart
+        new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Chất Béo', 'Carbs', 'Protein'],
+                datasets: [{
+                    data: [Math.round(avgFat), Math.round(avgCarbs), Math.round(avgProtein)],
+                    backgroundColor: ['rgba(155,89,182,0.9)', 'rgba(39,174,96,0.9)', 'rgba(52,152,219,0.9)'],
+                    borderWidth: 2,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: { legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } } }
+            }
+        });
+
+        // Line Chart
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: {
+                labels: rawData.map(d => d.date),
+                datasets: [
+                    { label: 'Tổng Năng Lượng', data: dailyTotals.map(d => Math.round(d.total)), borderColor: '#e67e22', backgroundColor: 'rgba(230,126,34,0.1)', fill: true, tension: 0.4, pointRadius: 4 },
+                    { label: 'Chất Béo', data: rawData.map(d => Math.round(d.fat)), borderColor: '#9b59b6', tension: 0.4, pointRadius: 3 },
+                    { label: 'Carbs', data: rawData.map(d => Math.round(d.carbs)), borderColor: '#27ae60', tension: 0.4, pointRadius: 3 },
+                    { label: 'Protein', data: rawData.map(d => Math.round(d.protein)), borderColor: '#3498db', tension: 0.4, pointRadius: 3 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'index' },
+                plugins: { legend: { position: 'top' } },
+                scales: { y: { beginAtZero: false, min: 300, ticks: { callback: v => v + ' kcal' } } }
+            }
+        });
+
+        // Bar Chart
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: rawData.map(d => d.date),
+                datasets: [{
+                    label: 'Thực tế',
+                    data: dailyTotals.map(d => Math.round(d.total)),
+                    backgroundColor: dailyTotals.map(d => d.total > 1870 ? 'rgba(231,76,60,0.8)' : d.total < 1530 ? 'rgba(241,196,15,0.8)' : 'rgba(39,174,96,0.8)'),
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { min: 1500, max: 2200 }, x: { ticks: { maxRotation: 45, minRotation: 45 } } }
+            }
+        });
+
+        // Deviation Chart
+        const devs = dailyTotals.map(d => (((d.total - 1700) / 1700) * 100).toFixed(1));
+        new Chart(document.getElementById('deviationChart'), {
+            type: 'bar',
+            data: {
+                labels: rawData.map(d => d.date),
+                datasets: [{
+                    label: 'Độ lệch (%)',
+                    data: devs,
+                    backgroundColor: devs.map(d => d > 0 ? 'rgba(231,76,60,0.8)' : 'rgba(241,196,15,0.8)'),
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { ticks: { callback: v => v + '%' } }, x: { ticks: { maxRotation: 45, minRotation: 45 } } }
+            }
+        });
+
+        // Scatter Chart
+        new Chart(document.getElementById('scatterChart'), {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Fat vs Carbs',
+                    data: rawData.map(d => ({ x: d.fat, y: d.carbs })),
+                    backgroundColor: 'rgba(52,152,219,0.7)',
+                    borderColor: 'rgba(52,152,219,1)',
+                    pointRadius: 8,
+                    pointHoverRadius: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { title: { display: true, text: 'Chất Béo (kcal)' } },
+                    y: { title: { display: true, text: 'Carbs (kcal)' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

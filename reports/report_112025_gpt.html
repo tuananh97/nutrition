@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nutri Dashboard - Tháng 11 (Data nhúng)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Font & Style -->
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #0f172a;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+      --warning: #facc15;
+      --success: #4ade80;
+      --radius: 18px;
+      --shadow: 0 18px 30px rgba(15, 23, 42, 0.75);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0, #020617 55%, #000 100%);
+      color: var(--text);
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: conic-gradient(from 180deg, #38bdf8, #22c55e, #facc15, #38bdf8);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.9);
+    }
+
+    header p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      max-width: 460px;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.12), transparent 55%),
+        var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card h3 {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .card-main {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .card-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .chart-card {
+      height: 320px;
+    }
+
+    .chart-title {
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .chart-subtitle {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 260px !important;
+    }
+
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .footer-note strong {
+      color: var(--accent);
+    }
+
+    /* Tabs & micronutrient table */
+    .tabs {
+      display: inline-flex;
+      gap: 8px;
+      margin-top: 6px;
+      border-radius: 999px;
+      padding: 3px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .tab-button {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.78rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .tab-button.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tab-panel {
+      display: none;
+      margin-top: 8px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .micro-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+
+    .micro-table th,
+    .micro-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .micro-table th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      border: 1px solid transparent;
+    }
+
+    .status-pill.success {
+      background: rgba(34, 197, 94, 0.16);
+      color: #bbf7d0;
+      border-color: rgba(34, 197, 94, 0.7);
+    }
+
+    .status-pill.warning {
+      background: rgba(250, 204, 21, 0.16);
+      color: #fef3c7;
+      border-color: rgba(250, 204, 21, 0.7);
+    }
+
+    .status-pill.danger {
+      background: rgba(248, 113, 113, 0.16);
+      color: #fee2e2;
+      border-color: rgba(248, 113, 113, 0.7);
+    }
+
+    .status-note {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    @media (max-width: 900px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1><span class="logo-dot"></span>Nutri Dashboard – Tháng 11</h1>
+        <p>
+          Dữ liệu được nhúng trực tiếp từ file CSV tháng 11: theo dõi năng lượng, P–L–G, chất xơ, đường đơn/tinh bột,
+          ngày mạnh/yếu và vi chất so với ngưỡng tham khảo cho nam trưởng thành.
+        </p>
+      </div>
+      <div>
+        <span class="pill">Nguồn: my_nutri_thang11 - Data.csv (30 ngày)</span>
+      </div>
+    </header>
+
+    <!-- SUMMARY CARDS -->
+    <div class="grid">
+      <div class="card">
+        <h3>Năng lượng trung bình</h3>
+        <div class="card-main" id="avgEnergy">– kcal</div>
+        <div class="card-sub" id="energyDiff">So với mục tiêu 1700 kcal: –</div>
+      </div>
+
+      <div class="card">
+        <h3>Macro trung bình (g/ngày)</h3>
+        <div class="card-main" id="avgMacros">–</div>
+        <div class="card-sub" id="macroDiff">So với mục tiêu: –</div>
+      </div>
+
+      <div class="card">
+        <h3>Tỷ lệ % năng lượng P–L–G</h3>
+        <div class="card-main" id="macroRatio">–</div>
+        <div class="card-sub">Mục tiêu: 45% Carb · 35% Fat · 20% Protein</div>
+      </div>
+
+      <div class="card">
+        <h3>Ngày mạnh / trung bình / yếu</h3>
+        <div class="card-main" id="dayQuality">–</div>
+        <div class="card-sub">Dựa trên độ lệch % năng lượng & macro so với mục tiêu</div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts-grid">
+      <div class="card chart-card">
+        <div class="chart-title">Năng lượng theo ngày</div>
+        <div class="chart-subtitle">Đường xanh: thực tế · Đường đỏ chấm: mục tiêu 1700 kcal</div>
+        <canvas id="energyChart"></canvas>
+      </div>
+
+      <div class="card chart-card">
+        <div class="chart-title">Tỷ lệ P–L–G trung bình</div>
+        <div class="chart-subtitle">Phân bổ % năng lượng từ Protein – Lipid – Carb</div>
+        <canvas id="macroRatioChart"></canvas>
+      </div>
+
+      <div class="card chart-card">
+        <div class="chart-title">Macro (g) từng ngày</div>
+        <div class="chart-subtitle">Protein – Lipid – Carb dạng stacked</div>
+        <canvas id="macroChart"></canvas>
+      </div>
+
+      <div class="card chart-card">
+        <div class="chart-title">Độ lệch dinh dưỡng & phân loại ngày</div>
+        <div class="chart-subtitle">Điểm trung bình lệch % năng lượng & macro</div>
+        <canvas id="dayTypeChart"></canvas>
+      </div>
+
+      <div class="card chart-card">
+        <div class="chart-title">Đường đơn vs Tinh bột</div>
+        <div class="chart-subtitle">So sánh Sugars (g) và Starch (g) theo ngày</div>
+        <canvas id="sugarStarchChart"></canvas>
+      </div>
+    </div>
+
+    <!-- MICRONUTRIENTS TAB -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="chart-title">Vi chất (trung bình mỗi ngày)</div>
+      <div class="chart-subtitle">
+        So sánh với ngưỡng tham khảo chung cho nam trưởng thành (mang tính định hướng, không thay thế tư vấn y khoa).
+      </div>
+      <div class="tabs">
+        <button class="tab-button active" data-tab="vitamins">Vitamin</button>
+        <button class="tab-button" data-tab="minerals">Khoáng chất</button>
+      </div>
+
+      <div id="tab-vitamins" class="tab-panel active">
+        <table class="micro-table">
+          <thead>
+            <tr>
+              <th>Vitamin</th>
+              <th>Khẩu phần TB</th>
+              <th>Ngưỡng tham khảo</th>
+              <th>% so với chuẩn</th>
+              <th>Đánh giá</th>
+            </tr>
+          </thead>
+          <tbody id="vitaminBody"></tbody>
+        </table>
+      </div>
+
+      <div id="tab-minerals" class="tab-panel">
+        <table class="micro-table">
+          <thead>
+            <tr>
+              <th>Khoáng chất</th>
+              <th>Khẩu phần TB</th>
+              <th>Ngưỡng tham khảo</th>
+              <th>% so với chuẩn</th>
+              <th>Đánh giá</th>
+            </tr>
+          </thead>
+          <tbody id="mineralBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="footer-note">
+      ⚠️ Dashboard giúp theo dõi & trực quan hóa dinh dưỡng. Điều chỉnh thực tế (tăng/giảm kcal, thay đổi công thức nuôi qua sond…)
+      nên trao đổi với <strong>bác sĩ / chuyên gia dinh dưỡng lâm sàng</strong>.
+    </p>
+  </div>
+
+<script>
+  // ====== DATA NHÚNG TỪ CSV (30 ngày) ======
+  const chartData = {
+    labels: [
+      "01/11","02/11","03/11","04/11","05/11","06/11","07/11","08/11","09/11","10/11",
+      "11/11","12/11","13/11","14/11","15/11","16/11","17/11","18/11","19/11","20/11",
+      "21/11","22/11","23/11","24/11","25/11","26/11","27/11","28/11","29/11","30/11"
+    ],
+    energy: [
+      1847.1,1749.8,1819.9,1865.5,1927.5,1726.0,1822.0,1897.1,1937.7,1908.4,
+      1896.3,1924.0,1914.1,1955.8,1899.1,1884.7,1789.2,1918.0,1814.8,1867.1,
+      1933.6,1996.7,1964.3,1834.6,1958.3,1905.9,1872.9,1926.6,1919.8,1874.6
+    ],
+    protein: [
+      92.9,90.7,91.3,91.0,96.0,90.0,89.1,101.1,96.7,100.4,
+      93.6,97.4,97.0,99.1,96.6,100.8,98.2,99.2,97.9,99.1,
+      102.5,106.4,100.4,100.4,100.8,96.8,96.9,93.7,91.9,97.8
+    ],
+    fat: [
+      83.3,78.7,81.8,81.8,90.0,71.2,81.5,82.5,91.0,84.6,
+      83.8,84.3,84.0,85.2,83.9,84.7,76.4,80.6,75.4,80.0,
+      87.0,93.9,87.2,82.3,85.4,84.9,78.1,85.0,87.7,80.0
+    ],
+    carbs: [
+      190.3,185.9,199.8,208.2,202.8,196.2,202.6,205.2,204.0,202.1,
+      210.7,217.6,210.3,215.5,205.0,195.7,199.0,215.8,208.3,205.9,
+      211.5,212.4,224.1,200.6,220.7,206.7,209.1,213.3,217.0,209.7
+    ],
+    fiber: [
+      23.9,27.5,30.6,30.7,28.1,28.5,34.4,32.6,33.7,32.3,
+      34.4,36.9,34.1,33.7,29.5,29.8,35.2,31.6,32.3,29.0,
+      37.2,43.6,36.6,37.6,35.0,29.4,28.6,28.4,36.4,30.3
+    ],
+    sugars: [
+      46.2,47.2,57.9,64.1,60.6,57.7,48.2,58.5,58.0,55.9,
+      61.8,57.5,63.4,59.5,64.8,44.9,50.8,56.9,60.9,53.5,
+      53.4,45.8,72.3,45.8,63.6,61.5,62.5,70.1,60.2,58.0
+    ],
+    starch: [
+      51.0,57.9,48.7,58.4,53.3,49.0,66.8,57.3,46.5,50.2,
+      55.0,64.6,55.2,65.8,55.2,65.4,56.9,68.2,57.7,54.8,
+      63.1,57.6,55.3,55.1,57.6,61.2,58.2,59.9,64.6,59.1
+    ]
+  };
+
+  const targets = {
+    energy: 1700,
+    protein: 75,
+    fat: 65,
+    carbs: 190,
+    fiber: 25
+  };
+
+  // Vi chất – trung bình/ngày (tính sẵn từ CSV)
+  const microData = {
+    vitamins: [
+      { name: "Vitamin A", intake: 1318.6, unit: "µg", ref: 900, mode: "rda", refLabel: "RDA ~900 µg" },
+      { name: "Vitamin C", intake: 202.1, unit: "mg", ref: 90, mode: "rda", refLabel: "RDA ~90 mg" },
+      { name: "Vitamin D", intake: 461.5, unit: "IU", ref: 600, mode: "rda", refLabel: "RDA ~600 IU" },
+      { name: "Vitamin E", intake: 15.7, unit: "mg", ref: 15, mode: "rda", refLabel: "RDA ~15 mg" },
+      { name: "Vitamin K", intake: 233.8, unit: "µg", ref: 120, mode: "rda", refLabel: "AI ~120 µg" }
+    ],
+    minerals: [
+      { name: "Calcium", intake: 1205.8, unit: "mg", ref: 1000, mode: "rda", refLabel: "RDA ~1000 mg" },
+      { name: "Magnesium", intake: 496.5, unit: "mg", ref: 400, mode: "rda", refLabel: "RDA ~400 mg" },
+      { name: "Iron", intake: 14.5, unit: "mg", ref: 8, mode: "rda", refLabel: "RDA ~8 mg" },
+      { name: "Zinc", intake: 13.8, unit: "mg", ref: 11, mode: "rda", refLabel: "RDA ~11 mg" },
+      { name: "Selenium", intake: 99.7, unit: "µg", ref: 55, mode: "rda", refLabel: "RDA ~55 µg" },
+      { name: "Potassium", intake: 4128.3, unit: "mg", ref: 3400, mode: "ai", refLabel: "AI ~3400 mg" },
+      { name: "Sodium", intake: 1595.8, unit: "mg", ref: 2300, mode: "upper", refLabel: "UL 2300 mg (tối đa)" }
+    ]
+  };
+
+  const charts = {
+    energy: null,
+    macroRatio: null,
+    macro: null,
+    dayType: null,
+    sugarStarch: null
+  };
+
+  function avg(arr) {
+    if (!arr.length) return 0;
+    return arr.reduce((a, b) => a + b, 0) / arr.length;
+  }
+
+  function buildDashboard() {
+    const labels = chartData.labels;
+    const energy = chartData.energy;
+    const protein = chartData.protein;
+    const fat = chartData.fat;
+    const carbs = chartData.carbs;
+    const fiber = chartData.fiber;
+
+    const carbRatio = [];
+    const proteinRatio = [];
+    const fatRatio = [];
+    const scores = [];
+    const dayType = [];
+
+    labels.forEach((_, i) => {
+      const e = energy[i];
+      const p = protein[i];
+      const f = fat[i];
+      const c = carbs[i];
+
+      const cK = c * 4;
+      const pK = p * 4;
+      const fK = f * 9;
+
+      carbRatio.push(e ? (cK / e) * 100 : 0);
+      proteinRatio.push(e ? (pK / e) * 100 : 0);
+      fatRatio.push(e ? (fK / e) * 100 : 0);
+
+      const devE = Math.abs(e - targets.energy) / targets.energy * 100;
+      const devP = Math.abs(p - targets.protein) / targets.protein * 100;
+      const devF = Math.abs(f - targets.fat) / targets.fat * 100;
+      const devC = Math.abs(c - targets.carbs) / targets.carbs * 100;
+      const score = (devE + devP + devF + devC) / 4;
+      scores.push(score);
+
+      if (score <= 10) dayType.push("Mạnh (ổn định)");
+      else if (score >= 20) dayType.push("Yếu (lệch nhiều)");
+      else dayType.push("Trung bình");
+    });
+
+    // Trung bình
+    const avgEnergy = avg(energy);
+    const avgProtein = avg(protein);
+    const avgFat = avg(fat);
+    const avgCarbs = avg(carbs);
+    const avgFiber = avg(fiber);
+    const avgCarbRatio = avg(carbRatio);
+    const avgProteinRatio = avg(proteinRatio);
+    const avgFatRatio = avg(fatRatio);
+
+    // Đếm ngày
+    const strongDays = dayType.filter(d => d === "Mạnh (ổn định)").length;
+    const weakDays = dayType.filter(d => d === "Yếu (lệch nhiều)").length;
+    const midDays = dayType.filter(d => d === "Trung bình").length;
+
+    // Cập nhật summary cards
+    document.getElementById("avgEnergy").textContent = avgEnergy.toFixed(0) + " kcal";
+    const diffEnergyPct = (avgEnergy - targets.energy) / targets.energy * 100;
+    const energyDiffText =
+      (diffEnergyPct >= 0 ? "+" : "") + diffEnergyPct.toFixed(1) + "% (≈ " +
+      (avgEnergy - targets.energy).toFixed(0) + " kcal/ngày)";
+    document.getElementById("energyDiff").textContent = "So với mục tiêu 1700 kcal: " + energyDiffText;
+
+    document.getElementById("avgMacros").textContent =
+      avgProtein.toFixed(1) + " g P · " +
+      avgFat.toFixed(1) + " g L · " +
+      avgCarbs.toFixed(1) + " g G · " +
+      avgFiber.toFixed(1) + " g xơ";
+
+    const diffP = (avgProtein - targets.protein) / targets.protein * 100;
+    const diffF = (avgFat - targets.fat) / targets.fat * 100;
+    const diffC = (avgCarbs - targets.carbs) / targets.carbs * 100;
+    const diffFib = (avgFiber - targets.fiber) / targets.fiber * 100;
+    document.getElementById("macroDiff").textContent =
+      "P: " + (diffP >= 0 ? "+" : "") + diffP.toFixed(1) + "% · " +
+      "L: " + (diffF >= 0 ? "+" : "") + diffF.toFixed(1) + "% · " +
+      "G: " + (diffC >= 0 ? "+" : "") + diffC.toFixed(1) + "% · " +
+      "Xơ: " + (diffFib >= 0 ? "+" : "") + diffFib.toFixed(1) + "%";
+
+    document.getElementById("macroRatio").textContent =
+      avgCarbRatio.toFixed(1) + "% Carb · " +
+      avgFatRatio.toFixed(1) + "% Fat · " +
+      avgProteinRatio.toFixed(1) + "% Protein";
+
+    document.getElementById("dayQuality").textContent =
+      strongDays + " mạnh · " + midDays + " TB · " + weakDays + " yếu";
+
+    // Vẽ chart
+    drawEnergyChart(labels, energy);
+    drawMacroRatioChart(avgCarbRatio, avgFatRatio, avgProteinRatio);
+    drawMacroChart(labels, protein, fat, carbs);
+    drawDayTypeChart(labels, scores, dayType);
+    drawSugarStarchChart(labels, chartData.sugars, chartData.starch);
+
+    // Vi chất
+    renderMicroTables();
+    setupMicroTabs();
+  }
+
+  function drawEnergyChart(labels, energy) {
+    const ctx = document.getElementById("energyChart").getContext("2d");
+    if (charts.energy) charts.energy.destroy();
+    charts.energy = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Năng lượng (kcal)",
+            data: energy,
+            borderColor: "#38bdf8",
+            backgroundColor: "rgba(56, 189, 248, 0.16)",
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3,
+            pointHoverRadius: 4
+          },
+          {
+            label: "Mục tiêu 1700 kcal",
+            data: labels.map(() => 1700),
+            borderColor: "#f97373",
+            borderDash: [6, 4],
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: "#e5e7eb", font: { size: 11 } } }
+        },
+        scales: {
+          x: { ticks: { color: "#9ca3af", font: { size: 10 } } },
+          y: { ticks: { color: "#9ca3af", font: { size: 10 } } }
+        }
+      }
+    });
+  }
+
+  function drawMacroRatioChart(carbPct, fatPct, proteinPct) {
+    const ctx = document.getElementById("macroRatioChart").getContext("2d");
+    if (charts.macroRatio) charts.macroRatio.destroy();
+    charts.macroRatio = new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels: ["Carb (%)", "Fat (%)", "Protein (%)"],
+        datasets: [{
+          data: [carbPct, fatPct, proteinPct],
+          backgroundColor: ["#38bdf8", "#f97373", "#4ade80"],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: "#e5e7eb", font: { size: 11 } } }
+        },
+        cutout: "60%"
+      }
+    });
+  }
+
+  function drawMacroChart(labels, protein, fat, carbs) {
+    const ctx = document.getElementById("macroChart").getContext("2d");
+    if (charts.macro) charts.macro.destroy();
+    charts.macro = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          { label: "Protein (g)", data: protein, backgroundColor: "rgba(74,222,128,0.85)", stack: "stack1" },
+          { label: "Fat (g)", data: fat, backgroundColor: "rgba(248,113,113,0.9)", stack: "stack1" },
+          { label: "Carb (g)", data: carbs, backgroundColor: "rgba(56,189,248,0.9)", stack: "stack1" }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: "#e5e7eb", font: { size: 11 } } }
+        },
+        scales: {
+          x: { stacked: true, ticks: { color: "#9ca3af", font: { size: 10 } } },
+          y: { stacked: true, ticks: { color: "#9ca3af", font: { size: 10 } } }
+        }
+      }
+    });
+  }
+
+  function drawDayTypeChart(labels, scores, dayType) {
+    const ctx = document.getElementById("dayTypeChart").getContext("2d");
+    if (charts.dayType) charts.dayType.destroy();
+    const colors = dayType.map(t => {
+      if (t === "Mạnh (ổn định)") return "rgba(74,222,128,0.9)";
+      if (t === "Yếu (lệch nhiều)") return "rgba(248,113,113,0.95)";
+      return "rgba(250,204,21,0.95)";
+    });
+
+    charts.dayType = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{
+          label: "Độ lệch trung bình (%) so với mục tiêu",
+          data: scores,
+          backgroundColor: colors
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: "#e5e7eb", font: { size: 11 } } },
+          tooltip: {
+            callbacks: {
+              afterBody: (items) => {
+                const i = items[0].dataIndex;
+                return "Phân loại: " + dayType[i];
+              }
+            }
+          }
+        },
+        scales: {
+          x: { ticks: { color: "#9ca3af", font: { size: 10 } } },
+          y: { ticks: { color: "#9ca3af", font: { size: 10 } } }
+        }
+      }
+    });
+  }
+
+  function drawSugarStarchChart(labels, sugars, starch) {
+    const ctx = document.getElementById("sugarStarchChart").getContext("2d");
+    if (charts.sugarStarch) charts.sugarStarch.destroy();
+    charts.sugarStarch = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Đường đơn (Sugars, g)",
+            data: sugars,
+            borderColor: "#f97373",
+            backgroundColor: "rgba(248,113,113,0.20)",
+            fill: true,
+            tension: 0.3,
+            pointRadius: 2,
+            pointHoverRadius: 4
+          },
+          {
+            label: "Tinh bột (Starch, g)",
+            data: starch,
+            borderColor: "#38bdf8",
+            backgroundColor: "rgba(56,189,248,0.12)",
+            fill: false,
+            tension: 0.3,
+            pointRadius: 2,
+            pointHoverRadius: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: "#e5e7eb", font: { size: 11 } } }
+        },
+        scales: {
+          x: { ticks: { color: "#9ca3af", font: { size: 10 } } },
+          y: { ticks: { color: "#9ca3af", font: { size: 10 } } }
+        }
+      }
+    });
+  }
+
+  // ====== MICRONUTRIENTS TABLE ======
+  function getMicroStatus(item) {
+    const x = item.intake;
+    const r = item.ref || 0;
+    let pct = r ? x / r * 100 : 0;
+    let status = "";
+    let note = "";
+    let cls = "";
+
+    if (item.mode === "upper") {
+      if (pct < 70) {
+        status = "Tốt";
+        note = "Thấp hơn khá xa giới hạn tối đa.";
+        cls = "success";
+      } else if (pct <= 100) {
+        status = "Cận trên";
+        note = "Tiệm cận ngưỡng tối đa, nên theo dõi.";
+        cls = "warning";
+      } else {
+        status = "Cao";
+        note = "Vượt quá giới hạn khuyến nghị, nên giảm.";
+        cls = "danger";
+      }
+    } else if (item.mode === "ai") {
+      if (pct >= 100) {
+        status = "Đạt/nhỉnh hơn";
+        note = "Đã đạt hoặc vượt mức gợi ý.";
+        cls = "success";
+      } else if (pct >= 80) {
+        status = "Tiệm cận";
+        note = "Gần đạt AI, có thể cải thiện thêm.";
+        cls = "warning";
+      } else {
+        status = "Có thể thiếu";
+        note = "Dưới nhiều so với AI, nên tăng.";
+        cls = "danger";
+      }
+    } else { // RDA
+      if (pct < 90) {
+        status = "Có thể thiếu";
+        note = "Dưới RDA, nên đánh giá bổ sung.";
+        cls = "danger";
+      } else if (pct <= 150) {
+        status = "Đủ";
+        note = "Trong khoảng hợp lý quanh RDA.";
+        cls = "success";
+      } else {
+        status = "Hơi cao";
+        note = "Vượt khá nhiều RDA, chú ý không lạm dụng bổ sung.";
+        cls = "warning";
+      }
+    }
+
+    return { status, note, pct, cls };
+  }
+
+  function renderMicroTables() {
+    const vitBody = document.getElementById("vitaminBody");
+    const minBody = document.getElementById("mineralBody");
+    vitBody.innerHTML = "";
+    minBody.innerHTML = "";
+
+    microData.vitamins.forEach(item => {
+      const s = getMicroStatus(item);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${item.name}</td>
+        <td>${item.intake.toFixed(1)} ${item.unit}</td>
+        <td>${item.refLabel}</td>
+        <td>${s.pct.toFixed(0)}%</td>
+        <td>
+          <span class="status-pill ${s.cls}">${s.status}</span>
+          <div class="status-note">${s.note}</div>
+        </td>
+      `;
+      vitBody.appendChild(tr);
+    });
+
+    microData.minerals.forEach(item => {
+      const s = getMicroStatus(item);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${item.name}</td>
+        <td>${item.intake.toFixed(1)} ${item.unit}</td>
+        <td>${item.refLabel}</td>
+        <td>${s.pct.toFixed(0)}%</td>
+        <td>
+          <span class="status-pill ${s.cls}">${s.status}</span>
+          <div class="status-note">${s.note}</div>
+        </td>
+      `;
+      minBody.appendChild(tr);
+    });
+  }
+
+  function setupMicroTabs() {
+    const buttons = document.querySelectorAll(".tab-button");
+    const panels = document.querySelectorAll(".tab-panel");
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const target = btn.getAttribute("data-tab");
+        buttons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        panels.forEach(p => {
+          if (p.id === "tab-" + target) p.classList.add("active");
+          else p.classList.remove("active");
+        });
+      });
+    });
+  }
+
+  window.addEventListener("load", buildDashboard);
+</script>
+</body>
+</html>
